@@ -1,7 +1,7 @@
 buildscript {
   ext.AndroidHealthConnect = [
     kotlinVersion: "2.0.21",
-    minSdkVersion: 24,
+    minSdkVersion: 29,
     compileSdkVersion: 36,
     targetSdkVersion: 36
   ]
@@ -64,4 +64,10 @@ android {
 
 dependencies {
   implementation "com.facebook.react:react-android"
+
+  // Health Connect Jetpack library
+  implementation "androidx.health.connect:connect-client:1.1.0"
+
+  // Coroutines for async Health Connect API calls
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 }

@@ -1,2 +1,56 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- Health Connect data-type permissions.
+       These are merged into the host app's manifest at build time.
+       The host app must also list all permissions it uses in its own
+       AndroidManifest.xml so Health Connect can display them correctly. -->
+
+  <!-- Activity -->
+  <uses-permission android:name="android.permission.health.READ_STEPS" />
+  <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+  <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+  <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+  <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED" />
+  <uses-permission android:name="android.permission.health.WRITE_FLOORS_CLIMBED" />
+  <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED" />
+  <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED" />
+  <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+  <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+
+  <!-- Body measurements -->
+  <uses-permission android:name="android.permission.health.READ_HEIGHT" />
+  <uses-permission android:name="android.permission.health.WRITE_HEIGHT" />
+  <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+  <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
+  <uses-permission android:name="android.permission.health.READ_BODY_FAT" />
+  <uses-permission android:name="android.permission.health.WRITE_BODY_FAT" />
+
+  <!-- Vitals -->
+  <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.WRITE_RESTING_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.READ_RESPIRATORY_RATE" />
+  <uses-permission android:name="android.permission.health.WRITE_RESPIRATORY_RATE" />
+  <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
+  <uses-permission android:name="android.permission.health.WRITE_BLOOD_PRESSURE" />
+  <uses-permission android:name="android.permission.health.READ_BLOOD_GLUCOSE" />
+  <uses-permission android:name="android.permission.health.WRITE_BLOOD_GLUCOSE" />
+  <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION" />
+  <uses-permission android:name="android.permission.health.WRITE_OXYGEN_SATURATION" />
+  <uses-permission android:name="android.permission.health.READ_BODY_TEMPERATURE" />
+  <uses-permission android:name="android.permission.health.WRITE_BODY_TEMPERATURE" />
+
+  <!-- Sleep -->
+  <uses-permission android:name="android.permission.health.READ_SLEEP" />
+  <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
+
+  <!-- Nutrition -->
+  <uses-permission android:name="android.permission.health.READ_HYDRATION" />
+  <uses-permission android:name="android.permission.health.WRITE_HYDRATION" />
+
 </manifest>
