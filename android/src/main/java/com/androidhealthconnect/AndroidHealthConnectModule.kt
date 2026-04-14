@@ -231,7 +231,7 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     pendingPermissionPromise = null
   }
 
-  override fun onNewIntent(intent: Intent?) {}
+  override fun onNewIntent(intent: Intent) {}
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
