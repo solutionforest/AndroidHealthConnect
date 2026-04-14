@@ -3,7 +3,7 @@ package com.androidhealthconnect
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.*
 import androidx.health.connect.client.records.metadata.DataOrigin
-import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata as HealthMetadata
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.*
@@ -329,7 +329,7 @@ internal object RecordMapper {
     private fun parseZoneOffset(value: String?): ZoneOffset? =
         if (value.isNullOrEmpty()) null else ZoneOffset.of(value)
 
-    private fun metadataToJson(meta: Metadata): JSONObject =
+    private fun metadataToJson(meta: HealthMetadata): JSONObject =
         JSONObject().apply {
             put("id", meta.id)
             put("clientRecordId", meta.clientRecordId ?: JSONObject.NULL)
@@ -338,11 +338,14 @@ internal object RecordMapper {
             put("dataOrigin", meta.dataOrigin.packageName)
         }
 
-    private fun jsonToMetadata(json: JSONObject?): Metadata {
-        if (json == null) return Metadata()
-        return Metadata(
-            clientRecordId = json.optString("clientRecordId").ifEmpty { null }
-        )
+    private fun jsonToMetadata(json: JSONObject?): HealthMetadata {
+        if (json == null) return HealthMetadata.EMPTY
+        val clientRecordId = json.optString("clientRecordId").ifEmpty { null }
+        return if (clientRecordId != null) {
+            HealthMetadata.manualEntry(clientRecordId = clientRecordId)
+        } else {
+            HealthMetadata.EMPTY
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -695,10 +698,7 @@ internal object RecordMapper {
 
     private fun jsonToBodyTemperature(j: JSONObject) = BodyTemperatureRecord(
         temperature = Temperature.celsius(j.getDouble("temperature")),
-        measurementLocation = j.optInt(
-            "measurementLocation",
-            BodyTemperatureRecord.MEASUREMENT_LOCATION_UNKNOWN
-        ),
+        measurementLocation = j.optInt("measurementLocation", 0),
         time = parseInstant(j, "time"),
         zoneOffset = parseZoneOffset(j.optString("zoneOffset")),
         metadata = jsonToMetadata(j.optJSONObject("metadata"))
