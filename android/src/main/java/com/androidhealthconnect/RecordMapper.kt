@@ -339,9 +339,12 @@ internal object RecordMapper {
         }
 
     private fun jsonToMetadata(json: JSONObject?): HealthMetadata {
-        if (json == null) return HealthMetadata.manualEntry()
-        val clientRecordId = json.optString("clientRecordId").ifEmpty { null }
-        return HealthMetadata.manualEntry(clientRecordId = clientRecordId)
+        val clientRecordId = json?.optString("clientRecordId")?.ifEmpty { null }
+        return if (clientRecordId != null) {
+            HealthMetadata.manualEntry(clientRecordId = clientRecordId)
+        } else {
+            HealthMetadata.manualEntry()
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
