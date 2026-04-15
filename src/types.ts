@@ -59,6 +59,12 @@ export type RecordMetadata = {
   clientRecordVersion?: number;
   lastModifiedTime?: string; // ISO 8601
   dataOrigin?: string; // package name of the writing app
+  /**
+   * How the record was recorded. Compare against `RecordingMethod` constants.
+   * Use `RecordingMethod.MANUAL_ENTRY` to detect user-typed data regardless
+   * of which app (Health Connect, Google Fit, Samsung Health, etc.) wrote it.
+   */
+  recordingMethod?: number;
 };
 
 export type TimeRangeFilter = {
@@ -440,4 +446,20 @@ export const ExerciseType = {
   WEIGHTLIFTING: 70,
   WHEEL_CHAIR: 71,
   YOGA: 72,
+} as const;
+
+// ─── RecordingMethod constants ────────────────────────────────────────────────
+
+export const RecordingMethod = {
+  UNKNOWN: 0,
+  /** Data was actively recorded by a sensor or wearable device. */
+  ACTIVELY_RECORDED: 1,
+  /** Data was inferred or recorded automatically in the background. */
+  AUTOMATICALLY_RECORDED: 2,
+  /**
+   * Data was manually entered by the user.
+   * This is true regardless of which app was used (Health Connect, Google Fit,
+   * Samsung Health, etc.).
+   */
+  MANUAL_ENTRY: 3,
 } as const;

@@ -336,6 +336,7 @@ internal object RecordMapper {
             put("clientRecordVersion", meta.clientRecordVersion)
             put("lastModifiedTime", meta.lastModifiedTime.toString())
             put("dataOrigin", meta.dataOrigin.packageName)
+            put("recordingMethod", meta.recordingMethod)
         }
 
     private fun jsonToMetadata(json: JSONObject?): HealthMetadata {
