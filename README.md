@@ -20,7 +20,42 @@ npm install android-health-connect
 yarn add android-health-connect
 ```
 
-### Android setup
+### Expo setup
+
+If you are using **Expo** (SDK 50+), add the library's config plugin to your `app.json` or `app.config.js`. The plugin automatically handles adding the required Health Connect intent filters to your Android manifest.
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "android-health-connect",
+        {
+          "permissions": [
+            "android.permission.health.READ_STEPS",
+            "android.permission.health.WRITE_STEPS",
+            "android.permission.health.READ_HEART_RATE"
+          ]
+        }
+      ]
+    ]
+  }
+}
+```
+
+If you omit the options object (or the `permissions` array), all permissions supported by the library are declared:
+
+```json
+{
+  "expo": {
+    "plugins": ["android-health-connect"]
+  }
+}
+```
+
+After updating `app.json`, run `npx expo prebuild` to regenerate the native Android project.
+
+### Android setup (bare React Native)
 
 #### 1. Declare permissions in your app's `AndroidManifest.xml`
 
@@ -35,15 +70,18 @@ Health Connect requires every permission your app uses to be declared in the **h
   <!-- ... other permissions ... -->
 
   <application ...>
-    <!-- Required: tells Health Connect which permissions this app uses -->
     <activity android:name=".MainActivity" ...>
-      ...
-    </activity>
+      <!-- Required for Health Connect permission rationale (Android ≤ 13) -->
+      <intent-filter>
+        <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+      </intent-filter>
 
-    <!-- Required for Health Connect permission rationale -->
-    <activity
-      android:name="androidx.health.connect.client.permission.HealthDataRequestPermissionsInternal"
-      android:exported="false" />
+      <!-- Required for Health Connect permission UI (Android 14+) -->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+        <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+      </intent-filter>
+    </activity>
   </application>
 </manifest>
 ```
