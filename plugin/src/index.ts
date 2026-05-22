@@ -7,65 +7,10 @@ import {
 
 const pkg = require('../../package.json') as { name: string; version: string };
 
-/**
- * All Health Connect permissions supported by the library.
- * Used as the default when no explicit list is provided.
- */
-const ALL_PERMISSIONS: string[] = [
-  // Activity
-  'android.permission.health.READ_STEPS',
-  'android.permission.health.WRITE_STEPS',
-  'android.permission.health.READ_ACTIVE_CALORIES_BURNED',
-  'android.permission.health.WRITE_ACTIVE_CALORIES_BURNED',
-  'android.permission.health.READ_TOTAL_CALORIES_BURNED',
-  'android.permission.health.WRITE_TOTAL_CALORIES_BURNED',
-  'android.permission.health.READ_DISTANCE',
-  'android.permission.health.WRITE_DISTANCE',
-  'android.permission.health.READ_FLOORS_CLIMBED',
-  'android.permission.health.WRITE_FLOORS_CLIMBED',
-  'android.permission.health.READ_ELEVATION_GAINED',
-  'android.permission.health.WRITE_ELEVATION_GAINED',
-  'android.permission.health.READ_EXERCISE',
-  'android.permission.health.WRITE_EXERCISE',
-  // Body measurements
-  'android.permission.health.READ_HEIGHT',
-  'android.permission.health.WRITE_HEIGHT',
-  'android.permission.health.READ_WEIGHT',
-  'android.permission.health.WRITE_WEIGHT',
-  'android.permission.health.READ_BODY_FAT',
-  'android.permission.health.WRITE_BODY_FAT',
-  // Vitals
-  'android.permission.health.READ_HEART_RATE',
-  'android.permission.health.WRITE_HEART_RATE',
-  'android.permission.health.READ_RESTING_HEART_RATE',
-  'android.permission.health.WRITE_RESTING_HEART_RATE',
-  'android.permission.health.READ_RESPIRATORY_RATE',
-  'android.permission.health.WRITE_RESPIRATORY_RATE',
-  'android.permission.health.READ_BLOOD_PRESSURE',
-  'android.permission.health.WRITE_BLOOD_PRESSURE',
-  'android.permission.health.READ_BLOOD_GLUCOSE',
-  'android.permission.health.WRITE_BLOOD_GLUCOSE',
-  'android.permission.health.READ_OXYGEN_SATURATION',
-  'android.permission.health.WRITE_OXYGEN_SATURATION',
-  'android.permission.health.READ_BODY_TEMPERATURE',
-  'android.permission.health.WRITE_BODY_TEMPERATURE',
-  // Sleep
-  'android.permission.health.READ_SLEEP',
-  'android.permission.health.WRITE_SLEEP',
-  // Nutrition
-  'android.permission.health.READ_HYDRATION',
-  'android.permission.health.WRITE_HYDRATION',
-];
-
 export type AndroidHealthConnectPluginOptions = {
   /**
-   * Subset of Health Connect permissions to declare in the Android manifest.
-   * Defaults to all permissions supported by the library.
-   *
-   * Note: the library's native manifest already declares all permissions and
-   * they are merged at build time. Use this option to explicitly declare only
-   * the permissions your app actually uses, which improves transparency to
-   * users in the Health Connect UI.
+   * Health Connect permissions to declare in the host app's manifest.
+   * Defaults to an empty array — you should list only the permissions your app uses.
    *
    * @example
    * ["android.permission.health.READ_STEPS", "android.permission.health.WRITE_STEPS"]
@@ -130,14 +75,12 @@ function addMainActivityIntentFilter(
 const withAndroidHealthConnect: ConfigPlugin<
   AndroidHealthConnectPluginOptions | void
 > = (config, options) => {
-  const permissions = options?.permissions ?? ALL_PERMISSIONS;
+  const permissions = options?.permissions ?? [];
 
   return withAndroidManifest(config, (modConfig) => {
     const androidManifest = modConfig.modResults;
 
-    // Declare the Health Connect permissions in the host app's manifest.
-    // While the library's own AndroidManifest.xml is merged at build time,
-    // explicit declaration here lets users control which permissions to include.
+    // Only add permissions explicitly requested by the host app.
     for (const permission of permissions) {
       ensurePermission(androidManifest, permission);
     }
