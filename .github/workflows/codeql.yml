@@ -1,10 +1,8 @@
 name: CodeQL
 
+# Disabled on pull_request/push until GitHub Advanced Security is enabled
+# for this private repo (code scanning upload otherwise fails the check).
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
@@ -17,7 +15,6 @@ jobs:
   analyze:
     name: Analyze
     runs-on: self-hosted
-    # Private repos need GitHub Advanced Security for code scanning uploads.
     continue-on-error: true
     permissions:
       security-events: write
