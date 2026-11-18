@@ -36,7 +36,7 @@
   ],
   "scripts": {
     "example": "yarn workspace android-health-connect-example",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
+    "clean": "del-cli android/build example/android/build example/android/app/build lib",
     "prepare": "bob build && tsc -p plugin/tsconfig.json",
     "plugin:build": "tsc -p plugin/tsconfig.json",
     "typecheck": "tsc",
