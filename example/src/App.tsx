@@ -19,7 +19,7 @@ import {
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
-} from 'android-health-connect';
+} from '@solutionforest/android-health-connect';
 
 export default function App() {
   const [availability, setAvailability] =

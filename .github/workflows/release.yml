@@ -1,0 +1,107 @@
+name: Release
+
+# Build, attach GitHub Release .tgz, and publish to GitHub Packages
+# (npm.pkg.github.com). Does NOT publish to registry.npmjs.org.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build/upload/publish (e.g. v0.3.3). Leave empty to use package.json version.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, GitHub Release & Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.tag || github.ref) || github.ref }}
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Resolve version
+        id: meta
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          NAME="$(node -p "require('./package.json').name")"
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [[ -n "${{ inputs.tag }}" ]]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="v${VERSION}"
+          fi
+          # yarn pack replaces / with - but keeps @ in scoped package filenames
+          ASSET_NAME="${NAME//\//-}-${VERSION}.tgz"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "asset=${ASSET_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag=${TAG} name=${NAME} version=${VERSION} asset=${ASSET_NAME}"
+
+      - name: Build package (bob + plugin)
+        run: yarn prepare
+
+      - name: Pack tarball
+        run: |
+          set -euo pipefail
+          yarn pack --out "${{ steps.meta.outputs.asset }}"
+          ls -lh "${{ steps.meta.outputs.asset }}"
+
+      - name: Ensure GitHub Release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists"
+          else
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --generate-notes \
+              --verify-tag \
+              --latest=false
+          fi
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          ASSET="${{ steps.meta.outputs.asset }}"
+          gh release upload "$TAG" "$ASSET" --clobber
+          echo "Uploaded ${ASSET} to ${TAG}"
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "@solutionforest:registry=https://npm.pkg.github.com"
+            echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}"
+          } > .npmrc
+          # Maintenance line: keep `latest` dist-tag on main's 0.3.x.
+          npm publish --access public --tag release-0.2 --registry=https://npm.pkg.github.com
+          echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to GitHub Packages (dist-tag release-0.2)"

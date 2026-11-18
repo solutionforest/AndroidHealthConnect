@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "android-health-connect": ["./src/index"]
+      "@solutionforest/android-health-connect": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

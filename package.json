@@ -1,6 +1,6 @@
 {
-  "name": "android-health-connect",
-  "version": "0.2.3",
+  "name": "@solutionforest/android-health-connect",
+  "version": "0.2.4",
   "description": "An intermediate connection between React Native App and Health Connect",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -60,7 +60,8 @@
   },
   "homepage": "https://github.com/solutionforest/AndroidHealthConnect#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
@@ -85,7 +86,7 @@
     "react-native": "0.84.1",
     "react-native-builder-bob": "^0.40.18",
     "release-it": "^19.0.4",
-    "turbo": "^2.5.6",
+    "turbo": "^2.9.14",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
@@ -159,7 +160,11 @@
       "publish": false
     },
     "github": {
-      "release": true
+      "release": true,
+      "releaseName": "v${version}",
+      "comments": {
+        "submit": false
+      }
     },
     "plugins": {
       "@release-it/conventional-changelog": {
@@ -179,5 +184,38 @@
       "release-it"
     ],
     "version": "0.57.2"
+  },
+  "resolutions": {
+    "handlebars": "^4.7.10",
+    "shell-quote": "^1.9.0",
+    "tar": "^7.5.21",
+    "@xmldom/xmldom": "^0.8.15",
+    "undici": "^6.29.1",
+    "fast-uri": "^3.1.9",
+    "brace-expansion@^1.1.7": "^1.1.21",
+    "brace-expansion@^2.0.2": "^2.1.7",
+    "brace-expansion@^5.0.5": "^5.0.12",
+    "js-yaml@^3.13.1": "^3.15.2",
+    "js-yaml@^4.1.0": "^4.3.2",
+    "js-yaml@^4.1.1": "^4.3.2",
+    "ws@^6.2.3": "^6.2.4",
+    "ws@^7": "^7.5.11",
+    "ws@^7.5.10": "^7.5.11",
+    "body-parser": "^1.20.9",
+    "compression": "^1.8.2",
+    "browserslist": "^4.28.7",
+    "ip-address": "^10.7.1",
+    "launch-editor": "^2.14.2",
+    "@babel/plugin-transform-modules-systemjs": "^7.29.4",
+    "@babel/core": "^7.29.6",
+    "qs": "^6.16.1",
+    "baseline-browser-mapping": "^2.11.0",
+    "@humanfs/node": "^0.16.8",
+    "zod": "^4.6.6",
+    "basic-ftp": "^6.2.4",
+    "uuid@^7.0.3": "^11.1.1",
+    "minimatch@^10.2.2": "^11.0.1",
+    "fast-xml-parser": "^5.12.0",
+    "glob@^10.5.0": "^13.0.6"
   }
 }
