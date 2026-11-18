@@ -17,6 +17,8 @@ jobs:
   analyze:
     name: Analyze
     runs-on: self-hosted
+    # Private repos need GitHub Advanced Security for code scanning uploads.
+    continue-on-error: true
     permissions:
       security-events: write
       contents: read
