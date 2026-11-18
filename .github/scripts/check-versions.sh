@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Checks library release drift and Health Connect SDK freshness.
-# Creates / updates a GitHub issue when an upgrade is recommended (提醒).
+# Short check: library release drift + Health Connect SDK (connect-client) on Maven.
+# Opens / updates a GitHub issue when an upgrade is recommended.
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:-solutionforest/AndroidHealthConnect}"
 ISSUE_LABEL="upgrade-reminder"
 ISSUE_TITLE="Upgrade reminder: newer versions available"
+CHANGELOG_URL="https://developer.android.com/jetpack/androidx/releases/health-connect"
+MAVEN_META_URL="https://dl.google.com/dl/android/maven2/androidx/health/connect/connect-client/maven-metadata.xml"
 
 echo "::group::Collect current versions"
 PACKAGE_VERSION="$(node -p "require('./package.json').version")"
@@ -25,89 +27,85 @@ LATEST_URL="$(node -e "const d=JSON.parse(process.argv[1]||'{}'); process.stdout
 echo "latest GitHub release: ${LATEST_TAG:-none}"
 echo "::endgroup::"
 
-echo "::group::Fetch latest connect-client from Google Maven"
-MAVEN_META_URL="https://dl.google.com/dl/android/maven2/androidx/health/connect/connect-client/maven-metadata.xml"
+echo "::group::Fetch connect-client from Google Maven"
 MAVEN_XML="$(curl -fsSL "$MAVEN_META_URL")"
-LATEST_CONNECT="$(
+# Prefer <latest> (includes alphas). Fall back to <release>, then last <version>.
+MAVEN_INFO="$(
   node -e '
     const xml = process.argv[1];
-    const release = (xml.match(/<release>([^<]+)<\/release>/) || [])[1];
-    const latest = (xml.match(/<latest>([^<]+)<\/latest>/) || [])[1];
-    process.stdout.write(release || latest || "");
+    const latestTag = (xml.match(/<latest>([^<]+)<\/latest>/) || [])[1] || "";
+    const releaseTag = (xml.match(/<release>([^<]+)<\/release>/) || [])[1] || "";
+    const versions = [...xml.matchAll(/<version>([^<]+)<\/version>/g)].map((m) => m[1]);
+    const pick = latestTag || releaseTag || versions[versions.length - 1] || "";
+    const recent = versions.slice(-5).reverse();
+    process.stdout.write(JSON.stringify({ pick, releaseTag, latestTag, recent }));
   ' "$MAVEN_XML"
 )"
-echo "latest connect-client on Maven: ${LATEST_CONNECT:-unknown}"
+LATEST_CONNECT="$(node -e "process.stdout.write(JSON.parse(process.argv[1]).pick||'')" "$MAVEN_INFO")"
+RECENT_CONNECT="$(node -e "process.stdout.write((JSON.parse(process.argv[1]).recent||[]).join(', '))" "$MAVEN_INFO")"
+echo "Maven latest connect-client: ${LATEST_CONNECT:-unknown}"
+echo "Recent: ${RECENT_CONNECT}"
 echo "::endgroup::"
-
-compare_semver() {
-  node -e '
-    const normalize = (v) => String(v || "").replace(/^v/, "").split("-")[0].split(".").map((n) => parseInt(n, 10) || 0);
-    const a = normalize(process.argv[1]);
-    const b = normalize(process.argv[2]);
-    const len = Math.max(a.length, b.length);
-    for (let i = 0; i < len; i++) {
-      const av = a[i] || 0;
-      const bv = b[i] || 0;
-      if (av > bv) process.exit(1);
-      if (av < bv) process.exit(2);
-    }
-    process.exit(0);
-  ' "$1" "$2"
-  return $?
-}
 
 NOTES=()
 NEEDS_REMINDER=0
 
 if [[ -n "$LATEST_TAG" ]]; then
-  set +e
-  compare_semver "$PACKAGE_VERSION" "$LATEST_TAG"
-  CMP=$?
-  set -e
-  if [[ $CMP -eq 2 ]]; then
+  if [[ "$PACKAGE_VERSION" != "$LATEST_TAG" ]]; then
     NEEDS_REMINDER=1
-    NOTES+=("- Library: package.json is \`${PACKAGE_VERSION}\`, latest GitHub release is \`${LATEST_TAG}\`. Please bump / release sync. ${LATEST_URL}")
-  elif [[ "$PACKAGE_VERSION" != "$LATEST_TAG" ]]; then
-    # Pre-release / unequal tags still worth a nudge when not equal
-    NOTES+=("- Library: package.json (\`${PACKAGE_VERSION}\`) differs from latest release tag (\`${LATEST_TAG}\`). ${LATEST_URL}")
-    NEEDS_REMINDER=1
+    NOTES+=("- **Library:** \`package.json\` is \`${PACKAGE_VERSION}\`, latest GitHub release is \`${LATEST_TAG}\`. ${LATEST_URL}")
   else
-    NOTES+=("- Library: package.json matches latest release (\`${PACKAGE_VERSION}\`).")
+    NOTES+=("- **Library:** matches latest release (\`${PACKAGE_VERSION}\`).")
   fi
 else
-  NOTES+=("- Library: no GitHub release found to compare.")
+  NOTES+=("- **Library:** no GitHub release found to compare.")
 fi
 
 if [[ -n "$LATEST_CONNECT" && -n "$CONNECT_CLIENT_VERSION" ]]; then
   if [[ "$CONNECT_CLIENT_VERSION" != "$LATEST_CONNECT" ]]; then
     NEEDS_REMINDER=1
-    NOTES+=("- Health Connect SDK: using \`${CONNECT_CLIENT_VERSION}\`, Maven latest is \`${LATEST_CONNECT}\`. Consider upgrading \`android/build.gradle\`.")
+    NOTES+=("- **Health Connect SDK:** \`android/build.gradle\` uses \`connect-client:${CONNECT_CLIENT_VERSION}\`; Maven latest is \`${LATEST_CONNECT}\`.")
+    NOTES+=("  - Changelog: ${CHANGELOG_URL}")
+    NOTES+=("  - Recent Maven versions: ${RECENT_CONNECT}")
   else
-    NOTES+=("- Health Connect SDK: up to date (\`${CONNECT_CLIENT_VERSION}\`).")
+    NOTES+=("- **Health Connect SDK:** up to date (\`${CONNECT_CLIENT_VERSION}\`).")
   fi
 fi
 
 BODY="$(printf '%s\n' \
-  '## Upgrade reminder / 升级提醒' \
+  '## Upgrade reminder' \
   '' \
-  'Automated weekly check found version drift.' \
+  'Short scheduled check found version drift.' \
   '' \
   "${NOTES[@]}" \
   '' \
   '### Suggested actions' \
-  '1. Review release notes and changelog.' \
-  '2. Upgrade dependencies / bump library version as needed.' \
-  '3. Advise app consumers to upgrade when a new library release is published.' \
+  '1. Read the [Health Connect release notes]('"${CHANGELOG_URL}"').' \
+  '2. Bump `connect-client` in `android/build.gradle` (and `release/0.2.x` if the stable line should move).' \
+  '3. Cut a library release and tell app consumers to upgrade.' \
   '' \
   "Detected at: $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   '' \
-  '_This issue is maintained by `.github/workflows/version-check.yml`._'
+  '_Maintained by `.github/workflows/version-check.yml`._'
 )"
 
 echo "::group::Summary"
 printf '%s\n' "${NOTES[@]}"
 echo "needs_reminder=${NEEDS_REMINDER}"
 echo "::endgroup::"
+
+# Always emit a short job summary for the Actions UI.
+{
+  echo "## Version check"
+  printf '%s\n' "${NOTES[@]}"
+  if [[ "$NEEDS_REMINDER" -eq 0 ]]; then
+    echo
+    echo "✅ No upgrade needed."
+  else
+    echo
+    echo "⚠️ Reminder issue will be opened/updated."
+  fi
+} >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
 
 if [[ "$NEEDS_REMINDER" -eq 0 ]]; then
   echo "All checked versions look current. Closing any open reminder issue."
@@ -121,8 +119,8 @@ fi
 EXISTING="$(gh issue list -R "$REPO" --label "$ISSUE_LABEL" --state open --json number --jq '.[0].number // empty')"
 if [[ -n "$EXISTING" ]]; then
   echo "Updating existing issue #${EXISTING}"
-  gh issue comment -R "$REPO" "$EXISTING" --body "$BODY"
   gh issue edit -R "$REPO" "$EXISTING" --title "$ISSUE_TITLE" --body "$BODY"
+  gh issue comment -R "$REPO" "$EXISTING" --body "$BODY"
 else
   echo "Creating new upgrade-reminder issue"
   gh label create "$ISSUE_LABEL" -R "$REPO" --description "Automated upgrade reminders" --color "FBCA04" 2>/dev/null || true

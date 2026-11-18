@@ -21,7 +21,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Bare React Native | ✅ Supported | Manual manifest + rationale setup |
 | Health Connect permissions | ✅ Supported | Request / check / revoke |
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
-| Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI issue |
+| Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI | ✅ GitHub-hosted | `ubuntu-latest` — lint, typecheck, Jest, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
 | CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
@@ -357,7 +357,7 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: CI, CodeQL, Release, and the weekly version-check Action run on **GitHub-hosted** `ubuntu-latest` runners. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Tag `v*` to upload a Release `.tgz` and publish `@solutionforest/android-health-connect` to GitHub Packages (not npmjs.org).
+Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on **GitHub-hosted** `ubuntu-latest` runners (Monday 08:00 UTC). That job compares `connect-client` to Google Maven and the library to the latest GitHub Release, then opens/updates an `upgrade-reminder` issue when something is behind (also runnable via **Actions → Version check → Run workflow**). To change cadence, edit the cron in `.github/workflows/version-check.yml` (`daily` / `weekly` / `bi-weekly` examples are in the file comments). Tag `v*` to upload a Release `.tgz` and publish `@solutionforest/android-health-connect` to GitHub Packages (not npmjs.org).
 
 ## API reference
 

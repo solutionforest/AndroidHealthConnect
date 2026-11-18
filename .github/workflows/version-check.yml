@@ -1,8 +1,16 @@
 name: Version check
 
+# Short check: library release vs GitHub + Health Connect connect-client vs Maven.
+# Opens/updates an `upgrade-reminder` issue when something is behind.
+#
+# Cadence (pick one cron):
+#   daily:     0 8 * * *
+#   weekly:    0 8 * * 1          ← current
+#   bi-weekly: 0 8 1,15 * *
+
 on:
   schedule:
-    # Every Monday 08:00 UTC
+    # Weekly — Monday 08:00 UTC
     - cron: '0 8 * * 1'
   workflow_dispatch:
 
@@ -12,7 +20,7 @@ concurrency:
 
 jobs:
   check:
-    name: Check upstream & library versions
+    name: Check HC SDK & library versions
     runs-on: ubuntu-latest
     permissions:
       contents: read
