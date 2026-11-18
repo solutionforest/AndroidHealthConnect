@@ -111,16 +111,20 @@ jobs:
       - name: Resolve Android SDK path
         if: env.turbo_cache_hit != 1
         run: |
-          if [[ -n "${ANDROID_HOME:-}" ]]; then
+          # Empty proxy strings break sdkmanager / setup-android on this runner.
+          unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy || true
+
+          if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME}" ]]; then
             echo "Using existing ANDROID_HOME=${ANDROID_HOME}"
             exit 0
           fi
-          if [[ -n "${ANDROID_SDK_ROOT:-}" ]]; then
+          if [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT}" ]]; then
             echo "ANDROID_HOME=${ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
             echo "Mapped ANDROID_SDK_ROOT → ANDROID_HOME"
             exit 0
           fi
           for candidate in \
+            "${HOME}/.android/sdk" \
             "${HOME}/Android/Sdk" \
             /opt/android-sdk \
             /usr/lib/android-sdk \
@@ -135,25 +139,33 @@ jobs:
           echo "sdk_missing=1" >> "$GITHUB_ENV"
           echo "No Android SDK found; will install via setup-android"
 
-      - name: Setup Android SDK
+      - name: Require Android SDK
         if: env.turbo_cache_hit != 1 && env.sdk_missing == 1
-        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        run: |
+          echo "Android SDK not found on self-hosted runner." >&2
+          echo "Install SDK and set ANDROID_HOME (expected: \$HOME/.android/sdk)." >&2
+          exit 1
 
       - name: Accept Android SDK licenses
         if: env.turbo_cache_hit != 1
         run: |
-          if [[ -z "${ANDROID_HOME:-}" ]]; then
-            echo "ANDROID_HOME is still unset after SDK setup" >&2
+          # Empty proxy strings on this runner break sdkmanager URL parsing.
+          unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy || true
+          if [[ -z "${ANDROID_HOME:-}" || ! -d "${ANDROID_HOME}" ]]; then
+            echo "ANDROID_HOME is still unset after SDK resolve" >&2
             exit 1
           fi
-          yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          # Some self-hosted layouts use cmdline-tools without "latest"
-          if [[ ! -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]]; then
+          SDKMANAGER=""
+          if [[ -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]]; then
+            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          else
             SDKMANAGER="$(find "${ANDROID_HOME}/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -1 || true)"
-            if [[ -n "$SDKMANAGER" ]]; then
-              yes | "$SDKMANAGER" --licenses >/dev/null || true
-            fi
           fi
+          if [[ -z "$SDKMANAGER" ]]; then
+            echo "sdkmanager not found under ${ANDROID_HOME}; continuing without license accept"
+            exit 0
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
 
       - name: Cache Gradle
         if: env.turbo_cache_hit != 1
@@ -170,4 +182,5 @@ jobs:
         env:
           JAVA_OPTS: "-XX:MaxHeapSize=6g"
         run: |
+          unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy || true
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
