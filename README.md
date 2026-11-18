@@ -214,6 +214,22 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 | `FloorsClimbed` | ✅ | ✅ |
 | `ElevationGained` | ✅ | ✅ |
 
+## Upgrade reminders
+
+Check GitHub Releases and show a reminder when a newer library version is available:
+
+```ts
+import { checkLibraryUpdate, LIBRARY_VERSION } from 'android-health-connect';
+
+const update = await checkLibraryUpdate();
+if (update.updateAvailable) {
+  console.warn(update.advice);
+  // e.g. show in-app banner: update.currentVersion → update.latestVersion
+}
+```
+
+Maintainers: a weekly GitHub Action (`.github/workflows/version-check.yml`) opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Set repo variable `QUALITY_RUNS_ON=self-hosted` to run CI/version checks on your self-hosted runner.
+
 ## API reference
 
 ### Availability
@@ -224,6 +240,8 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 | `openHealthConnectApp()` | `void` | Open HC app or Play Store |
 | `openHealthConnectSettings()` | `void` | Open HC settings |
 | `openHealthConnectDataManagement(pkg?)` | `void` | Open permission management |
+| `checkLibraryUpdate(options?)` | `Promise<LibraryUpdateInfo>` | Upgrade reminder vs GitHub Releases |
+| `LIBRARY_VERSION` | `string` | Current package version |
 
 ### Permissions
 

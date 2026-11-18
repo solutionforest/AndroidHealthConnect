@@ -1,0 +1,45 @@
+name: Version check
+
+on:
+  schedule:
+    # Every Monday 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Runner label (ubuntu-latest or self-hosted)'
+        required: false
+        default: 'ubuntu-latest'
+
+concurrency:
+  group: version-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check upstream & library versions
+    # Prefer workflow_dispatch input, then repo variable QUALITY_RUNS_ON, else ubuntu-latest.
+    # Set repository variable QUALITY_RUNS_ON=self-hosted to use your self-hosted server.
+    runs-on: ${{ inputs.runner || vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install ripgrep
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Check versions and open upgrade reminder
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bash .github/scripts/check-versions.sh

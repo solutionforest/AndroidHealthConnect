@@ -29,6 +29,8 @@ import type {
 } from './types';
 
 export * from './types';
+export { LIBRARY_VERSION, checkLibraryUpdate, compareSemver } from './upgrade';
+export type { CheckLibraryUpdateOptions, LibraryUpdateInfo } from './upgrade';
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 

@@ -1,6 +1,10 @@
 name: CI
 on:
-  workflow_dispatch: # disabled: trigger manually only
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,7 +12,8 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    # Set repository variable QUALITY_RUNS_ON=self-hosted to use your self-hosted server.
+    runs-on: ${{ vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
@@ -24,7 +29,7 @@ jobs:
         run: yarn typecheck
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
@@ -36,8 +41,24 @@ jobs:
       - name: Run unit tests
         run: yarn test --maxWorkers=2 --coverage
 
+  security-audit:
+    name: Security audit
+    runs-on: ${{ vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Audit dependencies (high+)
+        # Surfaces known advisories without blocking on transitive RN toolchain noise.
+        continue-on-error: true
+        run: yarn npm audit --recursive --all --severity high
+
   build-library:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout
