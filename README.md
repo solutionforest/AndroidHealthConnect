@@ -23,7 +23,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI issue |
 | CI | ✅ GitHub-hosted | `ubuntu-latest` — lint, typecheck, Jest, library + Android build, audit |
-| Distribution | ✅ GitHub Releases | Packaged `.tgz` assets — **not published to npm** |
+| Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
 | CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
 
 ## Requirements
@@ -32,20 +32,19 @@ Two release lines — pick by your AGP / Health Connect SDK:
 
 | Package | `connect-client` | Min AGP | Min `compileSdk` | Branch / tag |
 |---|---|---|---|---|
-| **[`0.3.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.2)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
+| **[`0.3.3`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.3)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
 | **[`0.2.3`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.3)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
-# From GitHub (preferred — see Installation)
-yarn add solutionforest/AndroidHealthConnect#v0.3.2   # AGP 9.1+ / compileSdk 37
-yarn add solutionforest/AndroidHealthConnect#v0.2.3   # AGP 8.9.1+ / compileSdk 36
+# GitHub Packages (see Installation for .npmrc)
+yarn add @solutionforest/android-health-connect@0.3.3   # AGP 9.1+ / compileSdk 37
 ```
 
-### What `0.3.2` (this branch) needs in your host app
+### What `0.3.3` (this branch) needs in your host app
 
-| Requirement | Value for `0.3.2` |
+| Requirement | Value for `0.3.3` |
 |---|---|
-| Install | GitHub tag `v0.3.2` or Release asset `.tgz` |
+| Install | `@solutionforest/android-health-connect` via GitHub Packages |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
 | Android Gradle Plugin | **9.1.1** (min **9.1.0**) |
 | Gradle | **9.3.1+** (required by AGP 9.1) |
@@ -73,31 +72,31 @@ JS API still covers the [19 record types](#supported-record-types) below. Alpha-
 
 ## Installation
 
-Releases are published on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)** only (no npm publish).
+Published to **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** (`npm.pkg.github.com`) and mirrored as a `.tgz` on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)**. Not published to npmjs.org.
 
-### Option A — install from git tag
+### 1. Point `@solutionforest` at GitHub Packages
+
+Add to your project `.npmrc` (or user `~/.npmrc`):
+
+```ini
+@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+```
+
+Use a classic PAT with `read:packages` (and SSO authorized for the `solutionforest` org if required).
+
+### 2. Install the package
 
 ```sh
 # Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
-yarn add solutionforest/AndroidHealthConnect#v0.3.2
+yarn add @solutionforest/android-health-connect@0.3.3
 # or
-npm install github:solutionforest/AndroidHealthConnect#v0.3.2
-
-# Maintenance (0.2.x): connect-client 1.1.0 stable — AGP 8.9.1+ / compileSdk 36
-yarn add solutionforest/AndroidHealthConnect#v0.2.3
+npm install @solutionforest/android-health-connect@0.3.3
 ```
 
-### Option B — install Release tarball
+Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.3`) or download the Release `.tgz`.
 
-Download `android-health-connect-*.tgz` from the [Releases](https://github.com/solutionforest/AndroidHealthConnect/releases) page, then:
-
-```sh
-yarn add ./android-health-connect-0.3.2.tgz
-# or
-npm install ./android-health-connect-0.3.2.tgz
-```
-
-Pushing a `v*` tag (or running the **Release** workflow) builds the package and uploads the `.tgz` asset automatically.
+Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, and `npm publish`es to GitHub Packages.
 
 ### Expo setup
 
@@ -108,7 +107,7 @@ If you are using **Expo** (SDK 50+), add the library's config plugin to your `ap
   "expo": {
     "plugins": [
       [
-        "android-health-connect",
+        "@solutionforest/android-health-connect",
         {
           "permissions": [
             "android.permission.health.READ_STEPS",
@@ -127,7 +126,7 @@ If you omit the options object (or the `permissions` array), all permissions sup
 ```json
 {
   "expo": {
-    "plugins": ["android-health-connect"]
+    "plugins": ["@solutionforest/android-health-connect"]
   }
 }
 ```
@@ -182,7 +181,7 @@ Create `res/values/health_permissions.xml`:
 ### Check availability
 
 ```ts
-import { isHealthConnectAvailable, openHealthConnectApp } from 'android-health-connect';
+import { isHealthConnectAvailable, openHealthConnectApp } from '@solutionforest/android-health-connect';
 
 const availability = await isHealthConnectAvailable();
 // 'available' | 'notInstalled' | 'notSupported'
@@ -195,7 +194,7 @@ if (availability === 'notInstalled') {
 ### Request permissions
 
 ```ts
-import { requestPermissions } from 'android-health-connect';
+import { requestPermissions } from '@solutionforest/android-health-connect';
 
 const granted = await requestPermissions([
   'android.permission.health.READ_STEPS',
@@ -209,7 +208,7 @@ console.log('Granted:', granted);
 ### Read records
 
 ```ts
-import { readSteps, readHeartRate } from 'android-health-connect';
+import { readSteps, readHeartRate } from '@solutionforest/android-health-connect';
 
 const { records, pageToken } = await readSteps({
   timeRangeFilter: {
@@ -226,8 +225,8 @@ records.forEach(r => console.log(r.count, r.startTime));
 Using the generic helper:
 
 ```ts
-import { readRecords } from 'android-health-connect';
-import type { WeightRecord } from 'android-health-connect';
+import { readRecords } from '@solutionforest/android-health-connect';
+import type { WeightRecord } from '@solutionforest/android-health-connect';
 
 const { records } = await readRecords<WeightRecord>('Weight', {
   timeRangeFilter: { startTime: '...', endTime: '...' },
@@ -237,7 +236,7 @@ const { records } = await readRecords<WeightRecord>('Weight', {
 ### Write records
 
 ```ts
-import { writeRecords } from 'android-health-connect';
+import { writeRecords } from '@solutionforest/android-health-connect';
 
 const { recordIdsList } = await writeRecords([
   {
@@ -257,7 +256,7 @@ const { recordIdsList } = await writeRecords([
 ### Delete records
 
 ```ts
-import { deleteRecordsByTime, deleteRecordsById } from 'android-health-connect';
+import { deleteRecordsByTime, deleteRecordsById } from '@solutionforest/android-health-connect';
 
 // By time range
 await deleteRecordsByTime('Steps', '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z');
@@ -295,7 +294,7 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 Check GitHub Releases and show a reminder when a newer library version is available:
 
 ```ts
-import { checkLibraryUpdate, LIBRARY_VERSION } from 'android-health-connect';
+import { checkLibraryUpdate, LIBRARY_VERSION } from '@solutionforest/android-health-connect';
 
 const update = await checkLibraryUpdate();
 if (update.updateAvailable) {
@@ -304,7 +303,7 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: CI, CodeQL, Release, and the weekly version-check Action run on **GitHub-hosted** `ubuntu-latest` runners. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Tag `v*` to build and attach a GitHub Release `.tgz` (npm is not used).
+Maintainers: CI, CodeQL, Release, and the weekly version-check Action run on **GitHub-hosted** `ubuntu-latest` runners. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Tag `v*` to upload a Release `.tgz` and publish `@solutionforest/android-health-connect` to GitHub Packages (not npmjs.org).
 
 ## API reference
 

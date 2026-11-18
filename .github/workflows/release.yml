@@ -1,7 +1,7 @@
 name: Release
 
-# Build the library and attach installable assets to a GitHub Release.
-# Does NOT publish to npm — install from the release tarball or git tag.
+# Build, attach GitHub Release .tgz, and publish to GitHub Packages
+# (npm.pkg.github.com). Does NOT publish to registry.npmjs.org.
 
 on:
   push:
@@ -10,12 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build/upload (e.g. v0.3.2). Leave empty to use package.json version.'
+        description: 'Existing tag to build/upload/publish (e.g. v0.3.3). Leave empty to use package.json version.'
         required: false
         type: string
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -23,7 +24,7 @@ concurrency:
 
 jobs:
   release:
-    name: Build & upload GitHub Release
+    name: Build, GitHub Release & Packages
     runs-on: ubuntu-latest
 
     steps:
@@ -41,6 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
+          NAME="$(node -p "require('./package.json').name")"
           if [[ "${{ github.event_name }}" == "push" ]]; then
             TAG="${GITHUB_REF_NAME}"
           elif [[ -n "${{ inputs.tag }}" ]]; then
@@ -48,19 +50,23 @@ jobs:
           else
             TAG="v${VERSION}"
           fi
+          # yarn pack %s replaces / with - in scoped names
+          SAFE_NAME="${NAME//@/}"
+          SAFE_NAME="${SAFE_NAME//\//-}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "asset=android-health-connect-${VERSION}.tgz" >> "$GITHUB_OUTPUT"
-          echo "Resolved tag=${TAG} version=${VERSION}"
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "asset=${SAFE_NAME}-${VERSION}.tgz" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag=${TAG} name=${NAME} version=${VERSION}"
 
       - name: Build package (bob + plugin)
         run: yarn prepare
 
-      - name: Pack tarball (no npm publish)
+      - name: Pack tarball
         run: |
           set -euo pipefail
-          yarn pack --out "android-health-connect-%v.tgz"
-          ls -lh "android-health-connect-${{ steps.meta.outputs.version }}.tgz"
+          yarn pack --out "%s-%v.tgz"
+          ls -lh "${{ steps.meta.outputs.asset }}"
 
       - name: Ensure GitHub Release exists
         env:
@@ -86,3 +92,15 @@ jobs:
           ASSET="${{ steps.meta.outputs.asset }}"
           gh release upload "$TAG" "$ASSET" --clobber
           echo "Uploaded ${ASSET} to ${TAG}"
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "@solutionforest:registry=https://npm.pkg.github.com"
+            echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}"
+          } > .npmrc
+          npm publish --access public --registry=https://npm.pkg.github.com
+          echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to GitHub Packages"

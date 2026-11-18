@@ -1,6 +1,6 @@
 {
-  "name": "android-health-connect",
-  "version": "0.3.2",
+  "name": "@solutionforest/android-health-connect",
+  "version": "0.3.3",
   "description": "An intermediate connection between React Native App and Health Connect",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -60,6 +60,7 @@
   },
   "homepage": "https://github.com/solutionforest/AndroidHealthConnect#readme",
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   },
   "devDependencies": {
