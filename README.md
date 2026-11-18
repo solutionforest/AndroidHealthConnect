@@ -28,48 +28,46 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 ## Requirements
 
-| Requirement | Minimum (this package) |
+**Current release [`0.3.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.2)** pins Jetpack Health Connect **`connect-client:1.2.0-alpha06`** (not stable `1.1.0`). That alpha forces a higher AGP / `compileSdk` floor than `1.1.0`.
+
+### What `0.3.2` needs in your host app
+
+| Requirement | Value for `0.3.2` |
 |---|---|
-| Android OS | 10 (API 29) |
-| compileSdk | **37** |
-| Android Gradle Plugin | **9.1.1** |
+| npm package | `android-health-connect@0.3.2` |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
+| Android Gradle Plugin | **9.1.1** (min **9.1.0**) |
+| Gradle | **9.3.1+** (required by AGP 9.1) |
+| compileSdk | **37** |
+| Android OS | 10 (API 29)+ |
 | Health Connect app | Required on Android 9–13; built-in on Android 14+ |
 | React Native | 0.84+ (New Architecture / TurboModules) |
 | Node.js | 22.11+ |
 
-### Health Connect SDK ↔ AGP compatibility
+### Health Connect SDK ↔ AGP matrix (Google AAR floors)
 
-Google’s `connect-client` AAR metadata enforces different toolchain floors. This package pins the **1.2** line, so host apps must meet the **1.2** row:
-
-| Health Connect SDK | Stable / channel | Min `compileSdk` | Min Android Gradle Plugin | Notes |
+| `connect-client` | Channel | Min AGP | Min `compileSdk` | Used by this library? |
 |---|---|---|---|---|
-| **`1.1.0`** | Stable | **36** | **8.9.1** | Documented in Google’s [Get started](https://developer.android.com/health-and-fitness/health-connect/get-started) guide |
-| **`1.2.0-alpha04`+** (incl. **alpha06**) | Alpha | **37** | **9.1.0** | Enforced via AAR metadata (`minCompileSdk` / `minAndroidGradlePluginVersion`) |
+| **`1.1.0`** | Stable | **8.9.1** | **36** | No (older pre-0.3.2 pin) |
+| **`1.2.0-alpha04`+** / **`1.2.0-alpha06`** | Alpha | **9.1.0** | **37** | **Yes — `0.3.2`** |
 
-**This library (`android-health-connect` ≥ 0.3.x)** ships **`connect-client:1.2.0-alpha06`**, so your app needs:
+Stay on AGP **8.9.x** / `compileSdk` **36** only if you use a library build still pinned to stable **`1.1.0`**. Current **`0.3.2`** cannot run there.
 
-- Android Gradle Plugin **9.1.1** (or at least **9.1.0+**)
-- `compileSdk` **37+**
-- Gradle **9.3.1+** (required by AGP 9.1)
+### Health Connect SDK changelog (context)
 
-If your host app must stay on **AGP 8.9.x** / `compileSdk` 36, you cannot consume this 1.2-based build — you would need a library release still pinned to stable **`connect-client:1.1.0`** (not published as a current line today).
-
-### Health Connect SDK notice (`1.1.0` → `1.2.0-alpha06`)
-
-Official release notes that matter for integrators ([full changelog](https://developer.android.com/jetpack/androidx/releases/health-connect)):
+Official notes ([full changelog](https://developer.android.com/jetpack/androidx/releases/health-connect)):
 
 | SDK version | Date | What changed |
 |---|---|---|
 | **1.2.0-alpha06** | 2026-08-26 | Updated Health Connect **release and dev signing certificates** |
-| **1.2.0-alpha05** | 2026-08-12 | Jetpack SDK `minSdk` lowered to **API 24**; secured Health Connect intents on Android &lt; 14; signature validation fix |
-| **1.2.0-alpha04** | 2026-04-22 | **Matchmaking APIs** (`checkIfMatchmakingIsPossible`, `createMatchmakingIntent`) to discover compatible data sources |
-| **1.2.0-alpha03** | 2026-03-25 | Richer **`ExerciseSessionRecord` / `ExerciseSegment`** fields; change-log `pageSize`; activity-intensity support |
-| **1.2.0-alpha02** | 2025-10-08 | Additional **device type** enums |
-| **1.2.0-alpha01** | 2025-07-30 | Backwards-compat for **skin temperature** & **mindfulness**; **activity intensity** API (Android 14+) |
-| **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` release |
+| **1.2.0-alpha05** | 2026-08-12 | Jetpack SDK `minSdk` → API 24; secured intents on Android &lt; 14; signature validation fix |
+| **1.2.0-alpha04** | 2026-04-22 | **Matchmaking APIs** |
+| **1.2.0-alpha03** | 2026-03-25 | Richer exercise fields; change-log `pageSize`; activity intensity |
+| **1.2.0-alpha02** | 2025-10-08 | Additional device type enums |
+| **1.2.0-alpha01** | 2025-07-30 | Skin temperature / mindfulness compat; activity intensity (Android 14+) |
+| **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` |
 
-**What this React Native package exposes today:** the [19 record types](#supported-record-types) below (same surface as before the SDK bump). New alpha-only APIs (matchmaking, mindfulness, skin temperature, activity intensity, PHR) are **not** wrapped in the JS API yet — watch [GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases) and the weekly upgrade-reminder issue when we add them.
+JS API still covers the [19 record types](#supported-record-types) below. Alpha-only APIs (matchmaking, mindfulness, skin temperature, activity intensity, PHR) are **not** wrapped yet.
 
 ## Installation
 
