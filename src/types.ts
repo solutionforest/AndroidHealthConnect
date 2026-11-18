@@ -47,6 +47,25 @@ export type HealthPermission =
   | 'android.permission.health.WRITE_FLOORS_CLIMBED'
   | 'android.permission.health.READ_ELEVATION_GAINED'
   | 'android.permission.health.WRITE_ELEVATION_GAINED'
+  | 'android.permission.health.READ_MINDFULNESS'
+  | 'android.permission.health.WRITE_MINDFULNESS'
+  | 'android.permission.health.READ_SKIN_TEMPERATURE'
+  | 'android.permission.health.WRITE_SKIN_TEMPERATURE'
+  | 'android.permission.health.READ_ACTIVITY_INTENSITY'
+  | 'android.permission.health.WRITE_ACTIVITY_INTENSITY'
+  | 'android.permission.health.WRITE_MEDICAL_DATA'
+  | 'android.permission.health.READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES'
+  | 'android.permission.health.READ_MEDICAL_DATA_CONDITIONS'
+  | 'android.permission.health.READ_MEDICAL_DATA_LABORATORY_RESULTS'
+  | 'android.permission.health.READ_MEDICAL_DATA_MEDICATIONS'
+  | 'android.permission.health.READ_MEDICAL_DATA_PERSONAL_DETAILS'
+  | 'android.permission.health.READ_MEDICAL_DATA_PRACTITIONER_DETAILS'
+  | 'android.permission.health.READ_MEDICAL_DATA_PREGNANCY'
+  | 'android.permission.health.READ_MEDICAL_DATA_PROCEDURES'
+  | 'android.permission.health.READ_MEDICAL_DATA_SOCIAL_HISTORY'
+  | 'android.permission.health.READ_MEDICAL_DATA_VACCINES'
+  | 'android.permission.health.READ_MEDICAL_DATA_VISITS'
+  | 'android.permission.health.READ_MEDICAL_DATA_VITAL_SIGNS'
   | (string & {}); // allow custom / future permissions
 
 // ─── Common ───────────────────────────────────────────────────────────────────
@@ -332,6 +351,53 @@ export type ElevationGainedRecord = {
   metadata?: RecordMetadata;
 };
 
+/** Requires FEATURE_MINDFULNESS_SESSION on the device. */
+export type MindfulnessSessionRecord = {
+  recordType: 'MindfulnessSession';
+  /** MindfulnessSessionType constant (0–5). */
+  mindfulnessSessionType: number;
+  startTime: string;
+  endTime: string;
+  title?: string | null;
+  notes?: string | null;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type SkinTemperatureDelta = {
+  time: string; // ISO 8601
+  /** Delta in Celsius degrees (−30 to 30). */
+  delta: number;
+};
+
+/** Requires FEATURE_SKIN_TEMPERATURE on the device. */
+export type SkinTemperatureRecord = {
+  recordType: 'SkinTemperature';
+  deltas: SkinTemperatureDelta[];
+  /** Optional baseline in Celsius. */
+  baseline?: number | null;
+  /** SkinTemperatureMeasurementLocation (0–3). */
+  measurementLocation?: number;
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+/** Requires FEATURE_ACTIVITY_INTENSITY on the device. */
+export type ActivityIntensityRecord = {
+  recordType: 'ActivityIntensity';
+  /** ActivityIntensityType: 0 = moderate, 1 = vigorous. */
+  activityIntensityType: number;
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
 // ─── Union & discriminant helpers ─────────────────────────────────────────────
 
 export type HealthRecord =
@@ -353,7 +419,10 @@ export type HealthRecord =
   | RestingHeartRateRecord
   | RespiratoryRateRecord
   | FloorsClimbedRecord
-  | ElevationGainedRecord;
+  | ElevationGainedRecord
+  | MindfulnessSessionRecord
+  | SkinTemperatureRecord
+  | ActivityIntensityRecord;
 
 export type RecordType = HealthRecord['recordType'];
 
@@ -463,3 +532,166 @@ export const RecordingMethod = {
    */
   MANUAL_ENTRY: 3,
 } as const;
+
+// ─── Feature availability (connect-client 1.1+ / 1.2 alpha) ───────────────────
+
+/**
+ * Feature names accepted by {@link getFeatureStatus}.
+ * Maps to `HealthConnectFeatures.FEATURE_*` on Android.
+ */
+export type HealthConnectFeature =
+  | 'activityIntensity'
+  | 'matchmaking'
+  | 'mindfulnessSession'
+  | 'personalHealthRecord'
+  | 'plannedExercise'
+  | 'readHealthDataHistory'
+  | 'readHealthDataInBackground'
+  | 'skinTemperature'
+  | 'extendedDeviceTypes'
+  | 'exerciseSessionImprovements';
+
+export type FeatureStatus = 'available' | 'unavailable';
+
+export const MindfulnessSessionType = {
+  UNKNOWN: 0,
+  MEDITATION: 1,
+  BREATHING: 2,
+  MUSIC: 3,
+  MOVEMENT: 4,
+  UNGUIDED: 5,
+} as const;
+
+export const SkinTemperatureMeasurementLocation = {
+  UNKNOWN: 0,
+  FINGER: 1,
+  TOE: 2,
+  WRIST: 3,
+} as const;
+
+export const ActivityIntensityType = {
+  MODERATE: 0,
+  VIGOROUS: 1,
+} as const;
+
+// ─── Matchmaking (experimental) ───────────────────────────────────────────────
+
+export type MatchmakingRequest = {
+  /**
+   * Record type names the app can read (e.g. `'Steps'`).
+   * Empty / omitted → all record types the app has read permission for.
+   */
+  recordTypes?: RecordType[];
+  /** Package names to exclusively include as data sources. */
+  includedDataSources?: string[];
+  /** Package names to exclude as data sources. */
+  excludedDataSources?: string[];
+};
+
+export type MatchmakingPossibleResponse = {
+  isMatchmakingPossible: boolean;
+};
+
+// ─── Personal Health Record / medical (experimental) ──────────────────────────
+
+export const MedicalResourceType = {
+  VACCINES: 1,
+  ALLERGIES_INTOLERANCES: 2,
+  PREGNANCY: 3,
+  SOCIAL_HISTORY: 4,
+  VITAL_SIGNS: 5,
+  LABORATORY_RESULTS: 6,
+  CONDITIONS: 7,
+  PROCEDURES: 8,
+  MEDICATIONS: 9,
+  PERSONAL_DETAILS: 10,
+  PRACTITIONER_DETAILS: 11,
+  VISITS: 12,
+} as const;
+
+export type FhirVersion = {
+  major: number;
+  minor: number;
+  patch: number;
+};
+
+export type MedicalDataSource = {
+  id: string;
+  displayName: string;
+  fhirBaseUri: string;
+  fhirVersion: FhirVersion;
+  packageName?: string;
+};
+
+export type CreateMedicalDataSourceRequest = {
+  displayName: string;
+  /** e.g. `https://example.com/fhir/` or `myapp://source`. */
+  fhirBaseUri: string;
+  fhirVersion: FhirVersion;
+};
+
+export type UpsertMedicalResourceRequest = {
+  dataSourceId: string;
+  fhirVersion: FhirVersion;
+  /** Valid FHIR resource JSON string. */
+  data: string;
+};
+
+export type MedicalResourceId = {
+  dataSourceId: string;
+  /** `FhirResource` type constant (int). */
+  fhirResourceType: number;
+  fhirResourceId: string;
+};
+
+export type FhirResource = {
+  /** `FhirResource` type constant (int). */
+  type: number;
+  id: string;
+  /** FHIR resource JSON string. */
+  data: string;
+};
+
+export type MedicalResource = {
+  type: number;
+  id: MedicalResourceId;
+  dataSourceId: string;
+  fhirVersion: FhirVersion;
+  fhirResource: FhirResource;
+};
+
+export type ReadMedicalResourcesRequest = {
+  /**
+   * Initial page: set `medicalResourceType`.
+   * Subsequent pages: set `pageToken` from the previous response.
+   */
+  medicalResourceType?: number;
+  medicalDataSourceIds?: string[];
+  pageSize?: number;
+  pageToken?: string | null;
+};
+
+export type ReadMedicalResourcesResponse = {
+  medicalResources: MedicalResource[];
+  nextPageToken?: string | null;
+};
+
+export type DeleteMedicalResourcesRequest = {
+  /** Delete by IDs (takes precedence when non-empty). */
+  ids?: MedicalResourceId[];
+  dataSourceIds?: string[];
+  medicalResourceTypes?: number[];
+};
+
+export type GetMedicalDataSourcesRequest = {
+  /**
+   * When set, fetch these data sources by ID
+   * (`HealthConnectClient.getMedicalDataSources(ids)`).
+   */
+  medicalDataSourceIds?: string[];
+  /**
+   * When IDs are omitted, filter by writing-app package names
+   * (`GetMedicalDataSourcesRequest`). Empty / omitted → all visible sources.
+   */
+  packageNames?: string[];
+};

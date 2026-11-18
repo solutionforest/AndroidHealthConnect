@@ -21,6 +21,12 @@ import {
   readRespiratoryRate,
   readFloorsClimbed,
   readElevationGained,
+  readMindfulnessSessions,
+  readSkinTemperature,
+  readActivityIntensity,
+  MindfulnessSessionType,
+  ActivityIntensityType,
+  SkinTemperatureMeasurementLocation,
 } from '../index';
 import type { HealthRecord, RecordType } from '../types';
 import type { Spec } from '../NativeAndroidHealthConnect';
@@ -40,6 +46,15 @@ jest.mock(
       writeRecords: jest.fn(),
       deleteRecordsByTime: jest.fn(),
       deleteRecordsById: jest.fn(),
+      getFeatureStatus: jest.fn(),
+      checkIfMatchmakingIsPossible: jest.fn(),
+      launchMatchmaking: jest.fn(),
+      createMedicalDataSource: jest.fn(),
+      deleteMedicalDataSourceWithData: jest.fn(),
+      getMedicalDataSources: jest.fn(),
+      upsertMedicalResources: jest.fn(),
+      readMedicalResources: jest.fn(),
+      deleteMedicalResources: jest.fn(),
     };
 
     return {
@@ -198,14 +213,44 @@ const RECORD_CASES: RecordCase[] = [
     sample: { recordType: 'ElevationGained', elevation: 40, ...interval },
     readHelper: readElevationGained,
   },
+  {
+    recordType: 'MindfulnessSession',
+    sample: {
+      recordType: 'MindfulnessSession',
+      mindfulnessSessionType: MindfulnessSessionType.MEDITATION,
+      title: 'Lake meditation',
+      ...interval,
+    },
+    readHelper: readMindfulnessSessions,
+  },
+  {
+    recordType: 'SkinTemperature',
+    sample: {
+      recordType: 'SkinTemperature',
+      deltas: [{ time: instant.time, delta: 0.2 }],
+      baseline: 33.5,
+      measurementLocation: SkinTemperatureMeasurementLocation.WRIST,
+      ...interval,
+    },
+    readHelper: readSkinTemperature,
+  },
+  {
+    recordType: 'ActivityIntensity',
+    sample: {
+      recordType: 'ActivityIntensity',
+      activityIntensityType: ActivityIntensityType.MODERATE,
+      ...interval,
+    },
+    readHelper: readActivityIntensity,
+  },
 ];
 
 beforeEach(() => jest.clearAllMocks());
 
 describe('Supported record types (README table)', () => {
-  it('covers all 19 documented record types', () => {
-    expect(RECORD_CASES).toHaveLength(19);
-    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(19);
+  it('covers all 22 documented record types', () => {
+    expect(RECORD_CASES).toHaveLength(22);
+    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(22);
   });
 
   describe.each(RECORD_CASES)(

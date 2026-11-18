@@ -69,7 +69,7 @@ Official notes ([full changelog](https://developer.android.com/jetpack/androidx/
 | **1.2.0-alpha01** | 2025-07-30 | Skin temperature / mindfulness compat; activity intensity (Android 14+) |
 | **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` |
 
-JS API still covers the [19 record types](#supported-record-types) below. Alpha-only APIs (matchmaking, mindfulness, skin temperature, activity intensity, PHR) are **not** wrapped yet.
+JS API covers the [22 record types](#supported-record-types) below, plus feature checks, Matchmaking, and Personal Health Record (PHR) helpers. Feature-gated types require `getFeatureStatus(...) === 'available'` on the device.
 
 ## Installation
 
@@ -271,27 +271,77 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 
 ## Supported record types
 
-| Record type | Read | Write |
-|---|---|---|
-| `Steps` | ✅ | ✅ |
-| `HeartRate` | ✅ | ✅ |
-| `SleepSession` | ✅ | ✅ |
-| `ActiveCaloriesBurned` | ✅ | ✅ |
-| `TotalCaloriesBurned` | ✅ | ✅ |
-| `Distance` | ✅ | ✅ |
-| `Weight` | ✅ | ✅ |
-| `Height` | ✅ | ✅ |
-| `BloodPressure` | ✅ | ✅ |
-| `BloodGlucose` | ✅ | ✅ |
-| `OxygenSaturation` | ✅ | ✅ |
-| `BodyTemperature` | ✅ | ✅ |
-| `BodyFat` | ✅ | ✅ |
-| `Hydration` | ✅ | ✅ |
-| `ExerciseSession` | ✅ | ✅ |
-| `RestingHeartRate` | ✅ | ✅ |
-| `RespiratoryRate` | ✅ | ✅ |
-| `FloorsClimbed` | ✅ | ✅ |
-| `ElevationGained` | ✅ | ✅ |
+| Record type | Read | Write | Notes |
+|---|---|---|---|
+| `Steps` | ✅ | ✅ | |
+| `HeartRate` | ✅ | ✅ | |
+| `SleepSession` | ✅ | ✅ | |
+| `ActiveCaloriesBurned` | ✅ | ✅ | |
+| `TotalCaloriesBurned` | ✅ | ✅ | |
+| `Distance` | ✅ | ✅ | |
+| `Weight` | ✅ | ✅ | |
+| `Height` | ✅ | ✅ | |
+| `BloodPressure` | ✅ | ✅ | |
+| `BloodGlucose` | ✅ | ✅ | |
+| `OxygenSaturation` | ✅ | ✅ | |
+| `BodyTemperature` | ✅ | ✅ | |
+| `BodyFat` | ✅ | ✅ | |
+| `Hydration` | ✅ | ✅ | |
+| `ExerciseSession` | ✅ | ✅ | |
+| `RestingHeartRate` | ✅ | ✅ | |
+| `RespiratoryRate` | ✅ | ✅ | |
+| `FloorsClimbed` | ✅ | ✅ | |
+| `ElevationGained` | ✅ | ✅ | |
+| `MindfulnessSession` | ✅ | ✅ | Requires `getFeatureStatus('mindfulnessSession')` |
+| `SkinTemperature` | ✅ | ✅ | Requires `getFeatureStatus('skinTemperature')` |
+| `ActivityIntensity` | ✅ | ✅ | Requires `getFeatureStatus('activityIntensity')` |
+
+### Feature-gated APIs
+
+```ts
+import {
+  getFeatureStatus,
+  checkIfMatchmakingIsPossible,
+  launchMatchmaking,
+  createMedicalDataSource,
+  upsertMedicalResources,
+  readMedicalResources,
+  MedicalResourceType,
+} from '@solutionforest/android-health-connect';
+
+// Feature availability (skin temperature, mindfulness, activity intensity, matchmaking, PHR, …)
+const skinTemp = await getFeatureStatus('skinTemperature'); // 'available' | 'unavailable'
+
+// Matchmaking (experimental) — discover apps/devices that can write data you can read
+if ((await getFeatureStatus('matchmaking')) === 'available') {
+  const { isMatchmakingPossible } = await checkIfMatchmakingIsPossible({
+    recordTypes: ['Steps', 'HeartRate'],
+  });
+  if (isMatchmakingPossible) {
+    await launchMatchmaking({ recordTypes: ['Steps', 'HeartRate'] });
+  }
+}
+
+// Personal Health Record / medical (experimental) — FHIR MedicalDataSource + MedicalResource
+if ((await getFeatureStatus('personalHealthRecord')) === 'available') {
+  const source = await createMedicalDataSource({
+    displayName: 'Clinic FHIR',
+    fhirBaseUri: 'https://example.com/fhir/',
+    fhirVersion: { major: 4, minor: 0, patch: 1 },
+  });
+  await upsertMedicalResources([
+    {
+      dataSourceId: source.id,
+      fhirVersion: source.fhirVersion,
+      data: JSON.stringify({ resourceType: 'AllergyIntolerance', id: '1', /* … */ }),
+    },
+  ]);
+  const page = await readMedicalResources({
+    medicalResourceType: MedicalResourceType.ALLERGIES_INTOLERANCES,
+    medicalDataSourceIds: [source.id],
+  });
+}
+```
 
 ## Upgrade reminders
 
@@ -340,7 +390,21 @@ Maintainers: CI, CodeQL, Release, and the weekly version-check Action run on **G
 | `deleteRecordsById(type, ids)` | `Promise<void>` | Delete by IDs |
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
-| *(and one per record type)* | | |
+| *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |
+
+### Features / Matchmaking / PHR
+
+| Function | Returns | Description |
+|---|---|---|
+| `getFeatureStatus(feature)` | `Promise<'available' \| 'unavailable'>` | Check HC feature flags |
+| `checkIfMatchmakingIsPossible(opts?)` | `Promise<{ isMatchmakingPossible }>` | Whether Matchmaking UI has candidates |
+| `launchMatchmaking(opts?)` | `Promise<boolean>` | Launch Matchmaking activity |
+| `createMedicalDataSource(req)` | `Promise<MedicalDataSource>` | Create FHIR data source |
+| `getMedicalDataSources(req?)` | `Promise<MedicalDataSource[]>` | List medical data sources |
+| `deleteMedicalDataSourceWithData(id)` | `Promise<void>` | Delete source + its resources |
+| `upsertMedicalResources(reqs)` | `Promise<MedicalResource[]>` | Insert/update FHIR resources |
+| `readMedicalResources(req)` | `Promise<ReadMedicalResourcesResponse>` | Paged medical resource read |
+| `deleteMedicalResources(req)` | `Promise<void>` | Delete by IDs or filters |
 
 ## Contributing
 

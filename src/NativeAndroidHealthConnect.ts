@@ -53,6 +53,44 @@ export interface Spec extends TurboModule {
     recordType: string,
     recordIds: ReadonlyArray<string>
   ): Promise<boolean>;
+
+  /**
+   * Checks whether a Health Connect feature is available on this device.
+   * @param feature - feature name (e.g. "skinTemperature", "matchmaking")
+   * @returns "available" | "unavailable"
+   */
+  getFeatureStatus(feature: string): Promise<string>;
+
+  /**
+   * Checks whether the Matchmaking UI can show relevant apps/devices.
+   * @param options - JSON-serialised MatchmakingRequest
+   */
+  checkIfMatchmakingIsPossible(options: string): Promise<string>;
+
+  /**
+   * Launches the Health Connect Matchmaking flow.
+   * Resolves true when the user finishes with RESULT_OK (at least one permission granted).
+   * @param options - JSON-serialised MatchmakingRequest
+   */
+  launchMatchmaking(options: string): Promise<boolean>;
+
+  /** Creates a MedicalDataSource. @param request JSON CreateMedicalDataSourceRequest */
+  createMedicalDataSource(request: string): Promise<string>;
+
+  /** Deletes a MedicalDataSource and all of its MedicalResources. */
+  deleteMedicalDataSourceWithData(id: string): Promise<boolean>;
+
+  /** Lists MedicalDataSources. @param request JSON GetMedicalDataSourcesRequest */
+  getMedicalDataSources(request: string): Promise<string>;
+
+  /** Upserts MedicalResources. @param requests JSON UpsertMedicalResourceRequest[] */
+  upsertMedicalResources(requests: string): Promise<string>;
+
+  /** Reads MedicalResources. @param request JSON ReadMedicalResourcesRequest */
+  readMedicalResources(request: string): Promise<string>;
+
+  /** Deletes MedicalResources by id or by type/data-source filter. */
+  deleteMedicalResources(request: string): Promise<boolean>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('AndroidHealthConnect');

@@ -26,6 +26,21 @@ import type {
   RespiratoryRateRecord,
   FloorsClimbedRecord,
   ElevationGainedRecord,
+  MindfulnessSessionRecord,
+  SkinTemperatureRecord,
+  ActivityIntensityRecord,
+  HealthConnectFeature,
+  FeatureStatus,
+  MatchmakingRequest,
+  MatchmakingPossibleResponse,
+  CreateMedicalDataSourceRequest,
+  MedicalDataSource,
+  GetMedicalDataSourcesRequest,
+  UpsertMedicalResourceRequest,
+  MedicalResource,
+  ReadMedicalResourcesRequest,
+  ReadMedicalResourcesResponse,
+  DeleteMedicalResourcesRequest,
 } from './types';
 
 export * from './types';
@@ -225,3 +240,112 @@ export const readFloorsClimbed = (options?: ReadRecordsOptions) =>
 
 export const readElevationGained = (options?: ReadRecordsOptions) =>
   readRecords<ElevationGainedRecord>('ElevationGained', options);
+
+export const readMindfulnessSessions = (options?: ReadRecordsOptions) =>
+  readRecords<MindfulnessSessionRecord>('MindfulnessSession', options);
+
+export const readSkinTemperature = (options?: ReadRecordsOptions) =>
+  readRecords<SkinTemperatureRecord>('SkinTemperature', options);
+
+export const readActivityIntensity = (options?: ReadRecordsOptions) =>
+  readRecords<ActivityIntensityRecord>('ActivityIntensity', options);
+
+// ─── Feature availability ─────────────────────────────────────────────────────
+
+/**
+ * Returns whether a Health Connect feature is available on this device.
+ * Prefer checking before using alpha-gated APIs (skin temperature, mindfulness,
+ * activity intensity, matchmaking, personal health record).
+ */
+export async function getFeatureStatus(
+  feature: HealthConnectFeature
+): Promise<FeatureStatus> {
+  const status = await NativeAndroidHealthConnect.getFeatureStatus(feature);
+  return status as FeatureStatus;
+}
+
+// ─── Matchmaking (experimental) ───────────────────────────────────────────────
+
+/**
+ * Returns whether the Matchmaking UI can show apps/devices that write data
+ * this app has permission to read. Requires FEATURE_MATCHMAKING.
+ */
+export async function checkIfMatchmakingIsPossible(
+  options: MatchmakingRequest = {}
+): Promise<MatchmakingPossibleResponse> {
+  const json = await NativeAndroidHealthConnect.checkIfMatchmakingIsPossible(
+    JSON.stringify(options)
+  );
+  return JSON.parse(json) as MatchmakingPossibleResponse;
+}
+
+/**
+ * Launches the Health Connect Matchmaking flow.
+ * Resolves `true` when the user finishes successfully (RESULT_OK).
+ * Requires FEATURE_MATCHMAKING and granted read permissions for the requested types.
+ */
+export async function launchMatchmaking(
+  options: MatchmakingRequest = {}
+): Promise<boolean> {
+  return NativeAndroidHealthConnect.launchMatchmaking(JSON.stringify(options));
+}
+
+// ─── Personal Health Record / medical (experimental) ──────────────────────────
+
+/** Creates a MedicalDataSource. Requires FEATURE_PERSONAL_HEALTH_RECORD. */
+export async function createMedicalDataSource(
+  request: CreateMedicalDataSourceRequest
+): Promise<MedicalDataSource> {
+  const json = await NativeAndroidHealthConnect.createMedicalDataSource(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as MedicalDataSource;
+}
+
+/** Deletes a MedicalDataSource and all MedicalResources written under it. */
+export async function deleteMedicalDataSourceWithData(
+  id: string
+): Promise<void> {
+  await NativeAndroidHealthConnect.deleteMedicalDataSourceWithData(id);
+}
+
+/** Lists MedicalDataSources visible to this app. */
+export async function getMedicalDataSources(
+  request: GetMedicalDataSourcesRequest = {}
+): Promise<MedicalDataSource[]> {
+  const json = await NativeAndroidHealthConnect.getMedicalDataSources(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as MedicalDataSource[];
+}
+
+/** Inserts or updates FHIR MedicalResources. */
+export async function upsertMedicalResources(
+  requests: UpsertMedicalResourceRequest[]
+): Promise<MedicalResource[]> {
+  const json = await NativeAndroidHealthConnect.upsertMedicalResources(
+    JSON.stringify(requests)
+  );
+  return JSON.parse(json) as MedicalResource[];
+}
+
+/**
+ * Reads MedicalResources by type (first page) or by pageToken (subsequent pages).
+ */
+export async function readMedicalResources(
+  request: ReadMedicalResourcesRequest
+): Promise<ReadMedicalResourcesResponse> {
+  const json = await NativeAndroidHealthConnect.readMedicalResources(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as ReadMedicalResourcesResponse;
+}
+
+/** Deletes MedicalResources by id list or by data-source / type filter. */
+export async function deleteMedicalResources(
+  request: DeleteMedicalResourcesRequest
+): Promise<void> {
+  await NativeAndroidHealthConnect.deleteMedicalResources(
+    JSON.stringify(request)
+  );
+}

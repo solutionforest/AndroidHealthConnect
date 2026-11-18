@@ -191,6 +191,33 @@ class RecordMapperTest {
             interval("ElevationGained") { put("elevation", 40.0) },
             ElevationGainedRecord::class.java
         ),
+        Case(
+            "MindfulnessSession",
+            interval("MindfulnessSession") {
+                put("mindfulnessSessionType", 1)
+                put("title", "Lake meditation")
+            },
+            MindfulnessSessionRecord::class.java
+        ),
+        Case(
+            "SkinTemperature",
+            interval("SkinTemperature") {
+                put(
+                    "deltas",
+                    JSONArray().put(
+                        JSONObject().put("time", TIME).put("delta", 0.2)
+                    )
+                )
+                put("baseline", 33.5)
+                put("measurementLocation", 3)
+            },
+            SkinTemperatureRecord::class.java
+        ),
+        Case(
+            "ActivityIntensity",
+            interval("ActivityIntensity") { put("activityIntensityType", 0) },
+            ActivityIntensityRecord::class.java
+        ),
     )
 
     private fun interval(type: String, extra: JSONObject.() -> Unit = {}) =
