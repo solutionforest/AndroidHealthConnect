@@ -108,64 +108,76 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Resolve Android SDK path
+      - name: Ensure Android SDK
         if: env.turbo_cache_hit != 1
         run: |
-          # Empty proxy strings break sdkmanager / setup-android on this runner.
-          unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy || true
-
-          if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME}" ]]; then
-            echo "Using existing ANDROID_HOME=${ANDROID_HOME}"
-            exit 0
-          fi
-          if [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT}" ]]; then
-            echo "ANDROID_HOME=${ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
-            echo "Mapped ANDROID_SDK_ROOT → ANDROID_HOME"
-            exit 0
-          fi
-          for candidate in \
-            "${HOME}/.android/sdk" \
-            "${HOME}/Android/Sdk" \
-            /opt/android-sdk \
-            /usr/lib/android-sdk \
-            /usr/local/lib/android/sdk
-          do
-            if [[ -d "$candidate" ]]; then
-              echo "ANDROID_HOME=${candidate}" >> "$GITHUB_ENV"
-              echo "Detected ANDROID_HOME=${candidate}"
-              exit 0
-            fi
-          done
-          echo "sdk_missing=1" >> "$GITHUB_ENV"
-          echo "No Android SDK found; will install via setup-android"
-
-      - name: Require Android SDK
-        if: env.turbo_cache_hit != 1 && env.sdk_missing == 1
-        run: |
-          echo "Android SDK not found on self-hosted runner." >&2
-          echo "Install SDK and set ANDROID_HOME (expected: \$HOME/.android/sdk)." >&2
-          exit 1
-
-      - name: Accept Android SDK licenses
-        if: env.turbo_cache_hit != 1
-        run: |
+          set -euo pipefail
           # Empty proxy strings on this runner break sdkmanager URL parsing.
           unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy || true
-          if [[ -z "${ANDROID_HOME:-}" || ! -d "${ANDROID_HOME}" ]]; then
-            echo "ANDROID_HOME is still unset after SDK resolve" >&2
+
+          SDK_ROOT=""
+          if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME}" ]]; then
+            SDK_ROOT="${ANDROID_HOME}"
+          elif [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT}" ]]; then
+            SDK_ROOT="${ANDROID_SDK_ROOT}"
+          else
+            for candidate in \
+              "${HOME}/.android/sdk" \
+              "${HOME}/Android/Sdk" \
+              /opt/android-sdk \
+              /usr/lib/android-sdk \
+              /usr/local/lib/android/sdk
+            do
+              if [[ -d "$candidate" ]]; then
+                SDK_ROOT="$candidate"
+                break
+              fi
+            done
+          fi
+
+          if [[ -z "$SDK_ROOT" ]]; then
+            SDK_ROOT="${HOME}/.android/sdk"
+            mkdir -p "$SDK_ROOT"
+          fi
+
+          echo "ANDROID_HOME=${SDK_ROOT}" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=${SDK_ROOT}" >> "$GITHUB_ENV"
+          export ANDROID_HOME="$SDK_ROOT"
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          echo "Using ANDROID_HOME=${SDK_ROOT}"
+
+          find_sdkmanager() {
+            if [[ -x "${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" ]]; then
+              echo "${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+              return 0
+            fi
+            find "${SDK_ROOT}/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -1 || true
+          }
+
+          SDKMANAGER="$(find_sdkmanager)"
+          if [[ -z "$SDKMANAGER" ]]; then
+            echo "Installing Android cmdline-tools..."
+            TMP="$(mktemp -d)"
+            curl -fsSL -o "$TMP/cmdline-tools.zip" \
+              https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -q "$TMP/cmdline-tools.zip" -d "$TMP"
+            mkdir -p "${SDK_ROOT}/cmdline-tools/latest"
+            # zip contains a top-level cmdline-tools/ directory
+            cp -R "$TMP"/cmdline-tools/. "${SDK_ROOT}/cmdline-tools/latest/"
+            rm -rf "$TMP"
+            SDKMANAGER="$(find_sdkmanager)"
+          fi
+
+          if [[ -z "$SDKMANAGER" ]]; then
+            echo "sdkmanager still missing under ${SDK_ROOT}" >&2
             exit 1
           fi
-          SDKMANAGER=""
-          if [[ -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]]; then
-            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
-          else
-            SDKMANAGER="$(find "${ANDROID_HOME}/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -1 || true)"
-          fi
-          if [[ -z "$SDKMANAGER" ]]; then
-            echo "sdkmanager not found under ${ANDROID_HOME}; continuing without license accept"
-            exit 0
-          fi
-          yes | "$SDKMANAGER" --licenses >/dev/null || true
+
+          yes | "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --licenses >/dev/null || true
+          "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --install \
+            "platform-tools" \
+            "platforms;android-37" \
+            "build-tools;37.0.0"
 
       - name: Cache Gradle
         if: env.turbo_cache_hit != 1
