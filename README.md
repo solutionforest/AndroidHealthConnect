@@ -28,9 +28,19 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 ## Requirements
 
-**Current release [`0.3.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.2)** pins Jetpack Health Connect **`connect-client:1.2.0-alpha06`** (not stable `1.1.0`). That alpha forces a higher AGP / `compileSdk` floor than `1.1.0`.
+Two release lines — pick by your AGP / Health Connect SDK:
 
-### What `0.3.2` needs in your host app
+| Package | `connect-client` | Min AGP | Min `compileSdk` | Branch / tag |
+|---|---|---|---|---|
+| **[`0.3.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.2)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
+| **[`0.2.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.2)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
+
+```sh
+npm install android-health-connect@0.3.2   # AGP 9.1+ / compileSdk 37
+npm install android-health-connect@0.2.2   # AGP 8.9.1+ / compileSdk 36
+```
+
+### What `0.3.2` (this branch) needs in your host app
 
 | Requirement | Value for `0.3.2` |
 |---|---|
@@ -43,15 +53,6 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Health Connect app | Required on Android 9–13; built-in on Android 14+ |
 | React Native | 0.84+ (New Architecture / TurboModules) |
 | Node.js | 22.11+ |
-
-### Health Connect SDK ↔ AGP matrix (Google AAR floors)
-
-| `connect-client` | Channel | Min AGP | Min `compileSdk` | Used by this library? |
-|---|---|---|---|---|
-| **`1.1.0`** | Stable | **8.9.1** | **36** | No (older pre-0.3.2 pin) |
-| **`1.2.0-alpha04`+** / **`1.2.0-alpha06`** | Alpha | **9.1.0** | **37** | **Yes — `0.3.2`** |
-
-Stay on AGP **8.9.x** / `compileSdk` **36** only if you use a library build still pinned to stable **`1.1.0`**. Current **`0.3.2`** cannot run there.
 
 ### Health Connect SDK changelog (context)
 
@@ -72,9 +73,13 @@ JS API still covers the [19 record types](#supported-record-types) below. Alpha-
 ## Installation
 
 ```sh
+# Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
 npm install android-health-connect
 # or
 yarn add android-health-connect
+
+# Maintenance (0.2.x): connect-client 1.1.0 stable — AGP 8.9.1+ / compileSdk 36
+npm install android-health-connect@0.2.2
 ```
 
 ### Expo setup
