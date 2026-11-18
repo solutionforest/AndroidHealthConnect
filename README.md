@@ -33,11 +33,11 @@ Two release lines — pick by your AGP / Health Connect SDK:
 | Package | `connect-client` | Min AGP | Min `compileSdk` | Branch / tag |
 |---|---|---|---|---|
 | **[`0.3.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.2)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
-| **[`0.2.2`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.2)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
+| **[`0.2.3`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.3)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
 npm install android-health-connect@0.3.2   # AGP 9.1+ / compileSdk 37
-npm install android-health-connect@0.2.2   # AGP 8.9.1+ / compileSdk 36
+npm install android-health-connect@0.2.3   # AGP 8.9.1+ / compileSdk 36
 ```
 
 ### What `0.3.2` (this branch) needs in your host app
@@ -79,7 +79,7 @@ npm install android-health-connect
 yarn add android-health-connect
 
 # Maintenance (0.2.x): connect-client 1.1.0 stable — AGP 8.9.1+ / compileSdk 36
-npm install android-health-connect@0.2.2
+npm install android-health-connect@0.2.3
 ```
 
 ### Expo setup
