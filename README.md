@@ -9,6 +9,8 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Requirement | Minimum |
 |---|---|
 | Android OS | 10 (API 29) |
+| compileSdk | 37 |
+| Android Gradle Plugin | 9.1.1 |
 | Health Connect app | Required on Android 9-13; built-in on Android 14+ |
 | React Native | 0.84+ (New Architecture / TurboModules) |
 | Node.js | 22.11+ |
