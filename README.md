@@ -1,7 +1,7 @@
 # android-health-connect
 
 [![CI](https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/android-health-connect.svg)](https://www.npmjs.com/package/android-health-connect)
+[![GitHub release](https://img.shields.io/github/v/release/solutionforest/AndroidHealthConnect)](https://github.com/solutionforest/AndroidHealthConnect/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Android-3DDC84.svg)](https://developer.android.com/health-and-fitness/health-connect)
 [![React Native](https://img.shields.io/badge/React%20Native-0.84%2B-61DAFB.svg)](https://reactnative.dev/)
@@ -22,9 +22,9 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Health Connect permissions | ✅ Supported | Request / check / revoke |
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI issue |
-| CI (self-hosted) | ✅ Supported | lint, typecheck, Jest, library build, audit |
-| Android example native build in CI | ⚠️ X64 only | Skipped on ARM64 runners (`aapt2` is x86_64-only) |
-| CodeQL on PRs | ⚠️ Manual / scheduled | Needs GitHub Advanced Security on private repos |
+| CI | ✅ GitHub-hosted | `ubuntu-latest` — lint, typecheck, Jest, library + Android build, audit |
+| Distribution | ✅ GitHub Releases | Packaged `.tgz` assets — **not published to npm** |
+| CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
 
 ## Requirements
 
@@ -36,15 +36,16 @@ Two release lines — pick by your AGP / Health Connect SDK:
 | **[`0.2.3`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.3)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
-npm install android-health-connect@0.3.2   # AGP 9.1+ / compileSdk 37
-npm install android-health-connect@0.2.3   # AGP 8.9.1+ / compileSdk 36
+# From GitHub (preferred — see Installation)
+yarn add solutionforest/AndroidHealthConnect#v0.3.2   # AGP 9.1+ / compileSdk 37
+yarn add solutionforest/AndroidHealthConnect#v0.2.3   # AGP 8.9.1+ / compileSdk 36
 ```
 
 ### What `0.3.2` (this branch) needs in your host app
 
 | Requirement | Value for `0.3.2` |
 |---|---|
-| npm package | `android-health-connect@0.3.2` |
+| Install | GitHub tag `v0.3.2` or Release asset `.tgz` |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
 | Android Gradle Plugin | **9.1.1** (min **9.1.0**) |
 | Gradle | **9.3.1+** (required by AGP 9.1) |
@@ -72,15 +73,31 @@ JS API still covers the [19 record types](#supported-record-types) below. Alpha-
 
 ## Installation
 
+Releases are published on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)** only (no npm publish).
+
+### Option A — install from git tag
+
 ```sh
 # Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
-npm install android-health-connect
+yarn add solutionforest/AndroidHealthConnect#v0.3.2
 # or
-yarn add android-health-connect
+npm install github:solutionforest/AndroidHealthConnect#v0.3.2
 
 # Maintenance (0.2.x): connect-client 1.1.0 stable — AGP 8.9.1+ / compileSdk 36
-npm install android-health-connect@0.2.3
+yarn add solutionforest/AndroidHealthConnect#v0.2.3
 ```
+
+### Option B — install Release tarball
+
+Download `android-health-connect-*.tgz` from the [Releases](https://github.com/solutionforest/AndroidHealthConnect/releases) page, then:
+
+```sh
+yarn add ./android-health-connect-0.3.2.tgz
+# or
+npm install ./android-health-connect-0.3.2.tgz
+```
+
+Pushing a `v*` tag (or running the **Release** workflow) builds the package and uploads the `.tgz` asset automatically.
 
 ### Expo setup
 
@@ -287,7 +304,7 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: CI, CodeQL, and the weekly version-check Action all run on the **self-hosted** GitHub Actions runner. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind.
+Maintainers: CI, CodeQL, Release, and the weekly version-check Action run on **GitHub-hosted** `ubuntu-latest` runners. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Tag `v*` to build and attach a GitHub Release `.tgz` (npm is not used).
 
 ## API reference
 

@@ -60,7 +60,7 @@
   },
   "homepage": "https://github.com/solutionforest/AndroidHealthConnect#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^19.8.1",
@@ -159,7 +159,11 @@
       "publish": false
     },
     "github": {
-      "release": true
+      "release": true,
+      "releaseName": "v${version}",
+      "comments": {
+        "submit": false
+      }
     },
     "plugins": {
       "@release-it/conventional-changelog": {
