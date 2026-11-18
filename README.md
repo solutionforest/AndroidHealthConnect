@@ -4,6 +4,22 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 > **Android only.** This library has no iOS implementation.
 
+## Support
+
+| Area | Status | Notes |
+|---|---|---|
+| Android | ✅ Supported | API 29+ / Android 10+ |
+| iOS | ❌ Not supported | No native iOS implementation |
+| React Native New Architecture | ✅ Required | TurboModules / RN 0.84+ |
+| Expo | ✅ Supported | SDK 50+ via config plugin |
+| Bare React Native | ✅ Supported | Manual manifest + rationale setup |
+| Health Connect permissions | ✅ Supported | Request / check / revoke |
+| Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
+| Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI issue |
+| CI (self-hosted) | ✅ Supported | lint, typecheck, Jest, library build, audit |
+| Android example native build in CI | ⚠️ X64 only | Skipped on ARM64 runners (`aapt2` is x86_64-only) |
+| CodeQL on PRs | ⚠️ Manual / scheduled | Needs GitHub Advanced Security on private repos |
+
 ## Requirements
 
 | Requirement | Minimum |
