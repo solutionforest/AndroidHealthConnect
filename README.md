@@ -32,11 +32,11 @@ This branch / release line is **`0.2.x`** — stable Health Connect **`connect-c
 
 For Health Connect **`1.2.0-alpha06`** (AGP **9.1** / `compileSdk` **37**), use **`android-health-connect@0.3.2`** on [`main`](https://github.com/solutionforest/AndroidHealthConnect/tree/main).
 
-### What `0.2.2` needs in your host app
+### What `0.2.3` needs in your host app
 
-| Requirement | Value for `0.2.2` |
+| Requirement | Value for `0.2.3` |
 |---|---|
-| npm package | `android-health-connect@0.2.2` |
+| npm package | `android-health-connect@0.2.3` |
 | Health Connect Jetpack SDK | [`connect-client:1.1.0`](https://developer.android.com/jetpack/androidx/releases/health-connect) (**stable**) |
 | Android Gradle Plugin | **8.9.1+** |
 | compileSdk | **36** |
@@ -49,15 +49,15 @@ For Health Connect **`1.2.0-alpha06`** (AGP **9.1** / `compileSdk` **37**), use 
 
 | Package | `connect-client` | Min AGP | Min `compileSdk` | Branch |
 |---|---|---|---|---|
-| **`0.2.2`** | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
+| **`0.2.3`** | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 | **`0.3.2`** | **`1.2.0-alpha06`** | **9.1.0** | **37** | [`main`](https://github.com/solutionforest/AndroidHealthConnect/tree/main) |
 
 ## Installation
 
 ```sh
-npm install android-health-connect@0.2.2
+npm install android-health-connect@0.2.3
 # or
-yarn add android-health-connect@0.2.2
+yarn add android-health-connect@0.2.3
 ```
 
 ### Expo setup
