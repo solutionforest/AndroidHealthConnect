@@ -69,5 +69,5 @@ dependencies {
   implementation "androidx.health.connect:connect-client:1.2.0-alpha06"
 
   // Coroutines for async Health Connect API calls
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0"
 }
