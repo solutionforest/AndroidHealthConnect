@@ -1,6 +1,6 @@
 {
   "name": "android-health-connect",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "An intermediate connection between React Native App and Health Connect",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -51,14 +51,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kfchan-git/android-health-connect.git"
+    "url": "git+https://github.com/solutionforest/AndroidHealthConnect.git"
   },
   "author": "Jayden Chan <jayden.chan@solutionforest.net> (https://github.com/kfchan-git)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kfchan-git/android-health-connect/issues"
+    "url": "https://github.com/solutionforest/AndroidHealthConnect/issues"
   },
-  "homepage": "https://github.com/kfchan-git/android-health-connect#readme",
+  "homepage": "https://github.com/solutionforest/AndroidHealthConnect#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

@@ -1,0 +1,46 @@
+name: Version check
+
+on:
+  schedule:
+    # Every Monday 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: version-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check upstream & library versions
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Ensure ripgrep
+        run: |
+          if command -v rg >/dev/null 2>&1; then
+            exit 0
+          fi
+          if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y ripgrep
+            exit 0
+          fi
+          echo "ripgrep (rg) must be installed on the self-hosted runner" >&2
+          exit 1
+
+      - name: Check versions and open upgrade reminder
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bash .github/scripts/check-versions.sh

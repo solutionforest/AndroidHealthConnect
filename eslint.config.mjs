@@ -21,9 +21,18 @@ export default defineConfig([
     rules: {
       'react/react-in-jsx-scope': 'off',
       'prettier/prettier': 'error',
+      'no-var': 'error',
+      'prefer-const': 'error',
+      eqeqeq: ['error', 'always'],
+      'no-throw-literal': 'error',
     },
   },
   {
-    ignores: ['node_modules/', 'lib/', 'plugin/build/'],
+    ignores: [
+      'node_modules/',
+      'lib/',
+      'plugin/build/',
+      '.github/scripts/',
+    ],
   },
 ]);
