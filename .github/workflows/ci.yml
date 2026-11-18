@@ -174,10 +174,30 @@ jobs:
           fi
 
           yes | "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --licenses >/dev/null || true
-          "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --install \
-            "platform-tools" \
-            "platforms;android-37" \
-            "build-tools;37.0.0"
+
+          install_pkg() {
+            local pkg="$1"
+            echo "Installing ${pkg}..."
+            if "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --install "${pkg}"; then
+              return 0
+            fi
+            echo "Warning: failed to install ${pkg}" >&2
+            return 1
+          }
+
+          install_pkg "platform-tools" || true
+          install_pkg "build-tools;37.0.0" || install_pkg "build-tools;36.1.0" || install_pkg "build-tools;36.0.0" || true
+          # API 37 may be missing on older cmdline-tools channels; try 37 then 36.
+          if ! install_pkg "platforms;android-37"; then
+            echo "platforms;android-37 unavailable; listing remote platforms..."
+            "$SDKMANAGER" --sdk_root="${SDK_ROOT}" --list 2>/dev/null | rg 'platforms;android-' | tail -20 || true
+            install_pkg "platforms;android-36" || true
+          fi
+
+          # Persist local.properties so Gradle uses this SDK.
+          mkdir -p example/android
+          echo "sdk.dir=${SDK_ROOT}" > example/android/local.properties
+          echo "sdk.dir=${SDK_ROOT}" > android/local.properties || true
 
       - name: Cache Gradle
         if: env.turbo_cache_hit != 1
