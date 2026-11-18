@@ -25,7 +25,7 @@ The [example app](/example/) demonstrates usage of the library. You need to run 
 
 It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
 
-If you want to use Android Studio or Xcode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `example/ios/AndroidHealthConnectExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > android-health-connect`.
+The library is Android-only, so the example app has no iOS project.
 
 To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `android-health-connect` under `Android`.
 
@@ -41,12 +41,6 @@ To run the example app on Android:
 
 ```sh
 yarn example android
-```
-
-To run the example app on iOS:
-
-```sh
-yarn example ios
 ```
 
 To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
@@ -117,7 +111,6 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn test`: run unit tests with [Jest](https://jestjs.io/).
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.
-- `yarn example ios`: run the example app on iOS.
 
 ### Sending a pull request
 
