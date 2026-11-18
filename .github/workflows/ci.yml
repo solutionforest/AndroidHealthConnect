@@ -199,6 +199,25 @@ jobs:
           echo "sdk.dir=${SDK_ROOT}" > example/android/local.properties
           echo "sdk.dir=${SDK_ROOT}" > android/local.properties || true
 
+          # Self-hosted runner is aarch64; AGP Maven aapt2 is x86_64-only and crashes
+          # with: Syntax error: ")" unexpected. Force the SDK host aapt2 instead.
+          AAPT2="$(ls -1 "${SDK_ROOT}"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1 || true)"
+          if [[ -z "$AAPT2" || ! -x "$AAPT2" ]]; then
+            echo "No host aapt2 found under build-tools; installing build-tools;37.0.0"
+            install_pkg "build-tools;37.0.0" || install_pkg "build-tools;36.0.0" || true
+            AAPT2="$(ls -1 "${SDK_ROOT}"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1 || true)"
+          fi
+          if [[ -z "$AAPT2" || ! -x "$AAPT2" ]]; then
+            echo "Unable to locate a usable aapt2 binary" >&2
+            exit 1
+          fi
+          echo "Using aapt2 override: ${AAPT2} ($(file -b "$AAPT2" 2>/dev/null || true))"
+          if ! rg -q '^android\.aapt2FromMavenOverride=' example/android/gradle.properties 2>/dev/null; then
+            echo "android.aapt2FromMavenOverride=${AAPT2}" >> example/android/gradle.properties
+          else
+            sed -i "s|^android\\.aapt2FromMavenOverride=.*|android.aapt2FromMavenOverride=${AAPT2}|" example/android/gradle.properties
+          fi
+
       - name: Cache Gradle
         if: env.turbo_cache_hit != 1
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
