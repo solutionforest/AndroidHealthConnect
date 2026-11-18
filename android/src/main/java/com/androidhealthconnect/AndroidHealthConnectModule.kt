@@ -66,7 +66,7 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   // ─── Permissions ───────────────────────────────────────────────────────────
 
   override fun requestPermissions(permissions: ReadableArray, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactApplicationContext.currentActivity
     if (activity == null) {
       promise.reject("NO_ACTIVITY", "No foreground Activity available")
       return
@@ -235,9 +235,10 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
-  override fun onCatalystInstanceDestroy() {
-    super.onCatalystInstanceDestroy()
+  override fun invalidate() {
+    reactApplicationContext.removeActivityEventListener(this)
     moduleScope.cancel()
+    super.invalidate()
   }
 
   // ─── Private helpers ──────────────────────────────────────────────────────

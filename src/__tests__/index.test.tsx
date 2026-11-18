@@ -1,3 +1,4 @@
+import { TurboModuleRegistry } from 'react-native';
 import {
   isHealthConnectAvailable,
   requestPermissions,
@@ -9,33 +10,40 @@ import {
   openHealthConnectSettings,
   openHealthConnectApp,
 } from '../index';
+import type { Spec } from '../NativeAndroidHealthConnect';
 
-// ─── Mock the native TurboModule ──────────────────────────────────────────────
-
-const mockNative = {
-  isHealthConnectAvailable: jest.fn(),
-  requestPermissions: jest.fn(),
-  checkPermissions: jest.fn(),
-  revokeAllPermissions: jest.fn(),
-  openHealthConnectSettings: jest.fn(),
-  openHealthConnectDataManagement: jest.fn(),
-  openHealthConnectApp: jest.fn(),
-  readRecords: jest.fn(),
-  writeRecords: jest.fn(),
-  deleteRecordsByTime: jest.fn(),
-  deleteRecordsById: jest.fn(),
-};
-
+// The mock factory runs while imports are still initializing, so the native
+// stand-in has to be created inside the factory and read back afterwards.
 jest.mock(
   'react-native',
-  () => ({
-    TurboModuleRegistry: {
-      getEnforcing: () => mockNative,
-    },
-    Platform: { OS: 'android' },
-  }),
+  () => {
+    const native = {
+      isHealthConnectAvailable: jest.fn(),
+      requestPermissions: jest.fn(),
+      checkPermissions: jest.fn(),
+      revokeAllPermissions: jest.fn(),
+      openHealthConnectSettings: jest.fn(),
+      openHealthConnectDataManagement: jest.fn(),
+      openHealthConnectApp: jest.fn(),
+      readRecords: jest.fn(),
+      writeRecords: jest.fn(),
+      deleteRecordsByTime: jest.fn(),
+      deleteRecordsById: jest.fn(),
+    };
+
+    return {
+      TurboModuleRegistry: {
+        getEnforcing: () => native,
+      },
+      Platform: { OS: 'android' },
+    };
+  },
   { virtual: true }
 );
+
+const mockNative = TurboModuleRegistry.getEnforcing<Spec>(
+  'AndroidHealthConnect'
+) as jest.Mocked<Spec>;
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
