@@ -202,6 +202,33 @@ internal object RecordMapper {
                 buildResponse(res.pageToken) { res.records.map(::elevationGainedToJson) }
             }
 
+            "MindfulnessSession" -> {
+                val req = ReadRecordsRequest(
+                    MindfulnessSessionRecord::class, timeRangeFilter, dataOriginFilter,
+                    ascendingOrder, pageSize, pageToken
+                )
+                val res = client.readRecords(req)
+                buildResponse(res.pageToken) { res.records.map(::mindfulnessSessionToJson) }
+            }
+
+            "SkinTemperature" -> {
+                val req = ReadRecordsRequest(
+                    SkinTemperatureRecord::class, timeRangeFilter, dataOriginFilter,
+                    ascendingOrder, pageSize, pageToken
+                )
+                val res = client.readRecords(req)
+                buildResponse(res.pageToken) { res.records.map(::skinTemperatureToJson) }
+            }
+
+            "ActivityIntensity" -> {
+                val req = ReadRecordsRequest(
+                    ActivityIntensityRecord::class, timeRangeFilter, dataOriginFilter,
+                    ascendingOrder, pageSize, pageToken
+                )
+                val res = client.readRecords(req)
+                buildResponse(res.pageToken) { res.records.map(::activityIntensityToJson) }
+            }
+
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -229,6 +256,9 @@ internal object RecordMapper {
             "RespiratoryRate" -> jsonToRespiratoryRate(json)
             "FloorsClimbed" -> jsonToFloorsClimbed(json)
             "ElevationGained" -> jsonToElevationGained(json)
+            "MindfulnessSession" -> jsonToMindfulnessSession(json)
+            "SkinTemperature" -> jsonToSkinTemperature(json)
+            "ActivityIntensity" -> jsonToActivityIntensity(json)
             else -> throw IllegalArgumentException("Unsupported record type: $type")
         }
     }
@@ -260,6 +290,9 @@ internal object RecordMapper {
             "RespiratoryRate" -> client.deleteRecords(RespiratoryRateRecord::class, filter)
             "FloorsClimbed" -> client.deleteRecords(FloorsClimbedRecord::class, filter)
             "ElevationGained" -> client.deleteRecords(ElevationGainedRecord::class, filter)
+            "MindfulnessSession" -> client.deleteRecords(MindfulnessSessionRecord::class, filter)
+            "SkinTemperature" -> client.deleteRecords(SkinTemperatureRecord::class, filter)
+            "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, filter)
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -289,6 +322,9 @@ internal object RecordMapper {
             "RespiratoryRate" -> client.deleteRecords(RespiratoryRateRecord::class, ids, emptyList())
             "FloorsClimbed" -> client.deleteRecords(FloorsClimbedRecord::class, ids, emptyList())
             "ElevationGained" -> client.deleteRecords(ElevationGainedRecord::class, ids, emptyList())
+            "MindfulnessSession" -> client.deleteRecords(MindfulnessSessionRecord::class, ids, emptyList())
+            "SkinTemperature" -> client.deleteRecords(SkinTemperatureRecord::class, ids, emptyList())
+            "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, ids, emptyList())
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -569,6 +605,47 @@ internal object RecordMapper {
         put("metadata", metadataToJson(r.metadata))
     }
 
+    private fun mindfulnessSessionToJson(r: MindfulnessSessionRecord) = JSONObject().apply {
+        put("recordType", "MindfulnessSession")
+        put("mindfulnessSessionType", r.mindfulnessSessionType)
+        put("startTime", r.startTime.toString())
+        put("endTime", r.endTime.toString())
+        put("title", r.title ?: JSONObject.NULL)
+        put("notes", r.notes ?: JSONObject.NULL)
+        r.startZoneOffset?.let { put("startZoneOffset", it.toString()) }
+        r.endZoneOffset?.let { put("endZoneOffset", it.toString()) }
+        put("metadata", metadataToJson(r.metadata))
+    }
+
+    private fun skinTemperatureToJson(r: SkinTemperatureRecord) = JSONObject().apply {
+        put("recordType", "SkinTemperature")
+        val deltas = JSONArray()
+        r.deltas.forEach { d ->
+            deltas.put(JSONObject().apply {
+                put("time", d.time.toString())
+                put("delta", d.delta.inCelsius)
+            })
+        }
+        put("deltas", deltas)
+        put("baseline", r.baseline?.inCelsius ?: JSONObject.NULL)
+        put("measurementLocation", r.measurementLocation)
+        put("startTime", r.startTime.toString())
+        put("endTime", r.endTime.toString())
+        r.startZoneOffset?.let { put("startZoneOffset", it.toString()) }
+        r.endZoneOffset?.let { put("endZoneOffset", it.toString()) }
+        put("metadata", metadataToJson(r.metadata))
+    }
+
+    private fun activityIntensityToJson(r: ActivityIntensityRecord) = JSONObject().apply {
+        put("recordType", "ActivityIntensity")
+        put("activityIntensityType", r.activityIntensityType)
+        put("startTime", r.startTime.toString())
+        put("endTime", r.endTime.toString())
+        r.startZoneOffset?.let { put("startZoneOffset", it.toString()) }
+        r.endZoneOffset?.let { put("endZoneOffset", it.toString()) }
+        put("metadata", metadataToJson(r.metadata))
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // JSON → Record conversions
     // ─────────────────────────────────────────────────────────────────────────
@@ -785,6 +862,52 @@ internal object RecordMapper {
 
     private fun jsonToElevationGained(j: JSONObject) = ElevationGainedRecord(
         elevation = Length.meters(j.getDouble("elevation")),
+        startTime = parseInstant(j, "startTime"),
+        endTime = parseInstant(j, "endTime"),
+        startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),
+        endZoneOffset = parseZoneOffset(j.optString("endZoneOffset")),
+        metadata = jsonToMetadata(j.optJSONObject("metadata"))
+    )
+
+    private fun jsonToMindfulnessSession(j: JSONObject) = MindfulnessSessionRecord(
+        mindfulnessSessionType = j.getInt("mindfulnessSessionType"),
+        startTime = parseInstant(j, "startTime"),
+        endTime = parseInstant(j, "endTime"),
+        title = j.optString("title").ifEmpty { null },
+        notes = j.optString("notes").ifEmpty { null },
+        startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),
+        endZoneOffset = parseZoneOffset(j.optString("endZoneOffset")),
+        metadata = jsonToMetadata(j.optJSONObject("metadata"))
+    )
+
+    private fun jsonToSkinTemperature(j: JSONObject): SkinTemperatureRecord {
+        val deltasArr = j.getJSONArray("deltas")
+        val deltas = (0 until deltasArr.length()).map { i ->
+            val d = deltasArr.getJSONObject(i)
+            SkinTemperatureRecord.Delta(
+                time = Instant.parse(d.getString("time")),
+                delta = TemperatureDelta.celsius(d.getDouble("delta"))
+            )
+        }
+        val baseline = if (j.isNull("baseline") || !j.has("baseline")) null
+        else Temperature.celsius(j.getDouble("baseline"))
+        return SkinTemperatureRecord(
+            deltas = deltas,
+            baseline = baseline,
+            measurementLocation = j.optInt(
+                "measurementLocation",
+                SkinTemperatureRecord.MEASUREMENT_LOCATION_UNKNOWN
+            ),
+            startTime = parseInstant(j, "startTime"),
+            endTime = parseInstant(j, "endTime"),
+            startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),
+            endZoneOffset = parseZoneOffset(j.optString("endZoneOffset")),
+            metadata = jsonToMetadata(j.optJSONObject("metadata"))
+        )
+    }
+
+    private fun jsonToActivityIntensity(j: JSONObject) = ActivityIntensityRecord(
+        activityIntensityType = j.getInt("activityIntensityType"),
         startTime = parseInstant(j, "startTime"),
         endTime = parseInstant(j, "endTime"),
         startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),

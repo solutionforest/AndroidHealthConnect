@@ -9,6 +9,11 @@ import {
   deleteRecordsById,
   openHealthConnectSettings,
   openHealthConnectApp,
+  getFeatureStatus,
+  checkIfMatchmakingIsPossible,
+  launchMatchmaking,
+  createMedicalDataSource,
+  readMedicalResources,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 
@@ -29,6 +34,15 @@ jest.mock(
       writeRecords: jest.fn(),
       deleteRecordsByTime: jest.fn(),
       deleteRecordsById: jest.fn(),
+      getFeatureStatus: jest.fn(),
+      checkIfMatchmakingIsPossible: jest.fn(),
+      launchMatchmaking: jest.fn(),
+      createMedicalDataSource: jest.fn(),
+      deleteMedicalDataSourceWithData: jest.fn(),
+      getMedicalDataSources: jest.fn(),
+      upsertMedicalResources: jest.fn(),
+      readMedicalResources: jest.fn(),
+      deleteMedicalResources: jest.fn(),
     };
 
     return {
@@ -240,5 +254,62 @@ describe('navigation helpers', () => {
   it('openHealthConnectApp calls native', () => {
     openHealthConnectApp();
     expect(mockNative.openHealthConnectApp).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('feature / matchmaking / PHR helpers', () => {
+  it('getFeatureStatus forwards feature name', async () => {
+    mockNative.getFeatureStatus.mockResolvedValue('available');
+    await expect(getFeatureStatus('skinTemperature')).resolves.toBe(
+      'available'
+    );
+    expect(mockNative.getFeatureStatus).toHaveBeenCalledWith('skinTemperature');
+  });
+
+  it('checkIfMatchmakingIsPossible parses JSON response', async () => {
+    mockNative.checkIfMatchmakingIsPossible.mockResolvedValue(
+      JSON.stringify({ isMatchmakingPossible: true })
+    );
+    const result = await checkIfMatchmakingIsPossible({
+      recordTypes: ['Steps'],
+    });
+    expect(result.isMatchmakingPossible).toBe(true);
+    expect(mockNative.checkIfMatchmakingIsPossible).toHaveBeenCalledWith(
+      JSON.stringify({ recordTypes: ['Steps'] })
+    );
+  });
+
+  it('launchMatchmaking forwards options', async () => {
+    mockNative.launchMatchmaking.mockResolvedValue(true);
+    await expect(launchMatchmaking({})).resolves.toBe(true);
+    expect(mockNative.launchMatchmaking).toHaveBeenCalledWith('{}');
+  });
+
+  it('createMedicalDataSource parses JSON response', async () => {
+    const source = {
+      id: 'ds-1',
+      displayName: 'Clinic',
+      fhirBaseUri: 'https://example.com/fhir/',
+      fhirVersion: { major: 4, minor: 0, patch: 1 },
+    };
+    mockNative.createMedicalDataSource.mockResolvedValue(
+      JSON.stringify(source)
+    );
+    await expect(
+      createMedicalDataSource({
+        displayName: 'Clinic',
+        fhirBaseUri: 'https://example.com/fhir/',
+        fhirVersion: { major: 4, minor: 0, patch: 1 },
+      })
+    ).resolves.toEqual(source);
+  });
+
+  it('readMedicalResources parses JSON response', async () => {
+    mockNative.readMedicalResources.mockResolvedValue(
+      JSON.stringify({ medicalResources: [], nextPageToken: null })
+    );
+    const page = await readMedicalResources({ medicalResourceType: 2 });
+    expect(page.medicalResources).toEqual([]);
+    expect(page.nextPageToken).toBeNull();
   });
 });

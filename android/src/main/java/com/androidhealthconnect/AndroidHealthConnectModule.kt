@@ -4,8 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
+import androidx.health.connect.client.matchmaking.MatchmakingRequest
+import androidx.health.connect.client.records.metadata.DataOrigin
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
@@ -20,12 +24,14 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 
+@OptIn(ExperimentalMatchmakingApi::class, ExperimentalPersonalHealthRecordApi::class)
 class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   NativeAndroidHealthConnectSpec(reactContext), ActivityEventListener {
 
   companion object {
     const val NAME = NativeAndroidHealthConnectSpec.NAME
     private const val PERMISSION_REQUEST_CODE = 21432
+    private const val MATCHMAKING_REQUEST_CODE = 21433
     private const val TAG = "AndroidHealthConnect"
     private const val HC_PACKAGE = "com.google.android.apps.healthdata"
     private const val HC_PLAY_STORE_URI =
@@ -46,6 +52,10 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   /** Pending promise for an in-flight permission request. */
   @Volatile
   private var pendingPermissionPromise: Promise? = null
+
+  /** Pending promise for an in-flight matchmaking flow. */
+  @Volatile
+  private var pendingMatchmakingPromise: Promise? = null
 
   init {
     reactContext.addActivityEventListener(this)
@@ -215,6 +225,150 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  // ─── Feature availability ─────────────────────────────────────────────────
+
+  override fun getFeatureStatus(feature: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        promise.resolve(FeatureSupport.getStatus(healthConnectClient, feature))
+      } catch (e: Exception) {
+        promise.reject("FEATURE_STATUS_ERROR", e.message, e)
+      }
+    }
+  }
+
+  // ─── Matchmaking ──────────────────────────────────────────────────────────
+
+  override fun checkIfMatchmakingIsPossible(options: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val request = parseMatchmakingRequest(JSONObject(options))
+        val response = healthConnectClient.checkIfMatchmakingIsPossible(request)
+        promise.resolve(
+          JSONObject().put("isMatchmakingPossible", response.isMatchmakingPossible).toString()
+        )
+      } catch (e: Exception) {
+        Log.e(TAG, "checkIfMatchmakingIsPossible error", e)
+        promise.reject("MATCHMAKING_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun launchMatchmaking(options: String, promise: Promise) {
+    val activity = reactApplicationContext.currentActivity
+    if (activity == null) {
+      promise.reject("NO_ACTIVITY", "No foreground Activity available")
+      return
+    }
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val request = parseMatchmakingRequest(JSONObject(options))
+        val intent = healthConnectClient.createMatchmakingIntent(request)
+        pendingMatchmakingPromise = promise
+        activity.runOnUiThread {
+          activity.startActivityForResult(intent, MATCHMAKING_REQUEST_CODE)
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "launchMatchmaking error", e)
+        promise.reject("MATCHMAKING_ERROR", e.message, e)
+      }
+    }
+  }
+
+  // ─── Personal Health Record ───────────────────────────────────────────────
+
+  override fun createMedicalDataSource(request: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val source = healthConnectClient.createMedicalDataSource(
+          PhrMapper.createRequestFromJson(JSONObject(request))
+        )
+        promise.resolve(PhrMapper.medicalDataSourceToJson(source).toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "createMedicalDataSource error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun deleteMedicalDataSourceWithData(id: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        healthConnectClient.deleteMedicalDataSourceWithData(id)
+        promise.resolve(true)
+      } catch (e: Exception) {
+        Log.e(TAG, "deleteMedicalDataSourceWithData error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun getMedicalDataSources(request: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result = PhrMapper.getMedicalDataSources(
+          healthConnectClient, JSONObject(request.ifEmpty { "{}" })
+        )
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "getMedicalDataSources error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun upsertMedicalResources(requests: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val upserted = healthConnectClient.upsertMedicalResources(
+          PhrMapper.upsertRequestsFromJson(JSONArray(requests))
+        )
+        val arr = JSONArray().apply {
+          upserted.forEach { put(PhrMapper.medicalResourceToJson(it)) }
+        }
+        promise.resolve(arr.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "upsertMedicalResources error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun readMedicalResources(request: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result = PhrMapper.readMedicalResources(
+          healthConnectClient, JSONObject(request)
+        )
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "readMedicalResources error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun deleteMedicalResources(request: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        PhrMapper.deleteMedicalResources(healthConnectClient, JSONObject(request))
+        promise.resolve(true)
+      } catch (e: Exception) {
+        Log.e(TAG, "deleteMedicalResources error", e)
+        promise.reject("PHR_ERROR", e.message, e)
+      }
+    }
+  }
+
   // ─── ActivityEventListener ────────────────────────────────────────────────
 
   override fun onActivityResult(
@@ -223,12 +377,19 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     resultCode: Int,
     data: Intent?,
   ) {
-    if (requestCode != PERMISSION_REQUEST_CODE) return
-    val granted = requestPermissionsContract.parseResult(resultCode, data)
-    val array = Arguments.createArray()
-    granted.forEach { array.pushString(it) }
-    pendingPermissionPromise?.resolve(array)
-    pendingPermissionPromise = null
+    when (requestCode) {
+      PERMISSION_REQUEST_CODE -> {
+        val granted = requestPermissionsContract.parseResult(resultCode, data)
+        val array = Arguments.createArray()
+        granted.forEach { array.pushString(it) }
+        pendingPermissionPromise?.resolve(array)
+        pendingPermissionPromise = null
+      }
+      MATCHMAKING_REQUEST_CODE -> {
+        pendingMatchmakingPromise?.resolve(resultCode == Activity.RESULT_OK)
+        pendingMatchmakingPromise = null
+      }
+    }
   }
 
   override fun onNewIntent(intent: Intent) {}
@@ -264,5 +425,29 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     } catch (e: Exception) {
       Log.e(TAG, "Could not start activity: ${e.message}")
     }
+  }
+
+  private fun parseMatchmakingRequest(options: JSONObject): MatchmakingRequest {
+    val recordTypesArr = options.optJSONArray("recordTypes")
+    val recordTypes =
+      if (recordTypesArr != null) {
+        (0 until recordTypesArr.length())
+          .map { FeatureSupport.recordClassForType(recordTypesArr.getString(it)) }
+          .toSet()
+      } else {
+        emptySet()
+      }
+    val included = parseDataOrigins(options.optJSONArray("includedDataSources"))
+    val excluded = parseDataOrigins(options.optJSONArray("excludedDataSources"))
+    return MatchmakingRequest(
+      recordTypes = recordTypes,
+      includedDataSources = included,
+      excludedDataSources = excluded,
+    )
+  }
+
+  private fun parseDataOrigins(arr: JSONArray?): Set<DataOrigin> {
+    if (arr == null) return emptySet()
+    return (0 until arr.length()).map { DataOrigin(arr.getString(it)) }.toSet()
   }
 }
