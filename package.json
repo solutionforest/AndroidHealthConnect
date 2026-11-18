@@ -1,6 +1,6 @@
 {
   "name": "@solutionforest/android-health-connect",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "An intermediate connection between React Native App and Health Connect",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

@@ -32,18 +32,18 @@ Two release lines — pick by your AGP / Health Connect SDK:
 
 | Package | `connect-client` | Min AGP | Min `compileSdk` | Branch / tag |
 |---|---|---|---|---|
-| **[`0.3.3`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.3)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
+| **[`0.3.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.4)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
 | **[`0.2.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.4)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
 # GitHub Packages (see Installation for .npmrc)
-yarn add @solutionforest/android-health-connect@0.3.3   # AGP 9.1+ / compileSdk 37
+yarn add @solutionforest/android-health-connect@0.3.4   # AGP 9.1+ / compileSdk 37
 yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSdk 36 (dist-tag release-0.2)
 ```
 
-### What `0.3.3` (this branch) needs in your host app
+### What `0.3.4` (this branch) needs in your host app
 
-| Requirement | Value for `0.3.3` |
+| Requirement | Value for `0.3.4` |
 |---|---|
 | Install | `@solutionforest/android-health-connect` via GitHub Packages |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
@@ -90,15 +90,15 @@ Use a classic PAT with `read:packages` (and SSO authorized for the `solutionfore
 
 ```sh
 # Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
-yarn add @solutionforest/android-health-connect@0.3.3
+yarn add @solutionforest/android-health-connect@0.3.4
 # or
-npm install @solutionforest/android-health-connect@0.3.3
+npm install @solutionforest/android-health-connect@0.3.4
 
 # Maintenance (0.2.x): connect-client 1.1.0 stable — AGP 8.9.1+ / compileSdk 36
 yarn add @solutionforest/android-health-connect@release-0.2
 ```
 
-Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.3`) or download the Release `.tgz`.
+Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.4`) or download the Release `.tgz`.
 
 Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, and `npm publish`es to GitHub Packages.
 
