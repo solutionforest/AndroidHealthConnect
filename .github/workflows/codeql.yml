@@ -16,8 +16,7 @@ concurrency:
 jobs:
   analyze:
     name: Analyze
-    # Use repo variable QUALITY_RUNS_ON=self-hosted to run on your server.
-    runs-on: ${{ vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
+    runs-on: self-hosted
     permissions:
       security-events: write
       contents: read

@@ -228,7 +228,7 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: a weekly GitHub Action (`.github/workflows/version-check.yml`) opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind. Set repo variable `QUALITY_RUNS_ON=self-hosted` to run CI/version checks on your self-hosted runner.
+Maintainers: CI, CodeQL, and the weekly version-check Action all run on the **self-hosted** GitHub Actions runner. Version-check opens/updates an `upgrade-reminder` issue when `package.json` or the Health Connect SDK falls behind.
 
 ## API reference
 

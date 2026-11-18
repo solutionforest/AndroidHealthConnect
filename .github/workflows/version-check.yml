@@ -5,11 +5,6 @@ on:
     # Every Monday 08:00 UTC
     - cron: '0 8 * * 1'
   workflow_dispatch:
-    inputs:
-      runner:
-        description: 'Runner label (ubuntu-latest or self-hosted)'
-        required: false
-        default: 'ubuntu-latest'
 
 concurrency:
   group: version-check
@@ -18,9 +13,7 @@ concurrency:
 jobs:
   check:
     name: Check upstream & library versions
-    # Prefer workflow_dispatch input, then repo variable QUALITY_RUNS_ON, else ubuntu-latest.
-    # Set repository variable QUALITY_RUNS_ON=self-hosted to use your self-hosted server.
-    runs-on: ${{ inputs.runner || vars.QUALITY_RUNS_ON || 'ubuntu-latest' }}
+    runs-on: self-hosted
     permissions:
       contents: read
       issues: write
@@ -34,9 +27,17 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Install ripgrep
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
+      - name: Ensure ripgrep
+        run: |
+          if command -v rg >/dev/null 2>&1; then
+            exit 0
+          fi
+          if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y ripgrep
+            exit 0
+          fi
+          echo "ripgrep (rg) must be installed on the self-hosted runner" >&2
+          exit 1
 
       - name: Check versions and open upgrade reminder
         env:
