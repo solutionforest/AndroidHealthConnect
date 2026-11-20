@@ -466,7 +466,13 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on **GitHub-hosted** `ubuntu-latest` runners (Monday 08:00 UTC). That job compares `connect-client` to Google Maven and the library to the latest GitHub Release, then opens/updates an `upgrade-reminder` issue when something is behind (also runnable via **Actions → Version check → Run workflow**). To change cadence, edit the cron in `.github/workflows/version-check.yml` (`daily` / `weekly` / `bi-weekly` examples are in the file comments). Tag `v*` to upload a Release `.tgz` (+ SBOM / attestations) and publish to GitHub Packages; set `NPM_TOKEN` to also mirror to npmjs.org.
+## Maintainers
+
+| Workflow | What it does |
+|---|---|
+| **CI** / **CodeQL** | Lint, tests, build on `ubuntu-latest` |
+| **Version check** | Mondays 08:00 UTC — compares HC SDK (Maven) + library (GitHub Release); opens/updates an `upgrade-reminder` issue. Manual: **Actions → Version check → Run workflow**. Cron options in `.github/workflows/version-check.yml`. |
+| **Release** (`v*` tag) | Packs `.tgz` + SBOM / attestations → GitHub Release + GitHub Packages. Optional npmjs.org mirror if `NPM_TOKEN` is set. |
 
 ## API reference
 
