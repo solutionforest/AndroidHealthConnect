@@ -28,7 +28,16 @@ buildscript {
 
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
+// AGP 9+ enables built-in Kotlin by default and registers the `kotlin` extension
+// when `com.android.library` is applied. Applying `kotlin-android` on top fails with:
+//   Cannot add extension with name 'kotlin', as there is an extension already registered
+//   The 'org.jetbrains.kotlin.android' plugin is no longer required for Kotlin support since AGP 9.0
+// Docs: https://developer.android.com/build/migrate-to-built-in-kotlin
+// Only apply the legacy plugin when the host project has not registered that extension yet
+// (AGP 8 / android.builtInKotlin=false consumers).
+if (project.extensions.findByName("kotlin") == null) {
+  apply plugin: "kotlin-android"
+}
 
 apply plugin: "com.facebook.react"
 
