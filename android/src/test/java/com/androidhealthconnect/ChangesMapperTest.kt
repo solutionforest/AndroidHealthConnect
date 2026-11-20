@@ -50,6 +50,22 @@ class ChangesMapperTest {
     }
 
     @Test
+    fun parsePageSize_acceptsValidRange() {
+        assertEquals(100, ChangesMapper.parsePageSize(JSONObject().put("pageSize", 100)))
+        assertEquals(null, ChangesMapper.parsePageSize(JSONObject()))
+    }
+
+    @Test
+    fun parsePageSize_rejectsOutOfRange() {
+        try {
+            ChangesMapper.parsePageSize(JSONObject().put("pageSize", 0))
+            throw AssertionError("expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertTrue(e.message!!.contains("pageSize"))
+        }
+    }
+
+    @Test
     fun requireToken_rejectsBlank() {
         try {
             ChangesMapper.requireToken("  ")

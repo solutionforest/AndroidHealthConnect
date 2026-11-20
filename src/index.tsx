@@ -50,6 +50,7 @@ import type {
   AggregationResultGroupedByPeriod,
   ExerciseRouteRead,
   GetChangesTokenRequest,
+  GetChangesOptions,
   GetChangesResponse,
 } from './types';
 
@@ -269,11 +270,17 @@ export async function getChangesToken(
  * Fetches upserts/deletes since `changesToken`. Loop while `hasMore`;
  * persist `nextChangesToken`. If `changesTokenExpired`, backfill then mint a
  * new token via {@link getChangesToken}.
+ *
+ * Optional `pageSize` (1–5000) is a soft hint for changelog page size.
  */
 export async function getChanges(
-  changesToken: string
+  changesToken: string,
+  options: GetChangesOptions = {}
 ): Promise<GetChangesResponse> {
-  const json = await NativeAndroidHealthConnect.getChanges(changesToken);
+  const json = await NativeAndroidHealthConnect.getChanges(
+    changesToken,
+    JSON.stringify(options)
+  );
   return JSON.parse(json) as GetChangesResponse;
 }
 

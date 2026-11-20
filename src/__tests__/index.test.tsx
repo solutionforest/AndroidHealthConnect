@@ -527,7 +527,24 @@ describe('changelog / changes token', () => {
     expect(result.deletionChanges[0]?.recordId).toBe('deleted-1');
     expect(result.nextChangesToken).toBe('token-next');
     expect(result.hasMore).toBe(true);
-    expect(mockNative.getChanges).toHaveBeenCalledWith('token-abc');
+    expect(mockNative.getChanges).toHaveBeenCalledWith('token-abc', '{}');
+  });
+
+  it('getChanges forwards pageSize option', async () => {
+    mockNative.getChanges.mockResolvedValue(
+      JSON.stringify({
+        upsertionChanges: [],
+        deletionChanges: [],
+        nextChangesToken: 't',
+        hasMore: false,
+        changesTokenExpired: false,
+      })
+    );
+    await getChanges('token-abc', { pageSize: 100 });
+    expect(mockNative.getChanges).toHaveBeenCalledWith(
+      'token-abc',
+      JSON.stringify({ pageSize: 100 })
+    );
   });
 });
 

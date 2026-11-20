@@ -352,11 +352,12 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun getChanges(changesToken: String, promise: Promise) {
+  override fun getChanges(changesToken: String, options: String, promise: Promise) {
     if (!isAvailable(promise)) return
     moduleScope.launch {
       try {
-        val result = ChangesMapper.getChanges(healthConnectClient, changesToken)
+        val opts = if (options.isBlank()) JSONObject() else JSONObject(options)
+        val result = ChangesMapper.getChanges(healthConnectClient, changesToken, opts)
         promise.resolve(result.toString())
       } catch (e: Exception) {
         Log.e(TAG, "getChanges error", e)

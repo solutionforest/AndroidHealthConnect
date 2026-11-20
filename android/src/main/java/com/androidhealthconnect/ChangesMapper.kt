@@ -21,9 +21,19 @@ internal object ChangesMapper {
     return client.getChangesToken(parseTokenRequest(options))
   }
 
-  suspend fun getChanges(client: HealthConnectClient, changesToken: String): JSONObject {
+  suspend fun getChanges(
+    client: HealthConnectClient,
+    changesToken: String,
+    options: JSONObject = JSONObject(),
+  ): JSONObject {
     requireToken(changesToken)
-    val response = client.getChanges(changesToken)
+    val pageSize = parsePageSize(options)
+    val response =
+      if (pageSize != null) {
+        client.getChanges(changesToken, pageSize)
+      } else {
+        client.getChanges(changesToken)
+      }
     return responseToJson(
       changes = response.changes,
       nextChangesToken = response.nextChangesToken,
@@ -53,6 +63,14 @@ internal object ChangesMapper {
     if (changesToken.isBlank()) {
       throw IllegalArgumentException("changesToken must not be empty")
     }
+  }
+
+  /** Soft page-size hint; null when omitted. Must be 1–5000 when set. */
+  fun parsePageSize(options: JSONObject): Int? {
+    if (!options.has("pageSize") || options.isNull("pageSize")) return null
+    val size = options.getInt("pageSize")
+    require(size in 1..5000) { "pageSize must be between 1 and 5000" }
+    return size
   }
 
   fun responseToJson(

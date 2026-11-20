@@ -632,6 +632,11 @@ export type DeletionChange = {
   recordId: string;
 };
 
+export type GetChangesOptions = {
+  /** Soft page size hint (1–5000). Omit for platform default. */
+  pageSize?: number;
+};
+
 export type GetChangesResponse = {
   upsertionChanges: UpsertionChange[];
   deletionChanges: DeletionChange[];

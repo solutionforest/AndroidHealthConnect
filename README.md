@@ -146,7 +146,9 @@ If you are using **Expo** (SDK 50+), add the library's config plugin to your `ap
 }
 ```
 
-If you omit the options object (or the `permissions` array), all permissions supported by the library are declared:
+If you omit `permissions` (or pass `[]`), the plugin still adds the required
+intent-filters but **does not declare any health permissions** — list only what
+your app needs:
 
 ```json
 {
@@ -543,7 +545,7 @@ if (update.updateAvailable) {
 | `aggregateGroupByPeriod(request)` | `Promise<AggregationResultGroupedByPeriod[]>` | Calendar buckets (LocalDateTime) |
 | `requestExerciseRoute(recordId)` | `Promise<ExerciseRouteRead \| null>` | Consent UI when route is `CONSENT_REQUIRED` |
 | `getChangesToken(request)` | `Promise<string>` | Mint changelog token (~30 days; prefer one type) |
-| `getChanges(token)` | `Promise<GetChangesResponse>` | Upserts/deletes since token; loop while `hasMore` |
+| `getChanges(token, opts?)` | `Promise<GetChangesResponse>` | Upserts/deletes since token; optional `pageSize` (1–5000) |
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
 | *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (with README / SECURITY guidance and feature-status gating).
 - `updateRecords()` for edit/sync; metadata round-trip preserves `id` / recording method /
   optional `device` on write/update.
+- `getChanges(token, { pageSize })` soft page-size hint (1–5000).
 
 ### Changed
 

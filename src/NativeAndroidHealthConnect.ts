@@ -85,8 +85,11 @@ export interface Spec extends TurboModule {
   /** JSON GetChangesTokenRequest → changes token string. */
   getChangesToken(options: string): Promise<string>;
 
-  /** changesToken → JSON GetChangesResponse. */
-  getChanges(changesToken: string): Promise<string>;
+  /**
+   * changesToken + JSON GetChangesOptions → JSON GetChangesResponse.
+   * Pass `"{}"` when no options.
+   */
+  getChanges(changesToken: string, options: string): Promise<string>;
 
   /**
    * Checks whether a Health Connect feature is available on this device.
