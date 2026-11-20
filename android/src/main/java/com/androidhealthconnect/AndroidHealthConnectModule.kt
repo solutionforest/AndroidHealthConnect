@@ -8,8 +8,10 @@ import android.util.Log
 import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
 import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
 import androidx.health.connect.client.matchmaking.MatchmakingRequest
+import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.metadata.DataOrigin
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
@@ -33,6 +35,7 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     const val NAME = NativeAndroidHealthConnectSpec.NAME
     private const val PERMISSION_REQUEST_CODE = 21432
     private const val MATCHMAKING_REQUEST_CODE = 21433
+    private const val EXERCISE_ROUTE_REQUEST_CODE = 21434
     private const val TAG = "AndroidHealthConnect"
   }
 
@@ -47,6 +50,8 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   private val requestPermissionsContract =
     PermissionController.createRequestPermissionResultContract()
 
+  private val exerciseRouteRequestContract = ExerciseRouteRequestContract()
+
   /** Pending promise for an in-flight permission request. */
   @Volatile
   private var pendingPermissionPromise: Promise? = null
@@ -54,6 +59,10 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   /** Pending promise for an in-flight matchmaking flow. */
   @Volatile
   private var pendingMatchmakingPromise: Promise? = null
+
+  /** Pending promise for an in-flight exercise-route consent flow. */
+  @Volatile
+  private var pendingExerciseRoutePromise: Promise? = null
 
   init {
     reactContext.addActivityEventListener(this)
@@ -302,6 +311,31 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  // ─── Exercise route consent ───────────────────────────────────────────────
+
+  override fun requestExerciseRoute(recordId: String, promise: Promise) {
+    val activity = reactApplicationContext.currentActivity
+    if (activity == null) {
+      promise.reject("NO_ACTIVITY", "No foreground Activity available")
+      return
+    }
+    if (!isAvailable(promise)) return
+    if (recordId.isBlank()) {
+      promise.reject("INVALID_RECORD_ID", "Exercise session recordId must not be empty")
+      return
+    }
+
+    pendingExerciseRoutePromise = promise
+    try {
+      val intent = exerciseRouteRequestContract.createIntent(activity, recordId)
+      activity.startActivityForResult(intent, EXERCISE_ROUTE_REQUEST_CODE)
+    } catch (e: Exception) {
+      pendingExerciseRoutePromise = null
+      Log.e(TAG, "requestExerciseRoute error", e)
+      promise.reject("EXERCISE_ROUTE_ERROR", e.message, e)
+    }
+  }
+
   // ─── Feature availability ─────────────────────────────────────────────────
 
   override fun getFeatureStatus(feature: String, promise: Promise) {
@@ -465,6 +499,19 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
       MATCHMAKING_REQUEST_CODE -> {
         pendingMatchmakingPromise?.resolve(resultCode == Activity.RESULT_OK)
         pendingMatchmakingPromise = null
+      }
+      EXERCISE_ROUTE_REQUEST_CODE -> {
+        val route: ExerciseRoute? =
+          exerciseRouteRequestContract.parseResult(resultCode, data)
+        if (route != null) {
+          pendingExerciseRoutePromise?.resolve(
+            RecordMapper.exerciseRouteDataToJson(route).toString()
+          )
+        } else {
+          // Denied or no route — empty string so JS maps to null.
+          pendingExerciseRoutePromise?.resolve("")
+        }
+        pendingExerciseRoutePromise = null
       }
     }
   }

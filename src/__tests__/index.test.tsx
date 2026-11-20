@@ -25,6 +25,7 @@ import {
   aggregateRecord,
   aggregateGroupByDuration,
   aggregateGroupByPeriod,
+  requestExerciseRoute,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 import type { HealthPermission, StepsRecord } from '../types';
@@ -50,6 +51,7 @@ jest.mock(
       aggregateRecord: jest.fn(),
       aggregateGroupByDuration: jest.fn(),
       aggregateGroupByPeriod: jest.fn(),
+      requestExerciseRoute: jest.fn(),
       getFeatureStatus: jest.fn(),
       checkIfMatchmakingIsPossible: jest.fn(),
       launchMatchmaking: jest.fn(),
@@ -418,6 +420,33 @@ describe('aggregates', () => {
       timeRangeSlicer: { unit: 'days', value: 1 },
     });
     expect(rows[0]?.result.metrics['COUNT_TOTAL']).toBe(9000);
+  });
+});
+
+describe('exercise route', () => {
+  it('requestExerciseRoute parses DATA result', async () => {
+    mockNative.requestExerciseRoute.mockResolvedValue(
+      JSON.stringify({
+        type: 'DATA',
+        route: [
+          {
+            time: '2024-01-01T08:00:00Z',
+            latitude: 51.5,
+            longitude: -0.12,
+            altitude: { inMeters: 10, inKilometers: 0.01, inMiles: 0.006 },
+          },
+        ],
+      })
+    );
+    const result = await requestExerciseRoute('session-id');
+    expect(result?.type).toBe('DATA');
+    expect(result?.route).toHaveLength(1);
+    expect(mockNative.requestExerciseRoute).toHaveBeenCalledWith('session-id');
+  });
+
+  it('requestExerciseRoute returns null when denied', async () => {
+    mockNative.requestExerciseRoute.mockResolvedValue('');
+    await expect(requestExerciseRoute('session-id')).resolves.toBeNull();
   });
 });
 

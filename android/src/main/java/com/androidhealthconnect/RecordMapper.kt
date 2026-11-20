@@ -564,10 +564,66 @@ internal object RecordMapper {
             })
         }
         put("laps", laps)
+        put("exerciseRoute", exerciseRouteResultToJson(r.exerciseRouteResult))
         r.startZoneOffset?.let { put("startZoneOffset", it.toString()) }
         r.endZoneOffset?.let { put("endZoneOffset", it.toString()) }
         put("metadata", metadataToJson(r.metadata))
     }
+
+    /** Public for Module.requestExerciseRoute consent result. */
+    fun exerciseRouteDataToJson(route: ExerciseRoute): JSONObject =
+        JSONObject().apply {
+            put("type", "DATA")
+            put("route", exerciseRouteToJson(route))
+        }
+
+    private fun exerciseRouteResultToJson(result: ExerciseRouteResult): JSONObject =
+        when (result) {
+            is ExerciseRouteResult.Data -> exerciseRouteDataToJson(result.exerciseRoute)
+            is ExerciseRouteResult.NoData ->
+                JSONObject().apply {
+                    put("type", "NO_DATA")
+                    put("route", JSONArray())
+                }
+            is ExerciseRouteResult.ConsentRequired ->
+                JSONObject().apply {
+                    put("type", "CONSENT_REQUIRED")
+                    put("route", JSONArray())
+                }
+            // Interface is open across SDK alphas — treat unknown as no data.
+            else ->
+                JSONObject().apply {
+                    put("type", "NO_DATA")
+                    put("route", JSONArray())
+                }
+        }
+
+    private fun exerciseRouteToJson(route: ExerciseRoute): JSONArray {
+        val arr = JSONArray()
+        route.route.forEach { loc ->
+            arr.put(
+                JSONObject().apply {
+                    put("time", loc.time.toString())
+                    put("latitude", loc.latitude)
+                    put("longitude", loc.longitude)
+                    // Read-side LengthResult; omit when null (optional on platform).
+                    loc.altitude?.let { put("altitude", lengthResultJson(it)) }
+                        ?: put("altitude", JSONObject.NULL)
+                    loc.horizontalAccuracy?.let { put("horizontalAccuracy", lengthResultJson(it)) }
+                        ?: put("horizontalAccuracy", JSONObject.NULL)
+                    loc.verticalAccuracy?.let { put("verticalAccuracy", lengthResultJson(it)) }
+                        ?: put("verticalAccuracy", JSONObject.NULL)
+                }
+            )
+        }
+        return arr
+    }
+
+    private fun lengthResultJson(length: Length): JSONObject =
+        JSONObject()
+            .put("inMeters", length.inMeters)
+            .put("inKilometers", length.inKilometers)
+            .put("inMiles", length.inMiles)
 
     private fun restingHeartRateToJson(r: RestingHeartRateRecord) = JSONObject().apply {
         put("recordType", "RestingHeartRate")
@@ -823,6 +879,8 @@ internal object RecordMapper {
             }
         } else emptyList()
 
+        val exerciseRoute = jsonToExerciseRoute(j.optJSONObject("exerciseRoute"))
+
         return ExerciseSessionRecord(
             exerciseType = j.getInt("exerciseType"),
             startTime = parseInstant(j, "startTime"),
@@ -831,10 +889,50 @@ internal object RecordMapper {
             notes = j.optString("notes").ifEmpty { null },
             segments = segments,
             laps = laps,
+            exerciseRoute = exerciseRoute,
             startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),
             endZoneOffset = parseZoneOffset(j.optString("endZoneOffset")),
             metadata = jsonToMetadata(j.optJSONObject("metadata"))
         )
+    }
+
+    /**
+     * Write parser: optional altitude / accuracy maps must not call Length on missing fields
+     * (matinzd #275 / #210).
+     */
+    private fun jsonToExerciseRoute(routeObj: JSONObject?): ExerciseRoute? {
+        if (routeObj == null) return null
+        val arr = routeObj.optJSONArray("route") ?: return null
+        if (arr.length() == 0) return null
+        val locations =
+            (0 until arr.length()).map { i ->
+                val s = arr.getJSONObject(i)
+                ExerciseRoute.Location(
+                    time = Instant.parse(s.getString("time")),
+                    latitude = s.getDouble("latitude"),
+                    longitude = s.getDouble("longitude"),
+                    horizontalAccuracy = optionalLengthMeters(s, "horizontalAccuracy"),
+                    verticalAccuracy = optionalLengthMeters(s, "verticalAccuracy"),
+                    altitude = optionalLengthMeters(s, "altitude"),
+                )
+            }
+        return ExerciseRoute(route = locations)
+    }
+
+    private fun optionalLengthMeters(json: JSONObject, key: String): Length? {
+        if (!json.has(key) || json.isNull(key)) return null
+        // Accept either a bare meters number or `{ value, unit }` / `{ inMeters }`.
+        return when (val raw = json.get(key)) {
+            is Number -> Length.meters(raw.toDouble())
+            is JSONObject -> {
+                when {
+                    raw.has("inMeters") -> Length.meters(raw.getDouble("inMeters"))
+                    raw.has("value") -> Length.meters(raw.getDouble("value"))
+                    else -> null
+                }
+            }
+            else -> null
+        }
     }
 
     private fun jsonToRestingHeartRate(j: JSONObject) = RestingHeartRateRecord(

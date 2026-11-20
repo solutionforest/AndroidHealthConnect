@@ -70,6 +70,13 @@ export interface Spec extends TurboModule {
   aggregateGroupByPeriod(options: string): Promise<string>;
 
   /**
+   * Requests user consent to read an exercise route for a session.
+   * @param recordId - ExerciseSession metadata.id
+   * @returns JSON ExerciseRouteRead, or empty string when denied / no route
+   */
+  requestExerciseRoute(recordId: string): Promise<string>;
+
+  /**
    * Checks whether a Health Connect feature is available on this device.
    * @param feature - feature name (e.g. "skinTemperature", "matchmaking")
    * @returns "available" | "unavailable"

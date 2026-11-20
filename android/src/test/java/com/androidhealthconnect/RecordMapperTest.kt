@@ -1,28 +1,36 @@
 package com.androidhealthconnect
 
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.ActivityIntensityRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
 import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.MindfulnessSessionRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.units.Length
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +48,7 @@ class RecordMapperTest {
     @Test
     fun jsonToRecord_mapsAllSupportedTypes() {
         val cases = supportedWriteCases()
-        assertEquals("README supported record types", 19, cases.size)
+        assertEquals("README supported record types", 22, cases.size)
 
         cases.forEach { (recordType, json, expectedClass) ->
             val record: Record = RecordMapper.jsonToRecord(json)
@@ -65,6 +73,78 @@ class RecordMapperTest {
             val message = requireNotNull(e.message) { "expected exception message" }
             assertTrue(message.contains("Unsupported record type"))
         }
+    }
+
+    @Test
+    fun jsonToExerciseSession_mapsRouteWithOptionalLengths() {
+        val json =
+            interval("ExerciseSession") {
+                put("exerciseType", 56)
+                put(
+                    "exerciseRoute",
+                    JSONObject().put(
+                        "route",
+                        JSONArray()
+                            .put(
+                                JSONObject()
+                                    .put("time", START)
+                                    .put("latitude", 51.5)
+                                    .put("longitude", -0.12)
+                                    .put("altitude", 19.0)
+                                    .put("horizontalAccuracy", 2.0)
+                                // verticalAccuracy omitted — must stay null (matinzd #275)
+                            )
+                            .put(
+                                JSONObject()
+                                    // End time is exclusive on the session — stay inside range.
+                                    .put("time", "2024-01-01T08:59:59Z")
+                                    .put("latitude", 51.51)
+                                    .put("longitude", -0.11)
+                            )
+                    )
+                )
+            }
+
+        val record = RecordMapper.jsonToRecord(json) as ExerciseSessionRecord
+        val result = record.exerciseRouteResult
+        assertTrue(
+            "expected Data, got ${result::class.java.simpleName}",
+            result is ExerciseRouteResult.Data
+        )
+        val route = (result as ExerciseRouteResult.Data).exerciseRoute
+        assertEquals(2, route.route.size)
+
+        val first = route.route[0]
+        assertEquals(19.0, first.altitude?.inMeters ?: -1.0, 0.001)
+        assertEquals(2.0, first.horizontalAccuracy?.inMeters ?: -1.0, 0.001)
+        assertNull(first.verticalAccuracy)
+
+        val second = route.route[1]
+        assertNull(second.altitude)
+        assertNull(second.horizontalAccuracy)
+        assertNull(second.verticalAccuracy)
+    }
+
+    @Test
+    fun exerciseRouteDataToJson_includesLengthResults() {
+        val route =
+            ExerciseRoute(
+                listOf(
+                    ExerciseRoute.Location(
+                        time = java.time.Instant.parse(START),
+                        latitude = 1.0,
+                        longitude = 2.0,
+                        altitude = Length.meters(10.0),
+                    )
+                )
+            )
+        val json = RecordMapper.exerciseRouteDataToJson(route)
+        assertEquals("DATA", json.getString("type"))
+        val loc = json.getJSONArray("route").getJSONObject(0)
+        assertEquals(1.0, loc.getDouble("latitude"), 0.0)
+        assertNotNull(loc.getJSONObject("altitude"))
+        assertEquals(10.0, loc.getJSONObject("altitude").getDouble("inMeters"), 0.0)
+        assertTrue(loc.isNull("horizontalAccuracy"))
     }
 
     private data class Case(

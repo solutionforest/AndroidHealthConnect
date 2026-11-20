@@ -33,6 +33,7 @@ Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any
 | Health Connect permissions | ✅ Supported | Request / check / revoke |
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
 | Aggregate / bucket queries | ✅ Supported | `aggregateRecord`, `aggregateGroupByDuration`, `aggregateGroupByPeriod` |
+| Exercise routes | ✅ Supported | Write on `ExerciseSession`; read `DATA` / `NO_DATA` / `CONSENT_REQUIRED` + `requestExerciseRoute` |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, coverage thresholds, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
@@ -292,6 +293,47 @@ const { recordIdsList } = await writeRecords([
 ]);
 ```
 
+### Exercise routes
+
+Requires `WRITE_EXERCISE_ROUTE` to insert a route with a session, and
+`READ_EXERCISE_ROUTES` to read routes written by other apps. Omit optional
+altitude / accuracy fields instead of sending empty objects.
+
+```ts
+import {
+  writeRecords,
+  readExerciseSessions,
+  requestExerciseRoute,
+} from '@solutionforest/android-health-connect';
+
+await writeRecords([
+  {
+    recordType: 'ExerciseSession',
+    exerciseType: 56, // running
+    startTime: '2024-01-01T08:00:00Z',
+    endTime: '2024-01-01T09:00:00Z',
+    exerciseRoute: {
+      route: [
+        { time: '2024-01-01T08:00:00Z', latitude: 51.5, longitude: -0.12, altitude: 19 },
+        { time: '2024-01-01T08:30:00Z', latitude: 51.51, longitude: -0.11 },
+      ],
+    },
+  },
+]);
+
+const { records } = await readExerciseSessions({ /* timeRangeFilter … */ });
+for (const session of records) {
+  const route = session.exerciseRoute;
+  if (!route || route.type === 'NO_DATA') continue;
+  if (route.type === 'CONSENT_REQUIRED') {
+    const granted = await requestExerciseRoute(session.metadata?.id ?? '');
+    console.log(granted?.route);
+  } else {
+    console.log(route.route); // LengthResult altitude / accuracy when present
+  }
+}
+```
+
 ### Delete records
 
 ```ts
@@ -322,7 +364,7 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 | `BodyTemperature` | ✅ | ✅ | |
 | `BodyFat` | ✅ | ✅ | |
 | `Hydration` | ✅ | ✅ | |
-| `ExerciseSession` | ✅ | ✅ | |
+| `ExerciseSession` | ✅ | ✅ | Optional `exerciseRoute`; read returns `DATA` / `NO_DATA` / `CONSENT_REQUIRED` |
 | `RestingHeartRate` | ✅ | ✅ | |
 | `RespiratoryRate` | ✅ | ✅ | |
 | `FloorsClimbed` | ✅ | ✅ | |
@@ -427,6 +469,7 @@ Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on
 | `aggregateRecord(request)` | `Promise<AggregateResult>` | Sum/avg/min/max over Instant range |
 | `aggregateGroupByDuration(request)` | `Promise<AggregationResultGroupedByDuration[]>` | Fixed buckets (Instant; avoids UTC shift) |
 | `aggregateGroupByPeriod(request)` | `Promise<AggregationResultGroupedByPeriod[]>` | Calendar buckets (LocalDateTime) |
+| `requestExerciseRoute(recordId)` | `Promise<ExerciseRouteRead \| null>` | Consent UI when route is `CONSENT_REQUIRED` |
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
 | *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |

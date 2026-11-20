@@ -50,6 +50,7 @@ jest.mock(
       aggregateRecord: jest.fn(),
       aggregateGroupByDuration: jest.fn(),
       aggregateGroupByPeriod: jest.fn(),
+      requestExerciseRoute: jest.fn(),
       getFeatureStatus: jest.fn(),
       checkIfMatchmakingIsPossible: jest.fn(),
       launchMatchmaking: jest.fn(),

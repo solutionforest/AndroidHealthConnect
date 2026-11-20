@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Aggregate APIs: `aggregateRecord`, `aggregateGroupByDuration` (Instant buckets — avoids
   Android 14+ UTC shift), `aggregateGroupByPeriod` (LocalDateTime calendar buckets).
+- Exercise routes on `ExerciseSession`: write `{ route: Location[] }` with optional altitude /
+  accuracy (meters); read `{ type: DATA \| NO_DATA \| CONSENT_REQUIRED, route }` with
+  `LengthResult` fields; `requestExerciseRoute(recordId)` for one-time consent.
+- Permissions: `READ_EXERCISE_ROUTES` / `WRITE_EXERCISE_ROUTE`.
 
 ### Changed
 

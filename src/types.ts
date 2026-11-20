@@ -63,6 +63,10 @@ export type HealthPermission =
   | 'android.permission.health.WRITE_HYDRATION'
   | 'android.permission.health.READ_EXERCISE'
   | 'android.permission.health.WRITE_EXERCISE'
+  /** Plural — required to read routes on sessions you did not write. */
+  | 'android.permission.health.READ_EXERCISE_ROUTES'
+  /** Singular — required to insert/update a session with `exerciseRoute`. */
+  | 'android.permission.health.WRITE_EXERCISE_ROUTE'
   | 'android.permission.health.READ_RESTING_HEART_RATE'
   | 'android.permission.health.WRITE_RESTING_HEART_RATE'
   | 'android.permission.health.READ_RESPIRATORY_RATE'
@@ -429,6 +433,39 @@ export type ExerciseLap = {
   length?: number;
 };
 
+/**
+ * Write-side route point. Optional accuracy/altitude are meters.
+ * Omit optional fields instead of sending empty objects.
+ */
+export type ExerciseRouteLocation = {
+  time: string;
+  latitude: number;
+  longitude: number;
+  /** Meters above WGS84 ellipsoid. */
+  altitude?: number;
+  horizontalAccuracy?: number;
+  verticalAccuracy?: number;
+};
+
+/** Read-side length fields use multi-unit result objects. */
+export type ExerciseRouteLocationResult = {
+  time: string;
+  latitude: number;
+  longitude: number;
+  altitude?: LengthResult | null;
+  horizontalAccuracy?: LengthResult | null;
+  verticalAccuracy?: LengthResult | null;
+};
+
+export type ExerciseRouteWrite = {
+  route: ExerciseRouteLocation[];
+};
+
+export type ExerciseRouteRead = {
+  type: 'DATA' | 'NO_DATA' | 'CONSENT_REQUIRED';
+  route: ExerciseRouteLocationResult[];
+};
+
 export type ExerciseSessionRecord = {
   recordType: 'ExerciseSession';
   /** ExerciseSessionRecord.EXERCISE_TYPE_* constant. */
@@ -439,6 +476,8 @@ export type ExerciseSessionRecord = {
   notes?: string | null;
   segments?: ExerciseSegment[];
   laps?: ExerciseLap[];
+  /** Write: pass `{ route: [...] }`. Read: `{ type, route }` with LengthResult fields. */
+  exerciseRoute?: ExerciseRouteWrite | ExerciseRouteRead;
   startZoneOffset?: string;
   endZoneOffset?: string;
   metadata?: RecordMetadata;

@@ -48,6 +48,7 @@ import type {
   AggregateGroupByPeriodRequest,
   AggregationResultGroupedByDuration,
   AggregationResultGroupedByPeriod,
+  ExerciseRouteRead,
 } from './types';
 
 export * from './types';
@@ -288,6 +289,21 @@ export const readHydration = (options?: ReadRecordsOptions) =>
 
 export const readExerciseSessions = (options?: ReadRecordsOptions) =>
   readRecords<ExerciseSessionRecord>('ExerciseSession', options);
+
+/**
+ * Requests one-time consent to read a session's exercise route when
+ * `exerciseRoute.type === 'CONSENT_REQUIRED'`. Returns the route on grant,
+ * or `null` if the user denies / no route exists.
+ */
+export async function requestExerciseRoute(
+  recordId: string
+): Promise<ExerciseRouteRead | null> {
+  const json = await NativeAndroidHealthConnect.requestExerciseRoute(recordId);
+  if (!json) {
+    return null;
+  }
+  return JSON.parse(json) as ExerciseRouteRead;
+}
 
 export const readRestingHeartRate = (options?: ReadRecordsOptions) =>
   readRecords<RestingHeartRateRecord>('RestingHeartRate', options);
