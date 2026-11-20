@@ -342,12 +342,14 @@ import {
   writeRecords,
   readExerciseSessions,
   requestExerciseRoute,
+  getFeatureStatus,
+  ExerciseType,
 } from '@solutionforest/android-health-connect';
 
 await writeRecords([
   {
     recordType: 'ExerciseSession',
-    exerciseType: 56, // running
+    exerciseType: ExerciseType.RUNNING,
     startTime: '2024-01-01T08:00:00Z',
     endTime: '2024-01-01T09:00:00Z',
     exerciseRoute: {
@@ -358,6 +360,20 @@ await writeRecords([
     },
   },
 ]);
+
+// Optional 1.2 fields — gate on FEATURE_EXERCISE_SESSION_IMPROVEMENTS:
+if ((await getFeatureStatus('exerciseSessionImprovements')) === 'available') {
+  await writeRecords([
+    {
+      recordType: 'ExerciseSession',
+      exerciseType: ExerciseType.RUNNING,
+      startTime: '2024-01-01T08:00:00Z',
+      endTime: '2024-01-01T09:00:00Z',
+      rateOfPerceivedExertion: 6.5,
+      // plannedExerciseSessionId: '<id from PlannedExerciseSession>',
+    },
+  ]);
+}
 
 const { records } = await readExerciseSessions({ /* timeRangeFilter … */ });
 for (const session of records) {

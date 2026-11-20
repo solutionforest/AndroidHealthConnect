@@ -158,6 +158,24 @@ class RecordMapperTest {
     }
 
     @Test
+    fun jsonToExerciseSession_mapsImprovementsFields() {
+        val json =
+            interval("ExerciseSession") {
+                put("exerciseType", 56)
+                put("plannedExerciseSessionId", "planned-abc")
+                put("rateOfPerceivedExertion", 6.5)
+            }
+
+        val record = RecordMapper.jsonToRecord(json) as ExerciseSessionRecord
+        assertEquals("planned-abc", record.plannedExerciseSessionId)
+        assertEquals(6.5f, record.rateOfPerceivedExertion ?: -1f, 0.001f)
+
+        val out = RecordMapper.recordToJson(record)
+        assertEquals("planned-abc", out.getString("plannedExerciseSessionId"))
+        assertEquals(6.5, out.getDouble("rateOfPerceivedExertion"), 0.001)
+    }
+
+    @Test
     fun exerciseRouteDataToJson_includesLengthResults() {
         val route =
             ExerciseRoute(

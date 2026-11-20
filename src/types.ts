@@ -440,7 +440,7 @@ export type HydrationRecord = {
 export type ExerciseSegment = {
   startTime: string;
   endTime: string;
-  /** ExerciseSegmentType constant. */
+  /** {@link ExerciseSegmentType} constant. */
   segmentType: number;
   repetitions?: number;
 };
@@ -487,7 +487,7 @@ export type ExerciseRouteRead = {
 
 export type ExerciseSessionRecord = {
   recordType: 'ExerciseSession';
-  /** ExerciseSessionRecord.EXERCISE_TYPE_* constant. */
+  /** ExerciseSessionRecord.EXERCISE_TYPE_* constant — use {@link ExerciseType}. */
   exerciseType: number;
   startTime: string;
   endTime: string;
@@ -497,6 +497,16 @@ export type ExerciseSessionRecord = {
   laps?: ExerciseLap[];
   /** Write: pass `{ route: [...] }`. Read: `{ type, route }` with LengthResult fields. */
   exerciseRoute?: ExerciseRouteWrite | ExerciseRouteRead;
+  /**
+   * Link to a planned exercise session id.
+   * Requires `getFeatureStatus('exerciseSessionImprovements') === 'available'`.
+   */
+  plannedExerciseSessionId?: string | null;
+  /**
+   * Rate of perceived exertion (typically 0–10).
+   * Requires `getFeatureStatus('exerciseSessionImprovements') === 'available'`.
+   */
+  rateOfPerceivedExertion?: number | null;
   startZoneOffset?: string;
   endZoneOffset?: string;
   metadata?: RecordMetadata;
@@ -664,82 +674,150 @@ export const SleepStageType = {
   AWAKE_IN_BED: 7,
 } as const;
 
-// ─── ExerciseType constants (most common) ─────────────────────────────────────
-
+/**
+ * `ExerciseSessionRecord.EXERCISE_TYPE_*` — values match connect-client 1.2.
+ * Gaps in numbering are intentional (removed / reserved platform ids).
+ * Segment-level types belong in {@link ExerciseSegmentType}, not here.
+ */
 export const ExerciseType = {
   OTHER_WORKOUT: 0,
-  BACK_EXTENSION: 1,
   BADMINTON: 2,
-  BARBELL_SHOULDER_PRESS: 3,
   BASEBALL: 4,
   BASKETBALL: 5,
-  BENCH_PRESS: 6,
-  BENCH_SIT_UP: 7,
   BIKING: 8,
   BIKING_STATIONARY: 9,
   BOOT_CAMP: 10,
   BOXING: 11,
-  BURPEE: 12,
   CALISTHENICS: 13,
   CRICKET: 14,
-  CRUNCH: 15,
   DANCING: 16,
-  DEADLIFT: 17,
-  ELLIPTICAL: 18,
-  FOOTBALL_AMERICAN: 19,
-  FOOTBALL_AUSTRALIAN: 20,
-  FRISBEE_DISC: 21,
-  GOLF: 22,
-  GUIDED_BREATHING: 23,
-  GYMNASTICS: 24,
-  HANDBALL: 25,
-  HIGH_INTENSITY_INTERVAL_TRAINING: 26,
-  HIKING: 27,
-  ICE_HOCKEY: 28,
-  ICE_SKATING: 29,
-  JUMP_ROPE: 30,
-  JUMPING_JACK: 31,
-  LAT_PULL_DOWN: 32,
-  LUNGE: 33,
-  MARTIAL_ARTS: 34,
-  PADDLING: 35,
-  PARAGLIDING: 36,
-  PILATES: 37,
-  PLANK: 38,
-  RACQUETBALL: 39,
-  ROCK_CLIMBING: 40,
-  ROLLER_HOCKEY: 41,
-  ROWING: 42,
-  ROWING_MACHINE: 43,
-  RUGBY: 44,
-  RUNNING: 45,
-  RUNNING_TREADMILL: 46,
-  SAILING: 47,
-  SCUBA_DIVING: 48,
-  SKATING: 49,
-  SKIING: 50,
-  SNOWBOARDING: 51,
-  SNOWSHOEING: 52,
-  SOCCER: 53,
-  SOFTBALL: 54,
-  SQUASH: 55,
-  SQUAT: 56,
-  STAIR_CLIMBING: 57,
-  STAIR_CLIMBING_MACHINE: 58,
-  STRENGTH_TRAINING: 59,
-  STRETCHING: 60,
-  SURFING: 61,
-  SWIMMING_OPEN_WATER: 62,
-  SWIMMING_POOL: 63,
-  TABLE_TENNIS: 64,
-  TENNIS: 65,
-  UPPER_TWIST: 66,
-  VOLLEYBALL: 67,
-  WALKING: 68,
-  WATER_POLO: 69,
-  WEIGHTLIFTING: 70,
-  WHEEL_CHAIR: 71,
-  YOGA: 72,
+  ELLIPTICAL: 25,
+  EXERCISE_CLASS: 26,
+  FENCING: 27,
+  FOOTBALL_AMERICAN: 28,
+  FOOTBALL_AUSTRALIAN: 29,
+  FRISBEE_DISC: 31,
+  GOLF: 32,
+  GUIDED_BREATHING: 33,
+  GYMNASTICS: 34,
+  HANDBALL: 35,
+  HIGH_INTENSITY_INTERVAL_TRAINING: 36,
+  HIKING: 37,
+  ICE_HOCKEY: 38,
+  ICE_SKATING: 39,
+  MARTIAL_ARTS: 44,
+  PADDLING: 46,
+  PARAGLIDING: 47,
+  PILATES: 48,
+  RACQUETBALL: 50,
+  ROCK_CLIMBING: 51,
+  ROLLER_HOCKEY: 52,
+  ROWING: 53,
+  ROWING_MACHINE: 54,
+  RUGBY: 55,
+  RUNNING: 56,
+  RUNNING_TREADMILL: 57,
+  SAILING: 58,
+  SCUBA_DIVING: 59,
+  SKATING: 60,
+  SKIING: 61,
+  SNOWBOARDING: 62,
+  SNOWSHOEING: 63,
+  SOCCER: 64,
+  SOFTBALL: 65,
+  SQUASH: 66,
+  STAIR_CLIMBING: 68,
+  STAIR_CLIMBING_MACHINE: 69,
+  STRENGTH_TRAINING: 70,
+  STRETCHING: 71,
+  SURFING: 72,
+  SWIMMING_OPEN_WATER: 73,
+  SWIMMING_POOL: 74,
+  TABLE_TENNIS: 75,
+  TENNIS: 76,
+  VOLLEYBALL: 78,
+  WALKING: 79,
+  WATER_POLO: 80,
+  WEIGHTLIFTING: 81,
+  WHEELCHAIR: 82,
+  /** @deprecated Use {@link ExerciseType.WHEELCHAIR}. */
+  WHEEL_CHAIR: 82,
+  YOGA: 83,
+} as const;
+
+/**
+ * `ExerciseSegment.EXERCISE_SEGMENT_TYPE_*` — values match connect-client 1.2.
+ * Use on `ExerciseSession.segments[].segmentType`, not `exerciseType`.
+ */
+export const ExerciseSegmentType = {
+  UNKNOWN: 0,
+  ARM_CURL: 1,
+  BACK_EXTENSION: 2,
+  BALL_SLAM: 3,
+  BARBELL_SHOULDER_PRESS: 4,
+  BENCH_PRESS: 5,
+  BENCH_SIT_UP: 6,
+  BIKING: 7,
+  BIKING_STATIONARY: 8,
+  BURPEE: 9,
+  CRUNCH: 10,
+  DEADLIFT: 11,
+  DOUBLE_ARM_TRICEPS_EXTENSION: 12,
+  DUMBBELL_CURL_LEFT_ARM: 13,
+  DUMBBELL_CURL_RIGHT_ARM: 14,
+  DUMBBELL_FRONT_RAISE: 15,
+  DUMBBELL_LATERAL_RAISE: 16,
+  DUMBBELL_ROW: 17,
+  DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM: 18,
+  DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM: 19,
+  DUMBBELL_TRICEPS_EXTENSION_TWO_ARM: 20,
+  ELLIPTICAL: 21,
+  FORWARD_TWIST: 22,
+  FRONT_RAISE: 23,
+  HIGH_INTENSITY_INTERVAL_TRAINING: 24,
+  HIP_THRUST: 25,
+  HULA_HOOP: 26,
+  JUMPING_JACK: 27,
+  JUMP_ROPE: 28,
+  KETTLEBELL_SWING: 29,
+  LATERAL_RAISE: 30,
+  LAT_PULL_DOWN: 31,
+  LEG_CURL: 32,
+  LEG_EXTENSION: 33,
+  LEG_PRESS: 34,
+  LEG_RAISE: 35,
+  LUNGE: 36,
+  MOUNTAIN_CLIMBER: 37,
+  OTHER_WORKOUT: 38,
+  PAUSE: 39,
+  PILATES: 40,
+  PLANK: 41,
+  PULL_UP: 42,
+  PUNCH: 43,
+  REST: 44,
+  ROWING_MACHINE: 45,
+  RUNNING: 46,
+  RUNNING_TREADMILL: 47,
+  SHOULDER_PRESS: 48,
+  SINGLE_ARM_TRICEPS_EXTENSION: 49,
+  SIT_UP: 50,
+  SQUAT: 51,
+  STAIR_CLIMBING: 52,
+  STAIR_CLIMBING_MACHINE: 53,
+  STRETCHING: 54,
+  SWIMMING_BACKSTROKE: 55,
+  SWIMMING_BREASTSTROKE: 56,
+  SWIMMING_BUTTERFLY: 57,
+  SWIMMING_FREESTYLE: 58,
+  SWIMMING_MIXED: 59,
+  SWIMMING_OPEN_WATER: 60,
+  SWIMMING_OTHER: 61,
+  SWIMMING_POOL: 62,
+  UPPER_TWIST: 63,
+  WALKING: 64,
+  WEIGHTLIFTING: 65,
+  WHEELCHAIR: 66,
+  YOGA: 67,
 } as const;
 
 // ─── RecordingMethod constants ────────────────────────────────────────────────

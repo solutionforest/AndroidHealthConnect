@@ -697,6 +697,15 @@ internal object RecordMapper {
         }
         put("laps", laps)
         put("exerciseRoute", exerciseRouteResultToJson(r.exerciseRouteResult))
+        // FEATURE_EXERCISE_SESSION_IMPROVEMENTS fields (null when unsupported / unset).
+        put(
+            "plannedExerciseSessionId",
+            r.plannedExerciseSessionId ?: JSONObject.NULL
+        )
+        put(
+            "rateOfPerceivedExertion",
+            r.rateOfPerceivedExertion ?: JSONObject.NULL
+        )
         r.startZoneOffset?.let { put("startZoneOffset", it.toString()) }
         r.endZoneOffset?.let { put("endZoneOffset", it.toString()) }
         put("metadata", metadataToJson(r.metadata))
@@ -1013,6 +1022,13 @@ internal object RecordMapper {
 
         val exerciseRoute = jsonToExerciseRoute(j.optJSONObject("exerciseRoute"))
 
+        val plannedId =
+            if (j.isNull("plannedExerciseSessionId")) null
+            else j.optString("plannedExerciseSessionId").ifEmpty { null }
+        val rpe =
+            if (!j.has("rateOfPerceivedExertion") || j.isNull("rateOfPerceivedExertion")) null
+            else j.getDouble("rateOfPerceivedExertion").toFloat()
+
         return ExerciseSessionRecord(
             exerciseType = j.getInt("exerciseType"),
             startTime = parseInstant(j, "startTime"),
@@ -1022,6 +1038,8 @@ internal object RecordMapper {
             segments = segments,
             laps = laps,
             exerciseRoute = exerciseRoute,
+            plannedExerciseSessionId = plannedId,
+            rateOfPerceivedExertion = rpe,
             startZoneOffset = parseZoneOffset(j.optString("startZoneOffset")),
             endZoneOffset = parseZoneOffset(j.optString("endZoneOffset")),
             metadata = jsonToMetadata(j.optJSONObject("metadata"))

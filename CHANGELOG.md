@@ -14,12 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `updateRecords()` for edit/sync; metadata round-trip preserves `id` / recording method /
   optional `device` on write/update.
 - `getChanges(token, { pageSize })` soft page-size hint (1–5000).
+- Exercise session 1.2 fields (feature-gated): `plannedExerciseSessionId`,
+  `rateOfPerceivedExertion` when `exerciseSessionImprovements` is available.
+- `ExerciseSegmentType` constants aligned with connect-client 1.2.
 
 ### Changed
 
 - `jsonToMetadata` no longer always uses bare `manualEntry()` (supports `*WithId` for updates).
 - Expo plugin docs: omitting `permissions` declares none (intent-filters only).
 - Example app recipes: aggregates, `getChanges`, history permission, exercise route.
+
+### Fixed
+
+- `ExerciseType` values now match `ExerciseSessionRecord.EXERCISE_TYPE_*` (connect-client 1.2);
+  segment-only ids moved to `ExerciseSegmentType`. `WHEEL_CHAIR` kept as alias of `WHEELCHAIR`.
 
 ## [0.3.8] - 2026-11-20
 

@@ -227,6 +227,10 @@ export default function App() {
     if (route.type === 'CONSENT_REQUIRED' && first.metadata?.id) {
       setStatus('CONSENT_REQUIRED — requesting route…');
       const consented = await requestExerciseRoute(first.metadata.id);
+      if (!consented) {
+        setStatus('Route consent cancelled / no result');
+        return;
+      }
       setStatus(
         consented.type === 'DATA'
           ? `Consented route: ${consented.route.length} point(s)`
