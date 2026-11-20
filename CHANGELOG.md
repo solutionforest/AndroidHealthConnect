@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   accuracy (meters); read `{ type: DATA \| NO_DATA \| CONSENT_REQUIRED, route }` with
   `LengthResult` fields; `requestExerciseRoute(recordId)` for one-time consent.
 - Permissions: `READ_EXERCISE_ROUTES` / `WRITE_EXERCISE_ROUTE`.
+- Changelog APIs: `getChangesToken` / `getChanges` (upsertion + deletion pages,
+  `hasMore`, `changesTokenExpired`; tokens valid ~30 days).
 
 ### Changed
 

@@ -76,6 +76,12 @@ export interface Spec extends TurboModule {
    */
   requestExerciseRoute(recordId: string): Promise<string>;
 
+  /** JSON GetChangesTokenRequest → changes token string. */
+  getChangesToken(options: string): Promise<string>;
+
+  /** changesToken → JSON GetChangesResponse. */
+  getChanges(changesToken: string): Promise<string>;
+
   /**
    * Checks whether a Health Connect feature is available on this device.
    * @param feature - feature name (e.g. "skinTemperature", "matchmaking")

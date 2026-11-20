@@ -311,6 +311,34 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  // ─── Changelog / changes token ────────────────────────────────────────────
+
+  override fun getChangesToken(options: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val token = ChangesMapper.getChangesToken(healthConnectClient, JSONObject(options))
+        promise.resolve(token)
+      } catch (e: Exception) {
+        Log.e(TAG, "getChangesToken error", e)
+        promise.reject("CHANGES_TOKEN_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun getChanges(changesToken: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result = ChangesMapper.getChanges(healthConnectClient, changesToken)
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "getChanges error", e)
+        promise.reject("CHANGES_ERROR", e.message, e)
+      }
+    }
+  }
+
   // ─── Exercise route consent ───────────────────────────────────────────────
 
   override fun requestExerciseRoute(recordId: String, promise: Promise) {

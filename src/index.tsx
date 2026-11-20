@@ -49,6 +49,8 @@ import type {
   AggregationResultGroupedByDuration,
   AggregationResultGroupedByPeriod,
   ExerciseRouteRead,
+  GetChangesTokenRequest,
+  GetChangesResponse,
 } from './types';
 
 export * from './types';
@@ -241,6 +243,30 @@ export async function aggregateGroupByPeriod(
     JSON.stringify(request)
   );
   return JSON.parse(json) as AggregationResultGroupedByPeriod[];
+}
+
+// ─── Changelog / changes token ────────────────────────────────────────────────
+
+/**
+ * Returns a changes token for the given record types (valid ~30 days).
+ * Prefer one type per token so a revoked permission cannot invalidate others.
+ */
+export async function getChangesToken(
+  request: GetChangesTokenRequest
+): Promise<string> {
+  return NativeAndroidHealthConnect.getChangesToken(JSON.stringify(request));
+}
+
+/**
+ * Fetches upserts/deletes since `changesToken`. Loop while `hasMore`;
+ * persist `nextChangesToken`. If `changesTokenExpired`, backfill then mint a
+ * new token via {@link getChangesToken}.
+ */
+export async function getChanges(
+  changesToken: string
+): Promise<GetChangesResponse> {
+  const json = await NativeAndroidHealthConnect.getChanges(changesToken);
+  return JSON.parse(json) as GetChangesResponse;
 }
 
 // ─── Typed convenience helpers ────────────────────────────────────────────────

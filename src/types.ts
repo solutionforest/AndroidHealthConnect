@@ -596,6 +596,37 @@ export type HealthRecord =
 
 export type RecordType = HealthRecord['recordType'];
 
+// ─── Changelog / changes token ────────────────────────────────────────────────
+
+export type GetChangesTokenRequest = {
+  /** Prefer one type per token so a revoked permission cannot invalidate others. */
+  recordTypes: RecordType[];
+  /** Optional package-name filters (data origins). */
+  dataOriginFilters?: string[];
+};
+
+export type UpsertionChange = {
+  record: HealthRecord;
+};
+
+export type DeletionChange = {
+  recordId: string;
+};
+
+export type GetChangesResponse = {
+  upsertionChanges: UpsertionChange[];
+  deletionChanges: DeletionChange[];
+  /** Persist and pass to the next {@link getChanges} call. */
+  nextChangesToken: string;
+  /** Call {@link getChanges} again with `nextChangesToken` until false. */
+  hasMore: boolean;
+  /**
+   * Token older than ~30 days. Re-sync with `readRecords` then call
+   * {@link getChangesToken} for a fresh token.
+   */
+  changesTokenExpired: boolean;
+};
+
 // ─── SleepStageType constants ─────────────────────────────────────────────────
 
 export const SleepStageType = {

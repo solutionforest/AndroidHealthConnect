@@ -34,6 +34,7 @@ Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
 | Aggregate / bucket queries | ✅ Supported | `aggregateRecord`, `aggregateGroupByDuration`, `aggregateGroupByPeriod` |
 | Exercise routes | ✅ Supported | Write on `ExerciseSession`; read `DATA` / `NO_DATA` / `CONSENT_REQUIRED` + `requestExerciseRoute` |
+| Changelog sync | ✅ Supported | `getChangesToken` / `getChanges` (upsert + delete pages; ~30-day tokens) |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, coverage thresholds, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
@@ -346,6 +347,35 @@ await deleteRecordsByTime('Steps', '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z
 await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 ```
 
+### Changelog sync
+
+Tokens expire after ~30 days. Prefer **one record type per token**. Loop while
+`hasMore`; if `changesTokenExpired`, backfill with `readRecords` then mint a new
+token.
+
+```ts
+import { getChangesToken, getChanges } from '@solutionforest/android-health-connect';
+
+let token = await getChangesToken({ recordTypes: ['Steps'] });
+let page = await getChanges(token);
+while (true) {
+  if (page.changesTokenExpired) {
+    // backfill, then: token = await getChangesToken({ recordTypes: ['Steps'] });
+    break;
+  }
+  for (const { record } of page.upsertionChanges) {
+    console.log('upsert', record.recordType, record.metadata?.id);
+  }
+  for (const { recordId } of page.deletionChanges) {
+    console.log('delete', recordId);
+  }
+  token = page.nextChangesToken;
+  if (!page.hasMore) break;
+  page = await getChanges(token);
+}
+// Persist `token` for the next sync.
+```
+
 ## Supported record types
 
 | Record type | Read | Write | Notes |
@@ -470,6 +500,8 @@ Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on
 | `aggregateGroupByDuration(request)` | `Promise<AggregationResultGroupedByDuration[]>` | Fixed buckets (Instant; avoids UTC shift) |
 | `aggregateGroupByPeriod(request)` | `Promise<AggregationResultGroupedByPeriod[]>` | Calendar buckets (LocalDateTime) |
 | `requestExerciseRoute(recordId)` | `Promise<ExerciseRouteRead \| null>` | Consent UI when route is `CONSENT_REQUIRED` |
+| `getChangesToken(request)` | `Promise<string>` | Mint changelog token (~30 days; prefer one type) |
+| `getChanges(token)` | `Promise<GetChangesResponse>` | Upserts/deletes since token; loop while `hasMore` |
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
 | *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |

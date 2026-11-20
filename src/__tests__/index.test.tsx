@@ -26,6 +26,8 @@ import {
   aggregateGroupByDuration,
   aggregateGroupByPeriod,
   requestExerciseRoute,
+  getChangesToken,
+  getChanges,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 import type { HealthPermission, StepsRecord } from '../types';
@@ -52,6 +54,8 @@ jest.mock(
       aggregateGroupByDuration: jest.fn(),
       aggregateGroupByPeriod: jest.fn(),
       requestExerciseRoute: jest.fn(),
+      getChangesToken: jest.fn(),
+      getChanges: jest.fn(),
       getFeatureStatus: jest.fn(),
       checkIfMatchmakingIsPossible: jest.fn(),
       launchMatchmaking: jest.fn(),
@@ -447,6 +451,45 @@ describe('exercise route', () => {
   it('requestExerciseRoute returns null when denied', async () => {
     mockNative.requestExerciseRoute.mockResolvedValue('');
     await expect(requestExerciseRoute('session-id')).resolves.toBeNull();
+  });
+});
+
+describe('changelog / changes token', () => {
+  it('getChangesToken forwards request JSON', async () => {
+    mockNative.getChangesToken.mockResolvedValue('token-abc');
+    await expect(
+      getChangesToken({ recordTypes: ['Steps', 'Weight'] })
+    ).resolves.toBe('token-abc');
+    expect(mockNative.getChangesToken).toHaveBeenCalledWith(
+      JSON.stringify({ recordTypes: ['Steps', 'Weight'] })
+    );
+  });
+
+  it('getChanges parses upsertion and deletion pages', async () => {
+    mockNative.getChanges.mockResolvedValue(
+      JSON.stringify({
+        upsertionChanges: [
+          {
+            record: {
+              recordType: 'Steps',
+              count: 100,
+              startTime: '2024-01-01T08:00:00Z',
+              endTime: '2024-01-01T09:00:00Z',
+            },
+          },
+        ],
+        deletionChanges: [{ recordId: 'deleted-1' }],
+        nextChangesToken: 'token-next',
+        hasMore: true,
+        changesTokenExpired: false,
+      })
+    );
+    const result = await getChanges('token-abc');
+    expect(result.upsertionChanges).toHaveLength(1);
+    expect(result.deletionChanges[0]?.recordId).toBe('deleted-1');
+    expect(result.nextChangesToken).toBe('token-next');
+    expect(result.hasMore).toBe(true);
+    expect(mockNative.getChanges).toHaveBeenCalledWith('token-abc');
   });
 });
 

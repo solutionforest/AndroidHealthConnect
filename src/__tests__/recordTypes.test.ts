@@ -51,6 +51,8 @@ jest.mock(
       aggregateGroupByDuration: jest.fn(),
       aggregateGroupByPeriod: jest.fn(),
       requestExerciseRoute: jest.fn(),
+      getChangesToken: jest.fn(),
+      getChanges: jest.fn(),
       getFeatureStatus: jest.fn(),
       checkIfMatchmakingIsPossible: jest.fn(),
       launchMatchmaking: jest.fn(),

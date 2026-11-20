@@ -233,6 +233,37 @@ internal object RecordMapper {
         }
     }
 
+    /** Serialise any supported [Record] (used by changelog upsertions). */
+    fun recordToJson(record: Record): JSONObject =
+        when (record) {
+            is StepsRecord -> stepsToJson(record)
+            is HeartRateRecord -> heartRateToJson(record)
+            is SleepSessionRecord -> sleepSessionToJson(record)
+            is ActiveCaloriesBurnedRecord -> activeCaloriesToJson(record)
+            is TotalCaloriesBurnedRecord -> totalCaloriesToJson(record)
+            is DistanceRecord -> distanceToJson(record)
+            is WeightRecord -> weightToJson(record)
+            is HeightRecord -> heightToJson(record)
+            is BloodPressureRecord -> bloodPressureToJson(record)
+            is BloodGlucoseRecord -> bloodGlucoseToJson(record)
+            is OxygenSaturationRecord -> oxygenSaturationToJson(record)
+            is BodyTemperatureRecord -> bodyTemperatureToJson(record)
+            is BodyFatRecord -> bodyFatToJson(record)
+            is HydrationRecord -> hydrationToJson(record)
+            is ExerciseSessionRecord -> exerciseSessionToJson(record)
+            is RestingHeartRateRecord -> restingHeartRateToJson(record)
+            is RespiratoryRateRecord -> respiratoryRateToJson(record)
+            is FloorsClimbedRecord -> floorsClimbedToJson(record)
+            is ElevationGainedRecord -> elevationGainedToJson(record)
+            is MindfulnessSessionRecord -> mindfulnessSessionToJson(record)
+            is SkinTemperatureRecord -> skinTemperatureToJson(record)
+            is ActivityIntensityRecord -> activityIntensityToJson(record)
+            else ->
+                throw IllegalArgumentException(
+                    "Unsupported record class: ${record::class.java.simpleName}"
+                )
+        }
+
     // ── Write ────────────────────────────────────────────────────────────────
 
     fun jsonToRecord(json: JSONObject): Record {
