@@ -18,6 +18,23 @@
         "!example/android/app/build"
       ],
       "outputs": []
+    },
+    "test:android": {
+      "env": ["ANDROID_HOME", "ORG_GRADLE_PROJECT_newArchEnabled"],
+      "inputs": [
+        "package.json",
+        "android",
+        "!android/build",
+        "!android/src/test/**/build",
+        "src/*.ts",
+        "src/*.tsx",
+        "example/package.json",
+        "example/android",
+        "!example/android/.gradle",
+        "!example/android/build",
+        "!example/android/app/build"
+      ],
+      "outputs": []
     }
   }
 }

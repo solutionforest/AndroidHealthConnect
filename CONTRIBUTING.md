@@ -73,6 +73,7 @@ Remember to add tests for your change if possible. Run the unit tests by:
 
 ```sh
 yarn test
+yarn test:android   # Kotlin / Robolectric (needs Android SDK + JDK 17)
 ```
 
 
@@ -121,6 +122,7 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn lint`: lint files with [ESLint](https://eslint.org/).
 - `yarn test`: run unit tests with [Jest](https://jestjs.io/).
 - `yarn test:coverage`: unit tests with coverage summary (thresholds enforced).
+- `yarn test:android`: Kotlin unit tests via the example Gradle project (Robolectric).
 - `yarn pack:check`: dry-run pack list (verify published files).
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.

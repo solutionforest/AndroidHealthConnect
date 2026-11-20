@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Permissions: `READ_EXERCISE_ROUTES` / `WRITE_EXERCISE_ROUTE`.
 - Changelog APIs: `getChangesToken` / `getChanges` (upsertion + deletion pages,
   `hasMore`, `changesTokenExpired`; tokens valid ~30 days).
+- CI `test-android` job + `yarn test:android` for Kotlin / Robolectric unit tests.
 
 ### Changed
 
