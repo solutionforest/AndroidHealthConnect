@@ -1,14 +1,25 @@
-# android-health-connect
+<p align="center">
+  <img src="docs/assets/logo.jpg" alt="android-health-connect" width="160" height="160" />
+</p>
 
-[![CI](https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/v/release/solutionforest/AndroidHealthConnect)](https://github.com/solutionforest/AndroidHealthConnect/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Android-3DDC84.svg)](https://developer.android.com/health-and-fitness/health-connect)
-[![React Native](https://img.shields.io/badge/React%20Native-0.84%2B-61DAFB.svg)](https://reactnative.dev/)
+<h1 align="center">android-health-connect</h1>
+
+<p align="center">
+  <a href="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml"><img src="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://github.com/solutionforest/AndroidHealthConnect/releases"><img src="https://img.shields.io/github/v/release/solutionforest/AndroidHealthConnect" alt="GitHub release" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://developer.android.com/health-and-fitness/health-connect"><img src="https://img.shields.io/badge/platform-Android-3DDC84.svg" alt="Platform" /></a>
+  <a href="https://reactnative.dev/"><img src="https://img.shields.io/badge/React%20Native-0.84%2B-61DAFB.svg" alt="React Native" /></a>
+  <img src="https://img.shields.io/badge/TypeScript-strict-3178C6.svg" alt="TypeScript strict" />
+  <img src="https://img.shields.io/badge/coverage-100%25%20lines-brightgreen.svg" alt="Coverage 100% lines" />
+  <img src="https://img.shields.io/badge/quality-max--strict-0F172A.svg" alt="Quality max-strict" />
+</p>
 
 A React Native library for integrating with [Android Health Connect](https://developer.android.com/health-and-fitness/health-connect) — the unified health & fitness data platform on Android 10+ (API 29+).
 
 > **Android only.** This library has no iOS implementation.
+
+Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any` / no-unsafe-*), Jest coverage gates, Kotlin `allWarningsAsErrors`, and CI that fails when quality drops.
 
 ## Support
 
@@ -22,7 +33,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Health Connect permissions | ✅ Supported | Request / check / revoke |
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
-| CI | ✅ GitHub-hosted | `ubuntu-latest` — lint, typecheck, Jest, library + Android build, audit |
+| CI / quality gates | ✅ GitHub-hosted | lint, typecheck, coverage thresholds, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
 | CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
 
