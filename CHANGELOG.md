@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-11-20
+
 ### Added
 
 - Aggregate APIs: `aggregateRecord`, `aggregateGroupByDuration` (Instant buckets — avoids
@@ -98,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Stable 0.2.x line (HC `1.1.0`, AGP 8.9 / sdk 36): GitHub Packages + hosted CI parity and security dependency fixes.
 
+[0.3.8]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.8
 [0.3.7]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.7
 [0.3.6]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.6
 [0.3.5]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.5
