@@ -101,13 +101,36 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ steps.meta.outputs.tag }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release ${TAG} already exists"
+          VERSION="${{ steps.meta.outputs.version }}"
+          NOTES_FILE="$(mktemp)"
+          PREV_TAG="$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)"
+
+          {
+            echo "## What's Changed"
+            echo
+            awk -v ver="$VERSION" '
+              $0 ~ "^## \\[" ver "\\]" {grab=1; next}
+              grab && $0 ~ /^## \[/ {exit}
+              grab {print}
+            ' CHANGELOG.md
+            if [[ -n "$PREV_TAG" ]]; then
+              echo
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${TAG}"
+            fi
+          } > "$NOTES_FILE"
+
+          if ! grep -qE '^- ' "$NOTES_FILE"; then
+            # No CHANGELOG bullets — fall back to GitHub auto notes.
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release ${TAG} already exists (empty CHANGELOG section)"
+            else
+              gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag
+            fi
+          elif gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file "$NOTES_FILE"
+            echo "Updated notes for ${TAG} from CHANGELOG.md"
           else
-            gh release create "$TAG" \
-              --title "$TAG" \
-              --generate-notes \
-              --verify-tag
+            gh release create "$TAG" --title "$TAG" --notes-file "$NOTES_FILE" --verify-tag
           fi
 
       - name: Upload release assets
