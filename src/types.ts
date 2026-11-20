@@ -108,6 +108,13 @@ export type HealthPermission =
 
 // ─── Common ───────────────────────────────────────────────────────────────────
 
+export type DeviceInfo = {
+  /** Device.TYPE_* constant (0 = unknown, 1 = watch, 2 = phone, …). */
+  type: number;
+  manufacturer?: string | null;
+  model?: string | null;
+};
+
 export type RecordMetadata = {
   /** Unique identifier assigned by Health Connect. Empty string for new records. */
   id: string;
@@ -122,6 +129,8 @@ export type RecordMetadata = {
    * of which app (Health Connect, Google Fit, Samsung Health, etc.) wrote it.
    */
   recordingMethod?: number;
+  /** Present on read when the writer set a device; optional on write. */
+  device?: DeviceInfo | null;
 };
 
 export type TimeRangeFilter = {

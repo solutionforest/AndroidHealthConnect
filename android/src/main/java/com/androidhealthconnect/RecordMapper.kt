@@ -3,6 +3,7 @@ package com.androidhealthconnect
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.*
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata as HealthMetadata
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -404,15 +405,115 @@ internal object RecordMapper {
             put("lastModifiedTime", meta.lastModifiedTime.toString())
             put("dataOrigin", meta.dataOrigin.packageName)
             put("recordingMethod", meta.recordingMethod)
+            val device = meta.device
+            if (device != null) {
+                put(
+                    "device",
+                    JSONObject()
+                        .put("type", device.type)
+                        .put("manufacturer", device.manufacturer ?: JSONObject.NULL)
+                        .put("model", device.model ?: JSONObject.NULL),
+                )
+            } else {
+                put("device", JSONObject.NULL)
+            }
         }
 
-    private fun jsonToMetadata(json: JSONObject?): HealthMetadata {
-        val clientRecordId = json?.optString("clientRecordId")?.ifEmpty { null }
-        return if (clientRecordId != null) {
-            HealthMetadata.manualEntry(clientRecordId = clientRecordId)
-        } else {
-            HealthMetadata.manualEntry()
+    /**
+     * Build write/update metadata.
+     * - Non-empty `id` → update path (`*WithId`)
+     * - Else optional `clientRecordId` / `clientRecordVersion` / `recordingMethod` / `device`
+     */
+    fun jsonToMetadata(json: JSONObject?): HealthMetadata {
+        if (json == null) return HealthMetadata.manualEntry()
+
+        val id = json.optString("id").ifEmpty { null }
+        val clientRecordId = json.optString("clientRecordId").ifEmpty { null }
+        val clientRecordVersion =
+            if (json.has("clientRecordVersion") && !json.isNull("clientRecordVersion")) {
+                json.getLong("clientRecordVersion")
+            } else {
+                0L
+            }
+        val recordingMethod =
+            if (json.has("recordingMethod") && !json.isNull("recordingMethod")) {
+                json.getInt("recordingMethod")
+            } else {
+                HealthMetadata.RECORDING_METHOD_MANUAL_ENTRY
+            }
+        val device = jsonToDevice(json.optJSONObject("device"))
+
+        if (id != null) {
+            return when (recordingMethod) {
+                HealthMetadata.RECORDING_METHOD_ACTIVELY_RECORDED ->
+                    if (device != null) {
+                        HealthMetadata.activelyRecordedWithId(id, device)
+                    } else {
+                        HealthMetadata.activelyRecordedWithId(id, Device(type = Device.TYPE_UNKNOWN))
+                    }
+                HealthMetadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED ->
+                    HealthMetadata.autoRecordedWithId(
+                        id,
+                        device ?: Device(type = Device.TYPE_UNKNOWN),
+                    )
+                HealthMetadata.RECORDING_METHOD_UNKNOWN ->
+                    HealthMetadata.unknownRecordingMethodWithId(
+                        id,
+                        device ?: Device(type = Device.TYPE_UNKNOWN),
+                    )
+                else ->
+                    if (device != null) {
+                        HealthMetadata.manualEntryWithId(id, device)
+                    } else {
+                        HealthMetadata.manualEntryWithId(id)
+                    }
+            }
         }
+
+        return when (recordingMethod) {
+            HealthMetadata.RECORDING_METHOD_ACTIVELY_RECORDED ->
+                when {
+                    clientRecordId != null && device != null ->
+                        HealthMetadata.activelyRecorded(device, clientRecordId, clientRecordVersion)
+                    device != null -> HealthMetadata.activelyRecorded(device)
+                    else -> HealthMetadata.activelyRecorded(Device(type = Device.TYPE_UNKNOWN))
+                }
+            HealthMetadata.RECORDING_METHOD_AUTOMATICALLY_RECORDED ->
+                when {
+                    clientRecordId != null && device != null ->
+                        HealthMetadata.autoRecorded(device, clientRecordId, clientRecordVersion)
+                    device != null -> HealthMetadata.autoRecorded(device)
+                    else -> HealthMetadata.autoRecorded(Device(type = Device.TYPE_UNKNOWN))
+                }
+            HealthMetadata.RECORDING_METHOD_UNKNOWN ->
+                when {
+                    clientRecordId != null ->
+                        HealthMetadata.unknownRecordingMethod(
+                            clientRecordId,
+                            clientRecordVersion,
+                            device ?: Device(type = Device.TYPE_UNKNOWN),
+                        )
+                    device != null -> HealthMetadata.unknownRecordingMethod(device)
+                    else -> HealthMetadata.unknownRecordingMethod()
+                }
+            else ->
+                when {
+                    clientRecordId != null && device != null ->
+                        HealthMetadata.manualEntry(clientRecordId, clientRecordVersion, device)
+                    clientRecordId != null ->
+                        HealthMetadata.manualEntry(clientRecordId, clientRecordVersion)
+                    device != null -> HealthMetadata.manualEntry(device)
+                    else -> HealthMetadata.manualEntry()
+                }
+        }
+    }
+
+    private fun jsonToDevice(json: JSONObject?): Device? {
+        if (json == null) return null
+        val type = json.optInt("type", Device.TYPE_UNKNOWN)
+        val manufacturer = json.optString("manufacturer").ifEmpty { null }
+        val model = json.optString("model").ifEmpty { null }
+        return Device(type = type, manufacturer = manufacturer, model = model)
     }
 
     // ─────────────────────────────────────────────────────────────────────────

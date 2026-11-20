@@ -229,6 +229,32 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  override fun updateRecords(records: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val arr = JSONArray(records)
+        val rnRecords =
+          (0 until arr.length()).map { i ->
+            val json = arr.getJSONObject(i)
+            val meta = json.optJSONObject("metadata")
+            val id = meta?.optString("id").orEmpty()
+            if (id.isEmpty()) {
+              throw IllegalArgumentException(
+                "updateRecords requires metadata.id from a previously read record"
+              )
+            }
+            RecordMapper.jsonToRecord(json)
+          }
+        healthConnectClient.updateRecords(rnRecords)
+        promise.resolve(true)
+      } catch (e: Exception) {
+        Log.e(TAG, "updateRecords error", e)
+        promise.reject("UPDATE_RECORDS_ERROR", e.message, e)
+      }
+    }
+  }
+
   override fun deleteRecordsByTime(
     recordType: String,
     startTime: String,

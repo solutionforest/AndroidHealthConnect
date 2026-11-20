@@ -45,6 +45,7 @@ jest.mock(
       openHealthConnectApp: jest.fn(),
       readRecords: jest.fn(),
       writeRecords: jest.fn(),
+      updateRecords: jest.fn(),
       deleteRecordsByTime: jest.fn(),
       deleteRecordsById: jest.fn(),
       aggregateRecord: jest.fn(),

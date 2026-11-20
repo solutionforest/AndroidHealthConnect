@@ -47,6 +47,12 @@ export interface Spec extends TurboModule {
    */
   writeRecords(records: string): Promise<string>;
 
+  /**
+   * Updates existing records. Each record must include metadata.id from a prior read.
+   * @returns true on success
+   */
+  updateRecords(records: string): Promise<boolean>;
+
   /** Deletes all records of a type within a time range. */
   deleteRecordsByTime(
     recordType: string,

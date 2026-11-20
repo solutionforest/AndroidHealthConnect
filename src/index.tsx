@@ -179,6 +179,14 @@ export async function writeRecords(
 }
 
 /**
+ * Updates existing Health Connect records. Each record must include
+ * `metadata.id` from a previous read (or insert response + re-read).
+ */
+export async function updateRecords(records: HealthRecord[]): Promise<void> {
+  await NativeAndroidHealthConnect.updateRecords(JSON.stringify(records));
+}
+
+/**
  * Deletes all records of the given type within the supplied time range.
  */
 export async function deleteRecordsByTime(

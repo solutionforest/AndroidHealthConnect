@@ -7,6 +7,7 @@ import {
   revokeAllPermissions,
   readRecords,
   writeRecords,
+  updateRecords,
   deleteRecordsByTime,
   deleteRecordsById,
   openHealthConnectSettings,
@@ -48,6 +49,7 @@ jest.mock(
       openHealthConnectApp: jest.fn(),
       readRecords: jest.fn(),
       writeRecords: jest.fn(),
+      updateRecords: jest.fn(),
       deleteRecordsByTime: jest.fn(),
       deleteRecordsById: jest.fn(),
       aggregateRecord: jest.fn(),
@@ -317,6 +319,25 @@ describe('writeRecords', () => {
     ];
     await writeRecords(records);
     expect(mockNative.writeRecords).toHaveBeenCalledWith(
+      JSON.stringify(records)
+    );
+  });
+});
+
+describe('updateRecords', () => {
+  it('forwards records JSON to native', async () => {
+    mockNative.updateRecords.mockResolvedValue(true);
+    const records = [
+      {
+        recordType: 'Steps' as const,
+        count: 2000,
+        startTime: '2024-01-01T08:00:00Z',
+        endTime: '2024-01-01T09:00:00Z',
+        metadata: { id: 'existing-id' },
+      },
+    ];
+    await updateRecords(records);
+    expect(mockNative.updateRecords).toHaveBeenCalledWith(
       JSON.stringify(records)
     );
   });

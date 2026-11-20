@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Typed special permissions: `READ_HEALTH_DATA_HISTORY`, `READ_HEALTH_DATA_IN_BACKGROUND`
   (with README / SECURITY guidance and feature-status gating).
+- `updateRecords()` for edit/sync; metadata round-trip preserves `id` / recording method /
+  optional `device` on write/update.
+
+### Changed
+
+- `jsonToMetadata` no longer always uses bare `manualEntry()` (supports `*WithId` for updates).
 
 ## [0.3.8] - 2026-11-20
 

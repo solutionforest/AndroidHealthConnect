@@ -535,6 +535,7 @@ if (update.updateAvailable) {
 |---|---|---|
 | `readRecords<T>(type, options)` | `Promise<ReadRecordsResponse<T>>` | Generic read |
 | `writeRecords(records)` | `Promise<InsertRecordsResponse>` | Insert records |
+| `updateRecords(records)` | `Promise<void>` | Update existing records (`metadata.id` required) |
 | `deleteRecordsByTime(type, start, end)` | `Promise<void>` | Delete by time range |
 | `deleteRecordsById(type, ids)` | `Promise<void>` | Delete by IDs |
 | `aggregateRecord(request)` | `Promise<AggregateResult>` | Sum/avg/min/max over Instant range |

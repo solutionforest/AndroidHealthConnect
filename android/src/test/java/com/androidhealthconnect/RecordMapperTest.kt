@@ -60,6 +60,38 @@ class RecordMapperTest {
     }
 
     @Test
+    fun jsonToMetadata_preservesIdForUpdate() {
+        val meta =
+            RecordMapper.jsonToMetadata(
+                JSONObject()
+                    .put("id", "hc-record-1")
+                    .put("recordingMethod", 3)
+                    .put(
+                        "device",
+                        JSONObject()
+                            .put("type", 2)
+                            .put("manufacturer", "Acme")
+                            .put("model", "Phone")
+                    )
+            )
+        assertEquals("hc-record-1", meta.id)
+        assertEquals(3, meta.recordingMethod)
+        assertEquals(2, meta.device?.type)
+        assertEquals("Acme", meta.device?.manufacturer)
+    }
+
+    @Test
+    fun jsonToMetadata_manualEntryWithoutId() {
+        val meta =
+            RecordMapper.jsonToMetadata(
+                JSONObject().put("clientRecordId", "client-1").put("clientRecordVersion", 2)
+            )
+        assertEquals("", meta.id)
+        assertEquals("client-1", meta.clientRecordId)
+        assertEquals(2L, meta.clientRecordVersion)
+    }
+
+    @Test
     fun jsonToRecord_rejectsUnknownType() {
         val json = JSONObject()
             .put("recordType", "NotARealType")
