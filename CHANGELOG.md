@@ -5,6 +5,20 @@ All notable changes to `@solutionforest/android-health-connect` are documented h
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `getHealthConnectAvailability()` — detailed status (`sdkStatus`, `provider` framework/apk,
+  GMS / Play Store flags, advice) for Android 14+ built-in vs APK install and China / HMS cases.
+- Safer `openHealthConnectApp()` using official `market://` Play Store intent with HTTPS
+  fallback; Settings fallback when Play Store is missing on Android 14+.
+
+### Fixed
+
+- Clearer `HEALTH_CONNECT_UNAVAILABLE` reject messages (install vs no GMS / China vs unsupported).
+- Document that raw `sdkStatus === 3` is `SDK_AVAILABLE` (common misread as “version too old”).
+
 ## [0.3.6] - 2026-11-20
 
 ### Changed

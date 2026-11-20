@@ -36,6 +36,7 @@ jest.mock(
   () => {
     const native = {
       isHealthConnectAvailable: jest.fn(),
+      getHealthConnectAvailability: jest.fn(),
       requestPermissions: jest.fn(),
       checkPermissions: jest.fn(),
       revokeAllPermissions: jest.fn(),

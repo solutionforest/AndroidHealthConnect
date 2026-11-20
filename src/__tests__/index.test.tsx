@@ -1,6 +1,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import {
   isHealthConnectAvailable,
+  getHealthConnectAvailability,
   requestPermissions,
   checkPermissions,
   revokeAllPermissions,
@@ -32,6 +33,7 @@ jest.mock(
   () => {
     const native = {
       isHealthConnectAvailable: jest.fn(),
+      getHealthConnectAvailability: jest.fn(),
       requestPermissions: jest.fn(),
       checkPermissions: jest.fn(),
       revokeAllPermissions: jest.fn(),
@@ -85,6 +87,44 @@ describe('isHealthConnectAvailable', () => {
   it('returns "notSupported" on old OS', async () => {
     mockNative.isHealthConnectAvailable.mockResolvedValue('notSupported');
     expect(await isHealthConnectAvailable()).toBe('notSupported');
+  });
+});
+
+describe('getHealthConnectAvailability', () => {
+  it('parses detailed availability JSON', async () => {
+    const payload = {
+      status: 'notSupported',
+      sdkStatus: 1,
+      sdkStatusName: 'SDK_UNAVAILABLE',
+      provider: 'apk',
+      androidSdkInt: 33,
+      googlePlayServicesAvailable: false,
+      playStoreAvailable: false,
+      advice: 'Health Connect is not available without Google Play services',
+    };
+    mockNative.getHealthConnectAvailability.mockResolvedValue(
+      JSON.stringify(payload)
+    );
+    await expect(getHealthConnectAvailability()).resolves.toEqual(payload);
+  });
+
+  it('documents that sdkStatus 3 means available, not version-too-old', async () => {
+    mockNative.getHealthConnectAvailability.mockResolvedValue(
+      JSON.stringify({
+        status: 'available',
+        sdkStatus: 3,
+        sdkStatusName: 'SDK_AVAILABLE',
+        provider: 'framework',
+        androidSdkInt: 34,
+        googlePlayServicesAvailable: true,
+        playStoreAvailable: true,
+        advice: 'Health Connect is built into Android 14+ and is ready.',
+      })
+    );
+    const info = await getHealthConnectAvailability();
+    expect(info.sdkStatus).toBe(3);
+    expect(info.status).toBe('available');
+    expect(info.sdkStatusName).toBe('SDK_AVAILABLE');
   });
 });
 

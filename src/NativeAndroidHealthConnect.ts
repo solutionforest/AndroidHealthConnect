@@ -4,6 +4,12 @@ export interface Spec extends TurboModule {
   /** Returns 'available' | 'notInstalled' | 'notSupported' */
   isHealthConnectAvailable(): Promise<string>;
 
+  /**
+   * Returns JSON HealthConnectAvailabilityInfo (status, sdkStatus, provider,
+   * GMS / Play Store flags, advice).
+   */
+  getHealthConnectAvailability(): Promise<string>;
+
   /** Launches the Health Connect permission dialog. Returns array of granted permissions. */
   requestPermissions(
     permissions: ReadonlyArray<string>

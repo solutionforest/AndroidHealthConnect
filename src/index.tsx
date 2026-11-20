@@ -1,6 +1,7 @@
 import NativeAndroidHealthConnect from './NativeAndroidHealthConnect';
 import type {
   HealthConnectAvailability,
+  HealthConnectAvailabilityInfo,
   HealthPermission,
   HealthRecord,
   RecordType,
@@ -52,13 +53,24 @@ export type { CheckLibraryUpdateOptions, LibraryUpdateInfo } from './upgrade';
 /**
  * Returns the Health Connect availability status for this device.
  *
- * - `'available'`     – HC is ready to use.
- * - `'notInstalled'`  – HC app must be installed (Android 9-13).
- * - `'notSupported'`  – OS version is too old (< Android 9).
+ * - `'available'`     – HC is ready (`sdkStatus` 3 = SDK_AVAILABLE).
+ * - `'notInstalled'`  – install/update HC provider (`sdkStatus` 2).
+ * - `'notSupported'`  – OS too old, no GMS / China / HMS, or otherwise unusable (`sdkStatus` 1).
+ *
+ * Prefer {@link getHealthConnectAvailability} when you need provider / GMS details.
  */
 export async function isHealthConnectAvailable(): Promise<HealthConnectAvailability> {
   const status = await NativeAndroidHealthConnect.isHealthConnectAvailable();
   return status as HealthConnectAvailability;
+}
+
+/**
+ * Detailed availability: built-in (Android 14+) vs Play APK, GMS / Play Store
+ * presence, raw sdkStatus, and human-readable advice (incl. China / HMS).
+ */
+export async function getHealthConnectAvailability(): Promise<HealthConnectAvailabilityInfo> {
+  const json = await NativeAndroidHealthConnect.getHealthConnectAvailability();
+  return JSON.parse(json) as HealthConnectAvailabilityInfo;
 }
 
 // ─── Permissions ─────────────────────────────────────────────────────────────

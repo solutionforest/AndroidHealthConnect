@@ -196,15 +196,38 @@ Create `res/values/health_permissions.xml`:
 ### Check availability
 
 ```ts
-import { isHealthConnectAvailable, openHealthConnectApp } from '@solutionforest/android-health-connect';
+import {
+  isHealthConnectAvailable,
+  getHealthConnectAvailability,
+  openHealthConnectApp,
+} from '@solutionforest/android-health-connect';
 
 const availability = await isHealthConnectAvailable();
 // 'available' | 'notInstalled' | 'notSupported'
 
 if (availability === 'notInstalled') {
-  openHealthConnectApp(); // Opens Play Store listing
+  openHealthConnectApp(); // Play Store market:// (or Settings on Android 14+)
 }
+
+// Prefer details when diagnosing install vs built-in vs China / HMS:
+const info = await getHealthConnectAvailability();
+// info.provider: 'framework' (Android 14+) | 'apk' (9–13) | 'none'
+// info.sdkStatus: 1 = UNAVAILABLE, 2 = PROVIDER_UPDATE_REQUIRED, 3 = AVAILABLE
+// info.googlePlayServicesAvailable / playStoreAvailable / advice
 ```
+
+### Device & region notes
+
+| Situation | What happens | What to do |
+|---|---|---|
+| **Android 14+** | Health Connect is **built into** the system | Use Settings / `openHealthConnectSettings()` |
+| **Android 9–13** | Health Connect is a **Play Store APK** | `openHealthConnectApp()` → Play Store install/update |
+| **`sdkStatus === 3`** | **Available** (not “version too old”) | Safe to call APIs |
+| **Mainland China / no GMS** | HC requires Google Play services; CN Play Storefront does not list HC | `status: 'notSupported'`; hide HC UI — cannot install via Play |
+| **Huawei / HMS without GMS** | Same as no GMS | Unsupported for Health Connect |
+| **Samsung / Xiaomi data gaps** | Vendor apps must **write into** HC; library only reads HC | Enable Health Connect sharing in the vendor app |
+
+Official availability: [Check Health Connect availability](https://developer.android.com/health-and-fitness/health-connect/availability).
 
 ### Request permissions
 
@@ -377,6 +400,7 @@ Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on
 | Function | Returns | Description |
 |---|---|---|
 | `isHealthConnectAvailable()` | `Promise<HealthConnectAvailability>` | Check if HC is usable |
+| `getHealthConnectAvailability()` | `Promise<HealthConnectAvailabilityInfo>` | Detailed status (framework/apk, GMS, Play Store, advice) |
 | `openHealthConnectApp()` | `void` | Open HC app or Play Store |
 | `openHealthConnectSettings()` | `void` | Open HC settings |
 | `openHealthConnectDataManagement(pkg?)` | `void` | Open permission management |

@@ -2,9 +2,33 @@
 
 /** Result of checking whether Health Connect is usable on the current device. */
 export type HealthConnectAvailability =
-  | 'available' // HC is installed and ready
-  | 'notInstalled' // HC app needs to be installed / updated (Android 9-13)
-  | 'notSupported'; // Device / OS version too old
+  | 'available' // HC is installed and ready (sdkStatus = 3 SDK_AVAILABLE)
+  | 'notInstalled' // HC app needs to be installed / updated (sdkStatus = 2)
+  | 'notSupported'; // OS too old, no GMS, or otherwise unusable (sdkStatus = 1)
+
+/**
+ * How Health Connect is delivered on this device.
+ * - `framework` — Android 14+ system Health Connect
+ * - `apk` — Play Store APK (Android 9–13)
+ * - `none` — below API 28 / no provider path
+ */
+export type HealthConnectProviderKind = 'framework' | 'apk' | 'none';
+
+/**
+ * Detailed availability for UX (China / HMS / install vs built-in).
+ * Raw `sdkStatus`: 1 = SDK_UNAVAILABLE, 2 = PROVIDER_UPDATE_REQUIRED, 3 = SDK_AVAILABLE.
+ * Note: `3` is available — not “version too old”.
+ */
+export type HealthConnectAvailabilityInfo = {
+  status: HealthConnectAvailability;
+  sdkStatus: number;
+  sdkStatusName: string;
+  provider: HealthConnectProviderKind;
+  androidSdkInt: number;
+  googlePlayServicesAvailable: boolean;
+  playStoreAvailable: boolean;
+  advice: string;
+};
 
 // ─── Permissions ─────────────────────────────────────────────────────────────
 

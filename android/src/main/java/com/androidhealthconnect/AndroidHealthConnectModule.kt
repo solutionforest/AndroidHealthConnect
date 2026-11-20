@@ -3,6 +3,7 @@ package com.androidhealthconnect
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.health.connect.client.ExperimentalMatchmakingApi
 import androidx.health.connect.client.HealthConnectClient
@@ -33,9 +34,6 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     private const val PERMISSION_REQUEST_CODE = 21432
     private const val MATCHMAKING_REQUEST_CODE = 21433
     private const val TAG = "AndroidHealthConnect"
-    private const val HC_PACKAGE = "com.google.android.apps.healthdata"
-    private const val HC_PLAY_STORE_URI =
-      "https://play.google.com/store/apps/details?id=$HC_PACKAGE"
   }
 
   private val moduleScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -65,12 +63,23 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
 
   override fun isHealthConnectAvailable(promise: Promise) {
     val status = HealthConnectClient.getSdkStatus(reactApplicationContext)
-    val result = when (status) {
-      HealthConnectClient.SDK_AVAILABLE -> "available"
-      HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> "notInstalled"
-      else -> "notSupported"
-    }
-    promise.resolve(result)
+    promise.resolve(AvailabilitySupport.mapStatus(status))
+  }
+
+  override fun getHealthConnectAvailability(promise: Promise) {
+    val ctx = reactApplicationContext
+    val sdkStatus = HealthConnectClient.getSdkStatus(ctx)
+    val json =
+      AvailabilitySupport.toJson(
+        sdkStatus = sdkStatus,
+        provider = AvailabilitySupport.providerKind(),
+        googlePlayServicesAvailable =
+          AvailabilitySupport.isPackageInstalled(ctx, AvailabilitySupport.GMS_PACKAGE),
+        playStoreAvailable =
+          AvailabilitySupport.isPackageInstalled(ctx, AvailabilitySupport.PLAY_STORE_PACKAGE),
+        androidSdkInt = Build.VERSION.SDK_INT,
+      )
+    promise.resolve(json.toString())
   }
 
   // ─── Permissions ───────────────────────────────────────────────────────────
@@ -136,17 +145,42 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   }
 
   override fun openHealthConnectApp() {
-    val status = HealthConnectClient.getSdkStatus(reactApplicationContext)
-    val intent = if (status == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
-      Intent(Intent.ACTION_VIEW, Uri.parse(HC_PLAY_STORE_URI)).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val ctx = reactApplicationContext
+    val status = HealthConnectClient.getSdkStatus(ctx)
+    if (status == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+      val hasPlayStore =
+        AvailabilitySupport.isPackageInstalled(ctx, AvailabilitySupport.PLAY_STORE_PACKAGE)
+      if (hasPlayStore) {
+        // Official sample: market:// via Play Store package, with HTTPS fallback.
+        val market =
+          Intent(Intent.ACTION_VIEW, Uri.parse(AvailabilitySupport.HC_PLAY_MARKET)).apply {
+            setPackage(AvailabilitySupport.PLAY_STORE_PACKAGE)
+            putExtra("overlay", true)
+            putExtra("callerId", ctx.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+          }
+        if (startSafeActivity(market)) {
+          return
+        }
+        startSafeActivity(
+          Intent(Intent.ACTION_VIEW, Uri.parse(AvailabilitySupport.HC_PLAY_HTTPS)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+          }
+        )
+        return
       }
-    } else {
-      Intent("androidx.health.ACTION_HEALTH_CONNECT_SETTINGS").apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      // No Play Store (common on mainland China / some HMS devices).
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        startSafeActivity(healthConnectSettingsIntent())
+      } else {
+        Log.w(
+          TAG,
+          "Health Connect install required but Play Store is missing (no GMS / China ROM)."
+        )
       }
+      return
     }
-    startSafeActivity(intent)
+    startSafeActivity(healthConnectSettingsIntent())
   }
 
   // ─── Records ───────────────────────────────────────────────────────────────
@@ -405,25 +439,36 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
   // ─── Private helpers ──────────────────────────────────────────────────────
 
   private fun isAvailable(promise: Promise): Boolean {
-    val status = HealthConnectClient.getSdkStatus(reactApplicationContext)
+    val ctx = reactApplicationContext
+    val status = HealthConnectClient.getSdkStatus(ctx)
     if (status != HealthConnectClient.SDK_AVAILABLE) {
-      promise.reject(
-        "HEALTH_CONNECT_UNAVAILABLE",
-        if (status == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
-          "Health Connect is not installed. Call openHealthConnectApp() to install it."
-        else
-          "Health Connect is not supported on this device."
-      )
+      val message =
+        AvailabilitySupport.unavailableRejectMessage(
+          sdkStatus = status,
+          googlePlayServicesAvailable =
+            AvailabilitySupport.isPackageInstalled(ctx, AvailabilitySupport.GMS_PACKAGE),
+          playStoreAvailable =
+            AvailabilitySupport.isPackageInstalled(ctx, AvailabilitySupport.PLAY_STORE_PACKAGE),
+        )
+      promise.reject("HEALTH_CONNECT_UNAVAILABLE", message)
       return false
     }
     return true
   }
 
-  private fun startSafeActivity(intent: Intent) {
-    try {
+  private fun healthConnectSettingsIntent(): Intent =
+    Intent("androidx.health.ACTION_HEALTH_CONNECT_SETTINGS").apply {
+      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+
+  /** @return true when an activity was started. */
+  private fun startSafeActivity(intent: Intent): Boolean {
+    return try {
       reactApplicationContext.startActivity(intent)
+      true
     } catch (e: Exception) {
       Log.e(TAG, "Could not start activity: ${e.message}")
+      false
     }
   }
 
