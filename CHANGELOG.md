@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI `test-android` job + `yarn test:android` for Kotlin / Robolectric unit tests.
 - Release workflow: SPDX SBOM on the GitHub Release + Sigstore build/SBOM
   attestations for the packed `.tgz` (GitHub artifact attestations).
+- Optional npmjs.org mirror on Release when repo secret `NPM_TOKEN` is set
+  (`npm publish --provenance`); GitHub Packages remains the primary registry.
 
 ### Changed
 

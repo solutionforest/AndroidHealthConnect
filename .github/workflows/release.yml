@@ -130,3 +130,19 @@ jobs:
           # (npm --provenance targets registry.npmjs.org).
           npm publish --access public --registry=https://npm.pkg.github.com
           echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to GitHub Packages"
+
+      # Optional mirror: set repo secret NPM_TOKEN (npmjs automation token with
+      # publish rights for @solutionforest). Skipped when the secret is absent.
+      - name: Publish to npmjs.org (optional mirror)
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "registry=https://registry.npmjs.org"
+            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}"
+            echo "always-auth=true"
+          } > .npmrc
+          npm publish --provenance --access public --registry=https://registry.npmjs.org
+          echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to npmjs.org"

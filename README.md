@@ -37,7 +37,7 @@ Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any
 | Changelog sync | ✅ Supported | `getChangesToken` / `getChanges` (upsert + delete pages; ~30-day tokens) |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, Jest + Kotlin unit tests, library + Android build, audit |
-| Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org; Release `.tgz` has SBOM + attestations |
+| Distribution | ✅ GitHub Packages + Releases | Primary: `npm.pkg.github.com`. Optional npmjs.org mirror when `NPM_TOKEN` is set. Release `.tgz` has SBOM + attestations |
 | CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
 
 ## Requirements
@@ -87,7 +87,9 @@ JS API covers the [22 record types](#supported-record-types) below, plus feature
 
 ## Installation
 
-Published to **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** (`npm.pkg.github.com`) and mirrored as a `.tgz` on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)**. Not published to npmjs.org.
+**Primary** publish target: **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** (`npm.pkg.github.com`), plus the `.tgz` on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)**.
+
+Optional **npmjs.org** mirror: add repo secret `NPM_TOKEN` (automation token that can publish `@solutionforest/*`); the Release workflow then also runs `npm publish --provenance` to `registry.npmjs.org`. Without that secret, only GitHub Packages is updated.
 
 ### 1. Point `@solutionforest` at GitHub Packages
 
@@ -464,7 +466,7 @@ if (update.updateAvailable) {
 }
 ```
 
-Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on **GitHub-hosted** `ubuntu-latest` runners (Monday 08:00 UTC). That job compares `connect-client` to Google Maven and the library to the latest GitHub Release, then opens/updates an `upgrade-reminder` issue when something is behind (also runnable via **Actions → Version check → Run workflow**). To change cadence, edit the cron in `.github/workflows/version-check.yml` (`daily` / `weekly` / `bi-weekly` examples are in the file comments). Tag `v*` to upload a Release `.tgz` and publish `@solutionforest/android-health-connect` to GitHub Packages (not npmjs.org).
+Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on **GitHub-hosted** `ubuntu-latest` runners (Monday 08:00 UTC). That job compares `connect-client` to Google Maven and the library to the latest GitHub Release, then opens/updates an `upgrade-reminder` issue when something is behind (also runnable via **Actions → Version check → Run workflow**). To change cadence, edit the cron in `.github/workflows/version-check.yml` (`daily` / `weekly` / `bi-weekly` examples are in the file comments). Tag `v*` to upload a Release `.tgz` (+ SBOM / attestations) and publish to GitHub Packages; set `NPM_TOKEN` to also mirror to npmjs.org.
 
 ## API reference
 
