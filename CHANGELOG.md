@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changelog APIs: `getChangesToken` / `getChanges` (upsertion + deletion pages,
   `hasMore`, `changesTokenExpired`; tokens valid ~30 days).
 - CI `test-android` job + `yarn test:android` for Kotlin / Robolectric unit tests.
+- Release workflow: SPDX SBOM on the GitHub Release + Sigstore build/SBOM
+  attestations for the packed `.tgz` (GitHub artifact attestations).
 
 ### Changed
 

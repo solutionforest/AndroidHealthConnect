@@ -78,8 +78,10 @@ Use `getHealthConnectAvailability()` before enabling HC UI — devices without G
 - Dependency updates via Dependabot (npm, Gradle, GitHub Actions)
 - CI security audit job (`yarn npm audit`) on GitHub-hosted runners
 - Scheduled CodeQL analysis on `main` and weekly
-- Coverage / lint / typecheck gates on every PR
+- Coverage / lint / typecheck / Kotlin unit-test gates on every PR
 - Weekly version-check workflow that opens upgrade-reminder issues for maintainers
+- Release `.tgz` ships with an SPDX SBOM and GitHub Sigstore attestations
+  (`gh attestation verify <tarball> --repo solutionforest/AndroidHealthConnect`)
 
 ## Safe Harbor
 
