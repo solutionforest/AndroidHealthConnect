@@ -81,6 +81,16 @@ export type HealthPermission =
   | 'android.permission.health.WRITE_SKIN_TEMPERATURE'
   | 'android.permission.health.READ_ACTIVITY_INTENSITY'
   | 'android.permission.health.WRITE_ACTIVITY_INTENSITY'
+  /**
+   * Read data older than ~30 days before first grant.
+   * Check `getFeatureStatus('readHealthDataHistory')` first.
+   */
+  | 'android.permission.health.READ_HEALTH_DATA_HISTORY'
+  /**
+   * Read while the app is in the background.
+   * Check `getFeatureStatus('readHealthDataInBackground')` first.
+   */
+  | 'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND'
   | 'android.permission.health.WRITE_MEDICAL_DATA'
   | 'android.permission.health.READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES'
   | 'android.permission.health.READ_MEDICAL_DATA_CONDITIONS'

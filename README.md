@@ -253,6 +253,34 @@ const granted = await requestPermissions([
 console.log('Granted:', granted);
 ```
 
+**History / background (optional special permissions):** by default HC only lets apps
+read ~30 days before first grant, and only while foregrounded. Declare in the host
+manifest, gate on feature status, then request:
+
+```ts
+import {
+  getFeatureStatus,
+  requestPermissions,
+} from '@solutionforest/android-health-connect';
+
+const extra: string[] = [];
+if ((await getFeatureStatus('readHealthDataHistory')) === 'available') {
+  extra.push('android.permission.health.READ_HEALTH_DATA_HISTORY');
+}
+if ((await getFeatureStatus('readHealthDataInBackground')) === 'available') {
+  extra.push('android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND');
+}
+await requestPermissions([
+  'android.permission.health.READ_STEPS',
+  ...extra,
+]);
+```
+
+```xml
+<uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" />
+<uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
+```
+
 ### Read records
 
 ```ts

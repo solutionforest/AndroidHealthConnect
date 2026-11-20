@@ -152,6 +152,23 @@ describe('requestPermissions', () => {
     expect(mockNative.requestPermissions).toHaveBeenCalledWith(perms);
   });
 
+  it('round-trips history and background special permissions', async () => {
+    const perms: HealthPermission[] = [
+      'android.permission.health.READ_HEALTH_DATA_HISTORY',
+      'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND',
+    ];
+    mockNative.requestPermissions.mockResolvedValue(perms);
+    mockNative.checkPermissions.mockResolvedValue([
+      'android.permission.health.READ_HEALTH_DATA_HISTORY',
+    ]);
+    await expect(requestPermissions(perms)).resolves.toEqual(perms);
+    await expect(checkPermissions(perms)).resolves.toEqual([
+      'android.permission.health.READ_HEALTH_DATA_HISTORY',
+    ]);
+    expect(mockNative.requestPermissions).toHaveBeenCalledWith(perms);
+    expect(mockNative.checkPermissions).toHaveBeenCalledWith(perms);
+  });
+
   it('returns empty array when user denies all', async () => {
     mockNative.requestPermissions.mockResolvedValue([]);
     const granted = await requestPermissions([

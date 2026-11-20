@@ -69,6 +69,13 @@ Health data access is gated by **Android Health Connect** and the **host app**:
 | This library | Thin TurboModule bridge; requests only the permissions the host app asks for; no network upload of health records |
 | Host app | Least-privilege permission lists, UI copy, retention, any server sync / encryption beyond HC |
 
+**Special read permissions** (declare + request only when needed):
+
+| Permission | Purpose |
+| ---------- | ------- |
+| `READ_HEALTH_DATA_HISTORY` | Read older than ~30 days before first grant (check `readHealthDataHistory`) |
+| `READ_HEALTH_DATA_IN_BACKGROUND` | Read after the app is backgrounded (check `readHealthDataInBackground`) |
+
 This package does **not** provide root detection, certificate pinning, or anti-tamper. Those belong in the host app if required.
 
 Use `getHealthConnectAvailability()` before enabling HC UI — devices without Google Play services (common on mainland China / some HMS phones) cannot use Health Connect.
