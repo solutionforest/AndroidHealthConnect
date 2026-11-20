@@ -22,6 +22,9 @@ import {
   deleteMedicalResources,
   readMedicalResources,
   readSteps,
+  aggregateRecord,
+  aggregateGroupByDuration,
+  aggregateGroupByPeriod,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 import type { HealthPermission, StepsRecord } from '../types';
@@ -44,6 +47,9 @@ jest.mock(
       writeRecords: jest.fn(),
       deleteRecordsByTime: jest.fn(),
       deleteRecordsById: jest.fn(),
+      aggregateRecord: jest.fn(),
+      aggregateGroupByDuration: jest.fn(),
+      aggregateGroupByPeriod: jest.fn(),
       getFeatureStatus: jest.fn(),
       checkIfMatchmakingIsPossible: jest.fn(),
       launchMatchmaking: jest.fn(),
@@ -341,6 +347,77 @@ describe('navigation helpers', () => {
   it('openHealthConnectApp calls native', () => {
     openHealthConnectApp();
     expect(mockNative.openHealthConnectApp).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('aggregates', () => {
+  const range = {
+    timeRangeFilter: {
+      startTime: '2024-01-01T00:00:00Z',
+      endTime: '2024-01-02T00:00:00Z',
+    },
+  };
+
+  it('aggregateRecord parses Steps COUNT_TOTAL', async () => {
+    mockNative.aggregateRecord.mockResolvedValue(
+      JSON.stringify({
+        recordType: 'Steps',
+        dataOrigins: ['com.test'],
+        metrics: { COUNT_TOTAL: 5000 },
+      })
+    );
+    const result = await aggregateRecord({ recordType: 'Steps', ...range });
+    expect(result.metrics['COUNT_TOTAL']).toBe(5000);
+    expect(mockNative.aggregateRecord).toHaveBeenCalledWith(
+      JSON.stringify({ recordType: 'Steps', ...range })
+    );
+  });
+
+  it('aggregateGroupByDuration returns Instant buckets', async () => {
+    mockNative.aggregateGroupByDuration.mockResolvedValue(
+      JSON.stringify([
+        {
+          startTime: '2024-01-01T00:00:00Z',
+          endTime: '2024-01-01T01:00:00Z',
+          zoneOffset: '+08:00',
+          result: {
+            recordType: 'Steps',
+            dataOrigins: [],
+            metrics: { COUNT_TOTAL: 100 },
+          },
+        },
+      ])
+    );
+    const rows = await aggregateGroupByDuration({
+      recordType: 'Steps',
+      ...range,
+      timeRangeSlicer: { unit: 'hours', value: 1 },
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.startTime).toBe('2024-01-01T00:00:00Z');
+    expect(rows[0]?.result.metrics['COUNT_TOTAL']).toBe(100);
+  });
+
+  it('aggregateGroupByPeriod returns period buckets', async () => {
+    mockNative.aggregateGroupByPeriod.mockResolvedValue(
+      JSON.stringify([
+        {
+          startTime: '2024-01-01T00:00',
+          endTime: '2024-01-02T00:00',
+          result: {
+            recordType: 'Steps',
+            dataOrigins: [],
+            metrics: { COUNT_TOTAL: 9000 },
+          },
+        },
+      ])
+    );
+    const rows = await aggregateGroupByPeriod({
+      recordType: 'Steps',
+      ...range,
+      timeRangeSlicer: { unit: 'days', value: 1 },
+    });
+    expect(rows[0]?.result.metrics['COUNT_TOTAL']).toBe(9000);
   });
 });
 

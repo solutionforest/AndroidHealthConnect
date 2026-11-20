@@ -60,6 +60,15 @@ export interface Spec extends TurboModule {
     recordIds: ReadonlyArray<string>
   ): Promise<boolean>;
 
+  /** JSON AggregateRequest → AggregateResult. */
+  aggregateRecord(options: string): Promise<string>;
+
+  /** JSON AggregateGroupByDurationRequest → AggregationResultGroupedByDuration[]. */
+  aggregateGroupByDuration(options: string): Promise<string>;
+
+  /** JSON AggregateGroupByPeriodRequest → AggregationResultGroupedByPeriod[]. */
+  aggregateGroupByPeriod(options: string): Promise<string>;
+
   /**
    * Checks whether a Health Connect feature is available on this device.
    * @param feature - feature name (e.g. "skinTemperature", "matchmaking")

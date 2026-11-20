@@ -259,6 +259,49 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
     }
   }
 
+  // ─── Aggregates ────────────────────────────────────────────────────────────
+
+  override fun aggregateRecord(options: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result = AggregateMapper.aggregate(healthConnectClient, JSONObject(options))
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "aggregateRecord error", e)
+        promise.reject("AGGREGATE_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun aggregateGroupByDuration(options: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result =
+          AggregateMapper.aggregateGroupByDuration(healthConnectClient, JSONObject(options))
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "aggregateGroupByDuration error", e)
+        promise.reject("AGGREGATE_DURATION_ERROR", e.message, e)
+      }
+    }
+  }
+
+  override fun aggregateGroupByPeriod(options: String, promise: Promise) {
+    if (!isAvailable(promise)) return
+    moduleScope.launch {
+      try {
+        val result =
+          AggregateMapper.aggregateGroupByPeriod(healthConnectClient, JSONObject(options))
+        promise.resolve(result.toString())
+      } catch (e: Exception) {
+        Log.e(TAG, "aggregateGroupByPeriod error", e)
+        promise.reject("AGGREGATE_PERIOD_ERROR", e.message, e)
+      }
+    }
+  }
+
   // ─── Feature availability ─────────────────────────────────────────────────
 
   override fun getFeatureStatus(feature: String, promise: Promise) {

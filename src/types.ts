@@ -135,6 +135,113 @@ export type ReadRecordsResponse<T> = {
   pageToken?: string | null;
 };
 
+/** Record types that support Health Connect aggregation in this library. */
+export type AggregateRecordType =
+  | 'Steps'
+  | 'Distance'
+  | 'ActiveCaloriesBurned'
+  | 'TotalCaloriesBurned'
+  | 'HeartRate'
+  | 'RestingHeartRate'
+  | 'Weight'
+  | 'Height'
+  | 'Hydration'
+  | 'FloorsClimbed'
+  | 'ElevationGained'
+  | 'ExerciseSession'
+  | 'SleepSession'
+  | 'BloodPressure'
+  | 'MindfulnessSession'
+  | 'ActivityIntensity';
+
+export type EnergyResult = {
+  inKilocalories: number;
+  inCalories: number;
+  inJoules: number;
+};
+
+export type LengthResult = {
+  inMeters: number;
+  inKilometers: number;
+  inMiles: number;
+};
+
+export type MassResult = {
+  inKilograms: number;
+  inGrams: number;
+  inPounds: number;
+};
+
+export type VolumeResult = {
+  inLiters: number;
+  inMilliliters: number;
+};
+
+export type PressureResult = {
+  inMillimetersOfMercury: number;
+};
+
+export type DurationResult = {
+  inSeconds: number;
+};
+
+export type AggregateRequest = {
+  recordType: AggregateRecordType;
+  timeRangeFilter: TimeRangeFilter;
+  dataOriginFilter?: string[];
+};
+
+export type DurationRangeSlicer = {
+  unit: 'millis' | 'seconds' | 'minutes' | 'hours' | 'days';
+  value: number;
+};
+
+export type PeriodRangeSlicer = {
+  unit: 'days' | 'weeks' | 'months' | 'years';
+  value: number;
+};
+
+export type AggregateGroupByDurationRequest = AggregateRequest & {
+  timeRangeSlicer: DurationRangeSlicer;
+};
+
+export type AggregateGroupByPeriodRequest = AggregateRequest & {
+  timeRangeSlicer: PeriodRangeSlicer;
+};
+
+/**
+ * Aggregated metrics for a record type. Metric keys match Health Connect
+ * (e.g. `COUNT_TOTAL`, `BPM_AVG`). Missing data is `null`.
+ */
+export type AggregateMetricValue =
+  | number
+  | EnergyResult
+  | LengthResult
+  | MassResult
+  | VolumeResult
+  | PressureResult
+  | DurationResult
+  | null;
+
+export type AggregateResult = {
+  recordType: AggregateRecordType;
+  dataOrigins: string[];
+  metrics: Record<string, AggregateMetricValue>;
+};
+
+export type AggregationResultGroupedByDuration = {
+  startTime: string;
+  endTime: string;
+  zoneOffset: string | null;
+  result: AggregateResult;
+};
+
+export type AggregationResultGroupedByPeriod = {
+  startTime: string;
+  endTime: string;
+  result: AggregateResult;
+};
+
 export type InsertRecordsResponse = {
   recordIdsList: string[];
 };

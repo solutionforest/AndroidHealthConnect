@@ -42,6 +42,12 @@ import type {
   ReadMedicalResourcesRequest,
   ReadMedicalResourcesResponse,
   DeleteMedicalResourcesRequest,
+  AggregateRequest,
+  AggregateResult,
+  AggregateGroupByDurationRequest,
+  AggregateGroupByPeriodRequest,
+  AggregationResultGroupedByDuration,
+  AggregationResultGroupedByPeriod,
 } from './types';
 
 export * from './types';
@@ -192,6 +198,48 @@ export async function deleteRecordsById(
   recordIds: string[]
 ): Promise<void> {
   await NativeAndroidHealthConnect.deleteRecordsById(recordType, recordIds);
+}
+
+// ─── Aggregates ───────────────────────────────────────────────────────────────
+
+/**
+ * Aggregates metrics for a record type over a time range (Instant filter).
+ * Metric keys follow Health Connect (`COUNT_TOTAL`, `BPM_AVG`, …).
+ */
+export async function aggregateRecord(
+  request: AggregateRequest
+): Promise<AggregateResult> {
+  const json = await NativeAndroidHealthConnect.aggregateRecord(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as AggregateResult;
+}
+
+/**
+ * Aggregates into fixed-duration buckets using Instant time ranges
+ * (avoids Android 14+ UTC wall-clock shift with LocalDateTime).
+ */
+export async function aggregateGroupByDuration(
+  request: AggregateGroupByDurationRequest
+): Promise<AggregationResultGroupedByDuration[]> {
+  const json = await NativeAndroidHealthConnect.aggregateGroupByDuration(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as AggregationResultGroupedByDuration[];
+}
+
+/**
+ * Aggregates into calendar period buckets (days/weeks/months/years).
+ * Instant inputs are converted to LocalDateTime in the device zone
+ * (required by Health Connect for period grouping).
+ */
+export async function aggregateGroupByPeriod(
+  request: AggregateGroupByPeriodRequest
+): Promise<AggregationResultGroupedByPeriod[]> {
+  const json = await NativeAndroidHealthConnect.aggregateGroupByPeriod(
+    JSON.stringify(request)
+  );
+  return JSON.parse(json) as AggregationResultGroupedByPeriod[];
 }
 
 // ─── Typed convenience helpers ────────────────────────────────────────────────

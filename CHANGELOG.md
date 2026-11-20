@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Aggregate APIs: `aggregateRecord`, `aggregateGroupByDuration` (Instant buckets — avoids
+  Android 14+ UTC shift), `aggregateGroupByPeriod` (LocalDateTime calendar buckets).
+
 ### Changed
 
 - Package metadata aligned with RN library standards: richer `keywords` / description,

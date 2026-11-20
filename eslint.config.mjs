@@ -126,6 +126,8 @@ export default defineConfig([
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/require-await': 'off',
+      // Prefer bracket access for Record<> metrics under noPropertyAccessFromIndexSignature.
+      'dot-notation': 'off',
     },
   },
 ]);

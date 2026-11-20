@@ -32,6 +32,7 @@ Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any
 | Bare React Native | ✅ Supported | Manual manifest + rationale setup |
 | Health Connect permissions | ✅ Supported | Request / check / revoke |
 | Read / write / delete records | ✅ Supported | See [Supported record types](#supported-record-types) |
+| Aggregate / bucket queries | ✅ Supported | `aggregateRecord`, `aggregateGroupByDuration`, `aggregateGroupByPeriod` |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, coverage thresholds, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | `@solutionforest/android-health-connect` on `npm.pkg.github.com` — **not** npmjs.org |
@@ -423,6 +424,9 @@ Maintainers: CI, CodeQL, Release, and the **weekly** version-check Action run on
 | `writeRecords(records)` | `Promise<InsertRecordsResponse>` | Insert records |
 | `deleteRecordsByTime(type, start, end)` | `Promise<void>` | Delete by time range |
 | `deleteRecordsById(type, ids)` | `Promise<void>` | Delete by IDs |
+| `aggregateRecord(request)` | `Promise<AggregateResult>` | Sum/avg/min/max over Instant range |
+| `aggregateGroupByDuration(request)` | `Promise<AggregationResultGroupedByDuration[]>` | Fixed buckets (Instant; avoids UTC shift) |
+| `aggregateGroupByPeriod(request)` | `Promise<AggregationResultGroupedByPeriod[]>` | Calendar buckets (LocalDateTime) |
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
 | *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |
