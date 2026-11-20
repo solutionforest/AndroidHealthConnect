@@ -73,6 +73,12 @@ android {
   testOptions {
     unitTests {
       includeAndroidResources = true
+      all {
+        // Explicit Maven Central for Robolectric's own android-all fetcher
+        // (separate from Gradle resolution; flaky HTTP → classMethod AssertionError).
+        systemProperty 'robolectric.dependency.repo.url', 'https://repo1.maven.org/maven2'
+        systemProperty 'robolectric.dependency.repo.id', 'central'
+      }
     }
   }
 }
