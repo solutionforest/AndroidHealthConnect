@@ -584,6 +584,7 @@ if (update.updateAvailable) {
 
 - [Development workflow](CONTRIBUTING.md#development-workflow)
 - [Sending a pull request](CONTRIBUTING.md#sending-a-pull-request)
+- [Community listings](docs/community/README.md) (React Native Directory, npmjs mirror, awesome-react-native)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 
 ## License

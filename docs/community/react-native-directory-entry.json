@@ -1,0 +1,10 @@
+{
+  "githubUrl": "https://github.com/solutionforest/AndroidHealthConnect",
+  "npmPkg": "@solutionforest/android-health-connect",
+  "examples": [
+    "https://github.com/solutionforest/AndroidHealthConnect/tree/main/example"
+  ],
+  "android": true,
+  "newArchitecture": "new-arch-only",
+  "configPlugin": true
+}

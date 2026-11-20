@@ -93,13 +93,19 @@ Our pre-commit hooks verify that your commit message matches this format when co
 
 ### Publishing
 
-Published to **GitHub Packages** (`npm.pkg.github.com`) + GitHub Releases `.tgz` — **not** npmjs.org. Tag `v*` on `main` to trigger the Release workflow.
+Primary: **GitHub Packages** (`npm.pkg.github.com`) + GitHub Releases `.tgz`. Tag `v*` on `main` to trigger the Release workflow.
+
+Optional npmjs.org mirror: set repo secret `NPM_TOKEN` (npm automation token for `@solutionforest`). The Release workflow publishes to registry.npmjs.org when that secret is present — required before listing on [React Native Directory](https://reactnative.directory/).
 
 We use [release-it](https://github.com/release-it/release-it) for version bumps locally when needed:
 
 ```sh
 yarn release
 ```
+
+### Community listings
+
+See [docs/community/README.md](docs/community/README.md) for React Native Directory, awesome-react-native, and related submission steps (ready-to-paste PR entry included).
 
 ### Quality gates (required)
 
