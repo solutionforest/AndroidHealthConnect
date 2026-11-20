@@ -83,13 +83,14 @@ Official notes ([full changelog](https://developer.android.com/jetpack/androidx/
 | **1.2.0-alpha01** | 2025-07-30 | Skin temperature / mindfulness compat; activity intensity (Android 14+) |
 | **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` |
 
-JS API covers the [22 record types](#supported-record-types) below, plus feature checks, Matchmaking, and Personal Health Record (PHR) helpers. Feature-gated types require `getFeatureStatus(...) === 'available'` on the device.
+JS API: [22 record types](#supported-record-types), feature checks, Matchmaking, PHR. Feature-gated types need `getFeatureStatus(...) === 'available'`.
 
 ## Installation
 
-**Primary** publish target: **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** (`npm.pkg.github.com`), plus the `.tgz` on **[GitHub Releases](https://github.com/solutionforest/AndroidHealthConnect/releases)**.
-
-Optional **npmjs.org** mirror: add repo secret `NPM_TOKEN` (automation token that can publish `@solutionforest/*`); the Release workflow then also runs `npm publish --provenance` to `registry.npmjs.org`. Without that secret, only GitHub Packages is updated.
+| Registry | Notes |
+|---|---|
+| **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** | Primary (`npm.pkg.github.com`) + Release `.tgz` |
+| **npmjs.org** | Optional — set repo secret `NPM_TOKEN` so Release also runs `npm publish --provenance` |
 
 ### 1. Point `@solutionforest` at GitHub Packages
 
