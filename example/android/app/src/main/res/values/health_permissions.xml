@@ -1,0 +1,6 @@
+<resources>
+  <string name="health_permissions_rationale">
+    This demo app uses Health Connect to read and write sample health data
+    (steps, heart rate, exercise routes) for library testing.
+  </string>
+</resources>

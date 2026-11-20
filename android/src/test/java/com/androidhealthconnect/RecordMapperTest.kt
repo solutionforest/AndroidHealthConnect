@@ -92,6 +92,84 @@ class RecordMapperTest {
     }
 
     @Test
+    fun requireMetadataIdForUpdate_returnsId() {
+        val json =
+            JSONObject()
+                .put("recordType", "Steps")
+                .put("metadata", JSONObject().put("id", "upd-1"))
+        assertEquals("upd-1", RecordMapper.requireMetadataIdForUpdate(json))
+    }
+
+    @Test
+    fun requireMetadataIdForUpdate_rejectsMissingId() {
+        try {
+            RecordMapper.requireMetadataIdForUpdate(JSONObject().put("recordType", "Steps"))
+            throw AssertionError("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            val message = requireNotNull(e.message)
+            assertTrue(message.contains("metadata.id"))
+        }
+    }
+
+    @Test
+    fun parseZoneOffset_parsesOffsetOrNull() {
+        assertEquals(java.time.ZoneOffset.of("+08:00"), RecordMapper.parseZoneOffset("+08:00"))
+        assertEquals(java.time.ZoneOffset.UTC, RecordMapper.parseZoneOffset("Z"))
+        assertNull(RecordMapper.parseZoneOffset(null))
+        assertNull(RecordMapper.parseZoneOffset(""))
+    }
+
+    @Test
+    fun jsonToSteps_mapsZoneOffsets() {
+        val json =
+            interval("Steps") {
+                put("count", 1200)
+                put("startZoneOffset", "+08:00")
+                put("endZoneOffset", "+08:00")
+            }
+        val record = RecordMapper.jsonToRecord(json) as StepsRecord
+        assertEquals(java.time.ZoneOffset.of("+08:00"), record.startZoneOffset)
+        assertEquals(java.time.ZoneOffset.of("+08:00"), record.endZoneOffset)
+    }
+
+    @Test
+    fun jsonToExerciseSession_mapsSegmentsAndLaps() {
+        val json =
+            interval("ExerciseSession") {
+                put("exerciseType", 56)
+                put(
+                    "segments",
+                    JSONArray().put(
+                        JSONObject()
+                            .put("startTime", START)
+                            .put("endTime", "2024-01-01T08:30:00Z")
+                            .put("segmentType", 46) // RUNNING segment
+                            .put("repetitions", 0)
+                    )
+                )
+                put(
+                    "laps",
+                    JSONArray().put(
+                        JSONObject()
+                            .put("startTime", START)
+                            .put("endTime", "2024-01-01T08:20:00Z")
+                            .put("length", 400.0)
+                    )
+                )
+            }
+        val record = RecordMapper.jsonToRecord(json) as ExerciseSessionRecord
+        assertEquals(1, record.segments.size)
+        assertEquals(46, record.segments[0].segmentType)
+        assertEquals(1, record.laps.size)
+        assertEquals(400.0, record.laps[0].length?.inMeters ?: -1.0, 0.001)
+
+        val out = RecordMapper.recordToJson(record)
+        assertEquals(1, out.getJSONArray("segments").length())
+        assertEquals(46, out.getJSONArray("segments").getJSONObject(0).getInt("segmentType"))
+        assertEquals(400.0, out.getJSONArray("laps").getJSONObject(0).getDouble("length"), 0.001)
+    }
+
+    @Test
     fun jsonToRecord_rejectsUnknownType() {
         val json = JSONObject()
             .put("recordType", "NotARealType")

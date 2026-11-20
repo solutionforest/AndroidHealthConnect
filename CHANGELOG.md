@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Example app: Health Connect permissions + rationale intent-filters / string;
+  recipes for `updateRecords` and background permission.
+- README `updateRecords` usage snippet (`metadata.id` required).
+- Kotlin tests: segments/laps, zone offsets, `requireMetadataIdForUpdate`,
+  `FeatureSupport` name map.
+
 ### Fixed
 
 - CI: cache Robolectric `android-all` jars (`~/.cache/robolectric`) and pin Maven

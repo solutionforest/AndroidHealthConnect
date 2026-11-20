@@ -237,13 +237,7 @@ class AndroidHealthConnectModule(reactContext: ReactApplicationContext) :
         val rnRecords =
           (0 until arr.length()).map { i ->
             val json = arr.getJSONObject(i)
-            val meta = json.optJSONObject("metadata")
-            val id = meta?.optString("id").orEmpty()
-            if (id.isEmpty()) {
-              throw IllegalArgumentException(
-                "updateRecords requires metadata.id from a previously read record"
-              )
-            }
+            RecordMapper.requireMetadataIdForUpdate(json)
             RecordMapper.jsonToRecord(json)
           }
         healthConnectClient.updateRecords(rnRecords)

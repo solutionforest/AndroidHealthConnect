@@ -394,8 +394,22 @@ internal object RecordMapper {
     private fun parseInstant(json: JSONObject, key: String): Instant =
         Instant.parse(json.getString(key))
 
-    private fun parseZoneOffset(value: String?): ZoneOffset? =
+    fun parseZoneOffset(value: String?): ZoneOffset? =
         if (value.isNullOrEmpty()) null else ZoneOffset.of(value)
+
+    /**
+     * `updateRecords` requires a non-empty `metadata.id` from a previously read record.
+     * @throws IllegalArgumentException when missing / blank
+     */
+    fun requireMetadataIdForUpdate(json: JSONObject): String {
+        val id = json.optJSONObject("metadata")?.optString("id").orEmpty()
+        if (id.isEmpty()) {
+            throw IllegalArgumentException(
+                "updateRecords requires metadata.id from a previously read record"
+            )
+        }
+        return id
+    }
 
     private fun metadataToJson(meta: HealthMetadata): JSONObject =
         JSONObject().apply {

@@ -15,6 +15,7 @@ import {
   readSteps,
   readHeartRate,
   writeRecords,
+  updateRecords,
   openHealthConnectApp,
   aggregateRecord,
   getChangesToken,
@@ -23,6 +24,7 @@ import {
   readExerciseSessions,
   requestExerciseRoute,
   ExerciseType,
+  RecordingMethod,
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
@@ -36,7 +38,8 @@ const CORE_PERMS = [
 ] as const;
 
 const HISTORY_PERM = 'android.permission.health.READ_HEALTH_DATA_HISTORY';
-
+const BACKGROUND_PERM =
+  'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND';
 const EXERCISE_PERMS = [
   'android.permission.health.READ_EXERCISE',
   'android.permission.health.WRITE_EXERCISE',
@@ -163,6 +166,52 @@ export default function App() {
       granted.includes(HISTORY_PERM)
         ? 'History permission granted'
         : 'History permission not granted'
+    );
+  };
+
+  /** Recipe: background read permission (feature-gated). */
+  const handleBackgroundPermission = async () => {
+    setStatus('Checking background feature…');
+    const feature = await getFeatureStatus('readHealthDataInBackground');
+    if (feature !== 'available') {
+      setStatus(
+        'READ_HEALTH_DATA_IN_BACKGROUND feature unavailable on this device'
+      );
+      return;
+    }
+    const granted = await requestPermissions([BACKGROUND_PERM]);
+    setGrantedPerms((prev) => Array.from(new Set([...prev, ...granted])));
+    setStatus(
+      granted.includes(BACKGROUND_PERM)
+        ? 'Background permission granted'
+        : 'Background permission not granted'
+    );
+  };
+
+  /** Recipe: update the first Steps record (+100) using metadata.id. */
+  const handleUpdateSteps = async () => {
+    setStatus('Reading steps to update…');
+    const { records } = await readSteps({ timeRangeFilter: weekRange() });
+    const existing = records[0];
+    if (!existing?.metadata?.id) {
+      setStatus('No Steps record with metadata.id — write steps first');
+      return;
+    }
+    setStatus(`Updating ${existing.metadata.id}…`);
+    await updateRecords([
+      {
+        ...existing,
+        count: existing.count + 100,
+        metadata: {
+          ...existing.metadata,
+          id: existing.metadata.id,
+          recordingMethod:
+            existing.metadata.recordingMethod ?? RecordingMethod.MANUAL_ENTRY,
+        },
+      },
+    ]);
+    setStatus(
+      `Updated steps ${existing.metadata.id}: ${existing.count} → ${existing.count + 100}`
     );
   };
 
@@ -314,10 +363,15 @@ export default function App() {
               title="Aggregate Steps (7d)"
               onPress={handleAggregateSteps}
             />
+            <Button title="Update Steps (+100)" onPress={handleUpdateSteps} />
             <Button title="getChanges (Steps)" onPress={handleChanges} />
             <Button
               title="Request History Permission"
               onPress={handleHistoryPermission}
+            />
+            <Button
+              title="Request Background Permission"
+              onPress={handleBackgroundPermission}
             />
             <Button
               title="Write Exercise + Route"

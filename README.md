@@ -331,6 +331,38 @@ const { recordIdsList } = await writeRecords([
 ]);
 ```
 
+### Update records
+
+`updateRecords` edits existing rows. Pass the same shape as write, plus
+`metadata.id` from a prior read (required). Optional `recordingMethod` / `device`
+round-trip when present on the read record.
+
+```ts
+import {
+  readSteps,
+  updateRecords,
+  RecordingMethod,
+} from '@solutionforest/android-health-connect';
+
+const { records } = await readSteps({
+  timeRangeFilter: { startTime: '...', endTime: '...' },
+});
+const existing = records[0];
+if (!existing?.metadata?.id) throw new Error('nothing to update');
+
+await updateRecords([
+  {
+    ...existing,
+    count: existing.count + 100,
+    metadata: {
+      ...existing.metadata,
+      id: existing.metadata.id,
+      recordingMethod: existing.metadata.recordingMethod ?? RecordingMethod.MANUAL_ENTRY,
+    },
+  },
+]);
+```
+
 ### Exercise routes
 
 Requires `WRITE_EXERCISE_ROUTE` to insert a route with a session, and

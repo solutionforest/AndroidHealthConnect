@@ -42,10 +42,15 @@ plus recipes for:
 | Button | API |
 | --- | --- |
 | Aggregate Steps (7d) | `aggregateRecord` |
+| Update Steps (+100) | `updateRecords` (requires `metadata.id`) |
 | getChanges (Steps) | `getChangesToken` + `getChanges({ pageSize })` |
 | Request History Permission | `getFeatureStatus('readHealthDataHistory')` + `READ_HEALTH_DATA_HISTORY` |
+| Request Background Permission | `getFeatureStatus('readHealthDataInBackground')` + `READ_HEALTH_DATA_IN_BACKGROUND` |
 | Write Exercise + Route | `writeRecords` `ExerciseSession` + `exerciseRoute` |
 | Read Exercise Route | `readExerciseSessions` + `requestExerciseRoute` if `CONSENT_REQUIRED` |
+
+Health Connect permissions and rationale intent-filters live in
+`android/app/src/main/AndroidManifest.xml` (plus `res/values/health_permissions.xml`).
 
 Edit `App.tsx` and save — Fast Refresh applies changes. Force reload from the
 Dev Menu if needed (`Cmd ⌘` + `M` on macOS).
