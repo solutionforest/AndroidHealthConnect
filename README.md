@@ -42,12 +42,15 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 ## Requirements
 
-Two release lines — pick by your AGP / Health Connect SDK:
+This library is a **TurboModule** — it needs **React Native 0.84+** (New Architecture).  
+**RN 0.6x / 0.7x / &lt;0.84 are not supported** on either release line.
 
-| Package | `connect-client` | Min AGP | Min `compileSdk` | Branch / tag |
-|---|---|---|---|---|
-| **[`0.3.8`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.8)** (default / `main`) | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
-| **[`0.2.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.4)** (maintenance) | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
+Pick a line by Android toolchain (HC SDK / AGP), not by RN major:
+
+| Package | RN | Node | `connect-client` | Min AGP | compileSdk | Branch / tag |
+|---|---|---|---|---|---|---|
+| **[`0.3.8`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.8)** (default) | **≥0.84** | **≥22.11** | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
+| **[`0.2.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.4)** (maintenance) | **≥0.84** | **≥22.11** | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
 # GitHub Packages (see Installation for .npmrc)
@@ -66,8 +69,9 @@ yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSd
 | compileSdk | **37** |
 | Android OS | 10 (API 29)+ |
 | Health Connect app | Required on Android 9–13; built-in on Android 14+ |
-| React Native | 0.84+ (New Architecture / TurboModules) |
-| Node.js | 22.11+ |
+| React Native | **≥0.84** (New Architecture / TurboModules) — not 0.6x / 0.7x |
+| Node.js | ≥22.11 |
+| Expo (optional) | SDK 50+ |
 
 ### Health Connect SDK changelog (context)
 
