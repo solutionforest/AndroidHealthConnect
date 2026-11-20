@@ -16,10 +16,33 @@ import {
   readHeartRate,
   writeRecords,
   openHealthConnectApp,
+  aggregateRecord,
+  getChangesToken,
+  getChanges,
+  getFeatureStatus,
+  readExerciseSessions,
+  requestExerciseRoute,
+  ExerciseType,
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
 } from '@solutionforest/android-health-connect';
+
+const CORE_PERMS = [
+  'android.permission.health.READ_STEPS',
+  'android.permission.health.WRITE_STEPS',
+  'android.permission.health.READ_HEART_RATE',
+  'android.permission.health.WRITE_HEART_RATE',
+] as const;
+
+const HISTORY_PERM = 'android.permission.health.READ_HEALTH_DATA_HISTORY';
+
+const EXERCISE_PERMS = [
+  'android.permission.health.READ_EXERCISE',
+  'android.permission.health.WRITE_EXERCISE',
+  'android.permission.health.WRITE_EXERCISE_ROUTE',
+  'android.permission.health.READ_EXERCISE_ROUTES',
+] as const;
 
 export default function App() {
   const [availability, setAvailability] =
@@ -30,20 +53,25 @@ export default function App() {
     []
   );
   const [status, setStatus] = useState('');
+  const [changesToken, setChangesToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     isHealthConnectAvailable().then(setAvailability);
   }, []);
 
+  const weekRange = () => {
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 86400_000);
+    return {
+      startTime: weekAgo.toISOString(),
+      endTime: now.toISOString(),
+    };
+  };
+
   const handleRequestPermissions = async () => {
     setStatus('Requesting permissions…');
-    const granted = await requestPermissions([
-      'android.permission.health.READ_STEPS',
-      'android.permission.health.WRITE_STEPS',
-      'android.permission.health.READ_HEART_RATE',
-      'android.permission.health.WRITE_HEART_RATE',
-    ]);
+    const granted = await requestPermissions([...CORE_PERMS]);
     setGrantedPerms(granted);
     setStatus(`Granted: ${granted.length} permission(s)`);
   };
@@ -74,13 +102,8 @@ export default function App() {
 
   const handleReadSteps = async () => {
     setStatus('Reading steps…');
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 86400_000);
     const { records } = await readSteps({
-      timeRangeFilter: {
-        startTime: weekAgo.toISOString(),
-        endTime: now.toISOString(),
-      },
+      timeRangeFilter: weekRange(),
     });
     setSteps(records);
     setStatus(`Fetched ${records.length} steps record(s)`);
@@ -88,17 +111,130 @@ export default function App() {
 
   const handleReadHeartRate = async () => {
     setStatus('Reading heart rate…');
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 86400_000);
     const { records } = await readHeartRate({
-      timeRangeFilter: {
-        startTime: weekAgo.toISOString(),
-        endTime: now.toISOString(),
-      },
+      timeRangeFilter: weekRange(),
     });
     const allSamples = records.flatMap((r) => r.samples);
     setHeartRateSamples(allSamples);
     setStatus(`Fetched ${allSamples.length} heart rate sample(s)`);
+  };
+
+  /** Recipe: aggregate steps for the last 7 days. */
+  const handleAggregateSteps = async () => {
+    setStatus('Aggregating steps…');
+    const result = await aggregateRecord({
+      recordType: 'Steps',
+      timeRangeFilter: weekRange(),
+    });
+    const total = result.metrics['COUNT_TOTAL'];
+    setStatus(
+      `Steps COUNT_TOTAL (7d): ${total == null ? 'n/a' : String(total)}`
+    );
+  };
+
+  /** Recipe: changelog token + first page (optional pageSize). */
+  const handleChanges = async () => {
+    setStatus('Fetching changes…');
+    let token = changesToken;
+    if (!token) {
+      token = await getChangesToken({ recordTypes: ['Steps'] });
+      setChangesToken(token);
+    }
+    const page = await getChanges(token, { pageSize: 100 });
+    setChangesToken(page.nextChangesToken);
+    setStatus(
+      `Changes: +${page.upsertionChanges.length} / -${page.deletionChanges.length}` +
+        ` · hasMore=${page.hasMore}` +
+        (page.changesTokenExpired ? ' · TOKEN EXPIRED' : '')
+    );
+  };
+
+  /** Recipe: history permission (feature-gated). */
+  const handleHistoryPermission = async () => {
+    setStatus('Checking history feature…');
+    const feature = await getFeatureStatus('readHealthDataHistory');
+    if (feature !== 'available') {
+      setStatus('READ_HEALTH_DATA_HISTORY feature unavailable on this device');
+      return;
+    }
+    const granted = await requestPermissions([HISTORY_PERM]);
+    setGrantedPerms((prev) => Array.from(new Set([...prev, ...granted])));
+    setStatus(
+      granted.includes(HISTORY_PERM)
+        ? 'History permission granted'
+        : 'History permission not granted'
+    );
+  };
+
+  /** Recipe: write a short run with a 2-point exercise route. */
+  const handleWriteExerciseRoute = async () => {
+    setStatus('Requesting exercise permissions…');
+    await requestPermissions([...EXERCISE_PERMS]);
+    setStatus('Writing ExerciseSession + route…');
+    const end = new Date();
+    const start = new Date(end.getTime() - 30 * 60_000);
+    const mid = new Date(start.getTime() + 15 * 60_000);
+    const { recordIdsList } = await writeRecords([
+      {
+        recordType: 'ExerciseSession',
+        exerciseType: ExerciseType.RUNNING,
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+        title: 'Demo run',
+        exerciseRoute: {
+          route: [
+            {
+              time: start.toISOString(),
+              latitude: 22.3193,
+              longitude: 114.1694,
+              altitude: 12,
+            },
+            {
+              time: mid.toISOString(),
+              latitude: 22.3201,
+              longitude: 114.1702,
+            },
+          ],
+        },
+      },
+    ]);
+    setStatus(`ExerciseSession id: ${recordIdsList[0]}`);
+  };
+
+  /** Recipe: read sessions; request route if CONSENT_REQUIRED. */
+  const handleReadExerciseRoute = async () => {
+    setStatus('Reading exercise sessions…');
+    await requestPermissions([...EXERCISE_PERMS]);
+    const { records } = await readExerciseSessions({
+      timeRangeFilter: weekRange(),
+    });
+    const first = records[0];
+    if (!first) {
+      setStatus('No ExerciseSession records in range');
+      return;
+    }
+    const route = first.exerciseRoute;
+    if (!route || !('type' in route)) {
+      setStatus(`Session ${first.metadata?.id ?? '?'}: no route field`);
+      return;
+    }
+    if (route.type === 'DATA') {
+      setStatus(
+        `Route DATA: ${route.route.length} point(s) on ${first.metadata?.id}`
+      );
+      return;
+    }
+    if (route.type === 'CONSENT_REQUIRED' && first.metadata?.id) {
+      setStatus('CONSENT_REQUIRED — requesting route…');
+      const consented = await requestExerciseRoute(first.metadata.id);
+      setStatus(
+        consented.type === 'DATA'
+          ? `Consented route: ${consented.route.length} point(s)`
+          : `After consent: ${consented.type}`
+      );
+      return;
+    }
+    setStatus(`Route ${route.type} on ${first.metadata?.id ?? '?'}`);
   };
 
   if (Platform.OS !== 'android') {
@@ -168,6 +304,27 @@ export default function App() {
             />
           </View>
 
+          <Text style={styles.section}>Recipes</Text>
+          <View style={styles.buttonGroup}>
+            <Button
+              title="Aggregate Steps (7d)"
+              onPress={handleAggregateSteps}
+            />
+            <Button title="getChanges (Steps)" onPress={handleChanges} />
+            <Button
+              title="Request History Permission"
+              onPress={handleHistoryPermission}
+            />
+            <Button
+              title="Write Exercise + Route"
+              onPress={handleWriteExerciseRoute}
+            />
+            <Button
+              title="Read Exercise Route"
+              onPress={handleReadExerciseRoute}
+            />
+          </View>
+
           {steps.length > 0 && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Steps Records</Text>
@@ -214,6 +371,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+  },
+  section: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 8,
+    marginBottom: 4,
   },
   row: {
     flexDirection: 'row',

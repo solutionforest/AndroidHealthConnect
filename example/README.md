@@ -34,19 +34,25 @@ If everything is set up correctly, you should see your new app running in the An
 
 This is one way to run your app — you can also build it directly from Android Studio.
 
-## Step 3: Modify your app
+## Step 3: Try the demo recipes
 
-Now that you have successfully run the app, let's make changes!
+`src/App.tsx` includes buttons for the core flow (permissions / steps / heart rate)
+plus recipes for:
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+| Button | API |
+| --- | --- |
+| Aggregate Steps (7d) | `aggregateRecord` |
+| getChanges (Steps) | `getChangesToken` + `getChanges({ pageSize })` |
+| Request History Permission | `getFeatureStatus('readHealthDataHistory')` + `READ_HEALTH_DATA_HISTORY` |
+| Write Exercise + Route | `writeRecords` `ExerciseSession` + `exerciseRoute` |
+| Read Exercise Route | `readExerciseSessions` + `requestExerciseRoute` if `CONSENT_REQUIRED` |
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+Edit `App.tsx` and save — Fast Refresh applies changes. Force reload from the
+Dev Menu if needed (`Cmd ⌘` + `M` on macOS).
 
 ## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
+You've successfully run the Health Connect example. :partying_face:
 
 ### Now what?
 

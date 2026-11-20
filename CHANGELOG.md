@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `jsonToMetadata` no longer always uses bare `manualEntry()` (supports `*WithId` for updates).
+- Expo plugin docs: omitting `permissions` declares none (intent-filters only).
+- Example app recipes: aggregates, `getChanges`, history permission, exercise route.
 
 ## [0.3.8] - 2026-11-20
 
