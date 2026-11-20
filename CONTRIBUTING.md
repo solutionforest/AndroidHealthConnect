@@ -90,16 +90,27 @@ We follow the [conventional commits specification](https://www.conventionalcommi
 Our pre-commit hooks verify that your commit message matches this format when committing.
 
 
-### Publishing to npm
+### Publishing
 
-We use [release-it](https://github.com/release-it/release-it) to make it easier to publish new versions. It handles common tasks like bumping version based on semver, creating tags and releases etc.
+Published to **GitHub Packages** (`npm.pkg.github.com`) + GitHub Releases `.tgz` — **not** npmjs.org. Tag `v*` on `main` to trigger the Release workflow.
 
-To publish new versions, run the following:
+We use [release-it](https://github.com/release-it/release-it) for version bumps locally when needed:
 
 ```sh
 yarn release
 ```
 
+### Quality gates (required)
+
+Before opening a PR, run:
+
+```sh
+yarn lint
+yarn typecheck
+yarn test:coverage
+```
+
+CI enforces the same gates (max-strict TypeScript, type-aware ESLint, Jest coverage thresholds).
 
 ### Scripts
 
@@ -109,6 +120,8 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn typecheck`: type-check files with TypeScript.
 - `yarn lint`: lint files with [ESLint](https://eslint.org/).
 - `yarn test`: run unit tests with [Jest](https://jestjs.io/).
+- `yarn test:coverage`: unit tests with coverage summary (thresholds enforced).
+- `yarn pack:check`: dry-run pack list (verify published files).
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.
 

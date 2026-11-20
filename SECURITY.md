@@ -59,11 +59,26 @@ Out of scope (report upstream where applicable):
 - Denial-of-service against third-party services
 - Social engineering, physical attacks, or speculative reports without a concrete impact
 
+## Security model (what this library does / does not do)
+
+Health data access is gated by **Android Health Connect** and the **host app**:
+
+| Layer | Responsibility |
+| ----- | -------------- |
+| OS / Health Connect | User consent UI, per-type permissions, on-device store, provider signature checks |
+| This library | Thin TurboModule bridge; requests only the permissions the host app asks for; no network upload of health records |
+| Host app | Least-privilege permission lists, UI copy, retention, any server sync / encryption beyond HC |
+
+This package does **not** provide root detection, certificate pinning, or anti-tamper. Those belong in the host app if required.
+
+Use `getHealthConnectAvailability()` before enabling HC UI — devices without Google Play services (common on mainland China / some HMS phones) cannot use Health Connect.
+
 ## Security Practices
 
 - Dependency updates via Dependabot (npm, Gradle, GitHub Actions)
-- CI security audit job (`yarn npm audit`) on self-hosted runners
-- Scheduled CodeQL analysis when GitHub Advanced Security is available
+- CI security audit job (`yarn npm audit`) on GitHub-hosted runners
+- Scheduled CodeQL analysis on `main` and weekly
+- Coverage / lint / typecheck gates on every PR
 - Weekly version-check workflow that opens upgrade-reminder issues for maintainers
 
 ## Safe Harbor

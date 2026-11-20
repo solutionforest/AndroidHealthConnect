@@ -5,6 +5,16 @@ All notable changes to `@solutionforest/android-health-connect` are documented h
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Package metadata aligned with RN library standards: richer `keywords` / description,
+  `sideEffects: false`, explicit `exports` for Expo `app.plugin.js` + `react-native`/`import`,
+  ship `LICENSE` / `CHANGELOG` / `SECURITY` / logo in the tarball.
+- Added PR + feature-request templates; CONTRIBUTING quality-gate checklist;
+  SECURITY.md security-model section (HC permissions vs host-app duties).
+
 ## [0.3.7] - 2026-11-20
 
 ### Added

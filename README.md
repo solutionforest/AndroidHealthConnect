@@ -19,7 +19,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 > **Android only.** This library has no iOS implementation.
 
-Quality bar (since **0.3.7**): max-strict TypeScript, type-aware ESLint (no `any` / no-unsafe-*), Jest coverage gates, Kotlin `allWarningsAsErrors`, and CI that fails when quality drops.
+Quality bar (since **0.3.6**): max-strict TypeScript, type-aware ESLint (no `any` / no-unsafe-*), Jest coverage gates, Kotlin `allWarningsAsErrors`, and CI that fails when quality drops. See [SECURITY.md](./SECURITY.md) for the security model (HC permissions + what this bridge does not claim).
 
 ## Support
 

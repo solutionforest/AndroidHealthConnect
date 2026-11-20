@@ -1,15 +1,19 @@
 {
   "name": "@solutionforest/android-health-connect",
   "version": "0.3.7",
-  "description": "An intermediate connection between React Native App and Health Connect",
+  "description": "React Native TurboModule for Android Health Connect — read/write health records, permissions, matchmaking, and PHR helpers.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
+      "react-native": "./lib/module/index.js",
+      "import": "./lib/module/index.js",
       "default": "./lib/module/index.js"
     },
+    "./app.plugin.js": "./app.plugin.js",
     "./package.json": "./package.json"
   },
   "files": [
@@ -17,14 +21,20 @@
     "lib",
     "android",
     "ios",
-    "cpp",
     "*.podspec",
     "app.plugin.js",
     "plugin/build",
     "plugin/src",
     "react-native.config.js",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
     "!ios/build",
     "!android/build",
+    "!android/src/test",
+    "!android/unit-test-runner",
     "!android/gradle",
     "!android/gradlew",
     "!android/gradlew.bat",
@@ -42,12 +52,21 @@
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters=text-summary",
+    "pack:check": "yarn pack --dry-run",
     "release": "release-it --only-version"
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "android",
+    "health-connect",
+    "healthconnect",
+    "fitness",
+    "healthcare",
+    "turbo-module",
+    "expo",
+    "permissions",
+    "wearables"
   ],
   "repository": {
     "type": "git",

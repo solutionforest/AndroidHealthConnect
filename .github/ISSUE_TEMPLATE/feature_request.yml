@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest an improvement or new Health Connect API wrap
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for ideas. Prefer linking to the official
+        [Health Connect docs](https://developer.android.com/health-and-fitness/health-connect)
+        when asking for a new record type or API.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / use case
+      description: What are you trying to build?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: Sketch of TS surface or Android API to wrap.
+      placeholder: e.g. aggregateGroupByDuration('Steps', …)
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds or other libraries you tried.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues / PRs first.
+          required: true
+        - label: This is Android Health Connect related (not Apple HealthKit).
+          required: true
