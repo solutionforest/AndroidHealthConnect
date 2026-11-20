@@ -1,4 +1,17 @@
-import { checkLibraryUpdate, compareSemver, LIBRARY_VERSION } from '../upgrade';
+import {
+  checkLibraryUpdate,
+  compareSemver,
+  LIBRARY_VERSION,
+  type CheckLibraryUpdateOptions,
+} from '../upgrade';
+
+function mockFetch(
+  impl: (...args: Parameters<typeof fetch>) => ReturnType<typeof fetch>
+): NonNullable<CheckLibraryUpdateOptions['fetchImpl']> {
+  return jest.fn(impl) as unknown as NonNullable<
+    CheckLibraryUpdateOptions['fetchImpl']
+  >;
+}
 
 describe('compareSemver', () => {
   it('orders patch versions', () => {
@@ -19,19 +32,22 @@ describe('checkLibraryUpdate', () => {
   });
 
   it('returns upgrade advice when a newer release exists', async () => {
-    const fetchImpl = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        tag_name: '0.9.9',
-        name: '0.9.9',
-        html_url:
-          'https://github.com/solutionforest/AndroidHealthConnect/releases/tag/0.9.9',
-      }),
-    });
+    const fetchImpl = mockFetch(
+      async () =>
+        ({
+          ok: true,
+          json: async () => ({
+            tag_name: '0.9.9',
+            name: '0.9.9',
+            html_url:
+              'https://github.com/solutionforest/AndroidHealthConnect/releases/tag/0.9.9',
+          }),
+        } as Response)
+    );
 
     const info = await checkLibraryUpdate({
       currentVersion: '0.2.2',
-      fetchImpl: fetchImpl as unknown as typeof fetch,
+      fetchImpl,
     });
 
     expect(info.updateAvailable).toBe(true);
@@ -45,19 +61,22 @@ describe('checkLibraryUpdate', () => {
   });
 
   it('reports up to date when current matches latest', async () => {
-    const fetchImpl = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        tag_name: 'v0.2.2',
-        name: '0.2.2 update',
-        html_url:
-          'https://github.com/solutionforest/AndroidHealthConnect/releases/tag/0.2.2',
-      }),
-    });
+    const fetchImpl = mockFetch(
+      async () =>
+        ({
+          ok: true,
+          json: async () => ({
+            tag_name: 'v0.2.2',
+            name: '0.2.2 update',
+            html_url:
+              'https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.2',
+          }),
+        } as Response)
+    );
 
     const info = await checkLibraryUpdate({
       currentVersion: '0.2.2',
-      fetchImpl: fetchImpl as unknown as typeof fetch,
+      fetchImpl,
     });
 
     expect(info.updateAvailable).toBe(false);
@@ -66,19 +85,55 @@ describe('checkLibraryUpdate', () => {
   });
 
   it('handles GitHub errors without throwing', async () => {
-    const fetchImpl = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 404,
-      json: async () => ({}),
-    });
+    const fetchImpl = mockFetch(
+      async () =>
+        ({
+          ok: false,
+          status: 404,
+          json: async () => ({}),
+        } as Response)
+    );
 
     const info = await checkLibraryUpdate({
       currentVersion: '0.2.2',
-      fetchImpl: fetchImpl as unknown as typeof fetch,
+      fetchImpl,
     });
 
     expect(info.updateAvailable).toBe(false);
     expect(info.latestVersion).toBeNull();
     expect(info.advice).toContain('HTTP 404');
+  });
+
+  it('handles missing fetch implementation', async () => {
+    const broken = await checkLibraryUpdate({
+      currentVersion: '0.2.2',
+      fetchImpl: null as unknown as typeof fetch,
+    });
+
+    expect(broken.updateAvailable).toBe(false);
+    expect(broken.advice).toContain('no fetch');
+  });
+
+  it('handles release payload without tag_name', async () => {
+    const fetchImpl = mockFetch(
+      async () =>
+        ({
+          ok: true,
+          json: async () => ({
+            name: 'untitled',
+            html_url:
+              'https://github.com/solutionforest/AndroidHealthConnect/releases',
+          }),
+        } as Response)
+    );
+
+    const info = await checkLibraryUpdate({
+      currentVersion: '0.2.2',
+      fetchImpl,
+    });
+
+    expect(info.updateAvailable).toBe(false);
+    expect(info.latestVersion).toBeNull();
+    expect(info.advice).toContain('No GitHub release found');
   });
 });

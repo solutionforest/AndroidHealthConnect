@@ -74,7 +74,10 @@ export async function checkLibraryUpdate(
   const currentVersion = normalizeVersion(
     options.currentVersion ?? LIBRARY_VERSION
   );
-  const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+  // Use `in` so callers can inject a non-function (null) for the no-fetch path.
+  // `??` would replace null with globalThis.fetch and hide that branch.
+  const fetchImpl =
+    'fetchImpl' in options ? options.fetchImpl : globalThis.fetch;
 
   if (typeof fetchImpl !== 'function') {
     return {

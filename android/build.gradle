@@ -69,6 +69,19 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
+  }
+}
+
+// AGP 9 built-in Kotlin / kotlin-android: treat warnings as errors.
+kotlin {
+  compilerOptions {
+    allWarningsAsErrors.set(true)
+  }
 }
 
 dependencies {
@@ -79,4 +92,7 @@ dependencies {
 
   // Coroutines for async Health Connect API calls
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0"
+
+  testImplementation "junit:junit:4.13.2"
+  testImplementation "org.robolectric:robolectric:4.16"
 }

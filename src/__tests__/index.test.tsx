@@ -3,19 +3,27 @@ import {
   isHealthConnectAvailable,
   requestPermissions,
   checkPermissions,
+  revokeAllPermissions,
   readRecords,
   writeRecords,
   deleteRecordsByTime,
   deleteRecordsById,
   openHealthConnectSettings,
+  openHealthConnectDataManagement,
   openHealthConnectApp,
   getFeatureStatus,
   checkIfMatchmakingIsPossible,
   launchMatchmaking,
   createMedicalDataSource,
+  deleteMedicalDataSourceWithData,
+  getMedicalDataSources,
+  upsertMedicalResources,
+  deleteMedicalResources,
   readMedicalResources,
+  readSteps,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
+import type { HealthPermission, StepsRecord } from '../types';
 
 // The mock factory runs while imports are still initializing, so the native
 // stand-in has to be created inside the factory and read back afterwards.
@@ -82,12 +90,12 @@ describe('isHealthConnectAvailable', () => {
 
 describe('requestPermissions', () => {
   it('returns the granted permissions', async () => {
-    const perms = [
+    const perms: HealthPermission[] = [
       'android.permission.health.READ_STEPS',
       'android.permission.health.WRITE_STEPS',
     ];
     mockNative.requestPermissions.mockResolvedValue(perms);
-    const granted = await requestPermissions(perms as any);
+    const granted = await requestPermissions(perms);
     expect(granted).toEqual(perms);
     expect(mockNative.requestPermissions).toHaveBeenCalledWith(perms);
   });
@@ -96,7 +104,7 @@ describe('requestPermissions', () => {
     mockNative.requestPermissions.mockResolvedValue([]);
     const granted = await requestPermissions([
       'android.permission.health.READ_STEPS',
-    ] as any);
+    ]);
     expect(granted).toEqual([]);
   });
 });
@@ -109,8 +117,16 @@ describe('checkPermissions', () => {
     const result = await checkPermissions([
       'android.permission.health.READ_STEPS',
       'android.permission.health.WRITE_STEPS',
-    ] as any);
+    ]);
     expect(result).toEqual(['android.permission.health.READ_STEPS']);
+  });
+});
+
+describe('revokeAllPermissions', () => {
+  it('forwards to native', async () => {
+    mockNative.revokeAllPermissions.mockResolvedValue(true);
+    await revokeAllPermissions();
+    expect(mockNative.revokeAllPermissions).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -137,11 +153,14 @@ describe('readRecords', () => {
     };
     mockNative.readRecords.mockResolvedValue(JSON.stringify(payload));
 
-    const { records, pageToken } = await readRecords('Steps', timeRange);
+    const { records, pageToken } = await readRecords<StepsRecord>(
+      'Steps',
+      timeRange
+    );
 
     expect(records).toHaveLength(1);
     expect(records[0]?.recordType).toBe('Steps');
-    expect((records[0] as any).count).toBe(5000);
+    expect(records[0]?.count).toBe(5000);
     expect(pageToken).toBeNull();
 
     expect(mockNative.readRecords).toHaveBeenCalledWith(
@@ -181,6 +200,22 @@ describe('readRecords', () => {
       'Steps',
       JSON.stringify(opts)
     );
+  });
+
+  it('uses default options when omitted', async () => {
+    mockNative.readRecords.mockResolvedValue(
+      JSON.stringify({ records: [], pageToken: null })
+    );
+    await readRecords('Steps');
+    expect(mockNative.readRecords).toHaveBeenCalledWith('Steps', '{}');
+  });
+
+  it('readSteps convenience helper uses default options', async () => {
+    mockNative.readRecords.mockResolvedValue(
+      JSON.stringify({ records: [], pageToken: null })
+    );
+    await readSteps();
+    expect(mockNative.readRecords).toHaveBeenCalledWith('Steps', '{}');
   });
 });
 
@@ -251,6 +286,18 @@ describe('navigation helpers', () => {
     expect(mockNative.openHealthConnectSettings).toHaveBeenCalledTimes(1);
   });
 
+  it('openHealthConnectDataManagement forwards package name', () => {
+    openHealthConnectDataManagement('com.example.app');
+    expect(mockNative.openHealthConnectDataManagement).toHaveBeenCalledWith(
+      'com.example.app'
+    );
+  });
+
+  it('openHealthConnectDataManagement defaults to empty package', () => {
+    openHealthConnectDataManagement();
+    expect(mockNative.openHealthConnectDataManagement).toHaveBeenCalledWith('');
+  });
+
   it('openHealthConnectApp calls native', () => {
     openHealthConnectApp();
     expect(mockNative.openHealthConnectApp).toHaveBeenCalledTimes(1);
@@ -279,9 +326,25 @@ describe('feature / matchmaking / PHR helpers', () => {
     );
   });
 
+  it('checkIfMatchmakingIsPossible uses default options', async () => {
+    mockNative.checkIfMatchmakingIsPossible.mockResolvedValue(
+      JSON.stringify({ isMatchmakingPossible: false })
+    );
+    await expect(checkIfMatchmakingIsPossible()).resolves.toEqual({
+      isMatchmakingPossible: false,
+    });
+    expect(mockNative.checkIfMatchmakingIsPossible).toHaveBeenCalledWith('{}');
+  });
+
   it('launchMatchmaking forwards options', async () => {
     mockNative.launchMatchmaking.mockResolvedValue(true);
     await expect(launchMatchmaking({})).resolves.toBe(true);
+    expect(mockNative.launchMatchmaking).toHaveBeenCalledWith('{}');
+  });
+
+  it('launchMatchmaking uses default options', async () => {
+    mockNative.launchMatchmaking.mockResolvedValue(false);
+    await expect(launchMatchmaking()).resolves.toBe(false);
     expect(mockNative.launchMatchmaking).toHaveBeenCalledWith('{}');
   });
 
@@ -304,6 +367,14 @@ describe('feature / matchmaking / PHR helpers', () => {
     ).resolves.toEqual(source);
   });
 
+  it('deleteMedicalDataSourceWithData forwards id', async () => {
+    mockNative.deleteMedicalDataSourceWithData.mockResolvedValue(true);
+    await deleteMedicalDataSourceWithData('ds-1');
+    expect(mockNative.deleteMedicalDataSourceWithData).toHaveBeenCalledWith(
+      'ds-1'
+    );
+  });
+
   it('readMedicalResources parses JSON response', async () => {
     mockNative.readMedicalResources.mockResolvedValue(
       JSON.stringify({ medicalResources: [], nextPageToken: null })
@@ -311,5 +382,49 @@ describe('feature / matchmaking / PHR helpers', () => {
     const page = await readMedicalResources({ medicalResourceType: 2 });
     expect(page.medicalResources).toEqual([]);
     expect(page.nextPageToken).toBeNull();
+  });
+
+  it('getMedicalDataSources parses JSON response', async () => {
+    mockNative.getMedicalDataSources.mockResolvedValue(JSON.stringify([]));
+    await expect(getMedicalDataSources({})).resolves.toEqual([]);
+    expect(mockNative.getMedicalDataSources).toHaveBeenCalledWith('{}');
+  });
+
+  it('getMedicalDataSources uses default options', async () => {
+    mockNative.getMedicalDataSources.mockResolvedValue(JSON.stringify([]));
+    await expect(getMedicalDataSources()).resolves.toEqual([]);
+    expect(mockNative.getMedicalDataSources).toHaveBeenCalledWith('{}');
+  });
+
+  it('upsertMedicalResources parses JSON response', async () => {
+    mockNative.upsertMedicalResources.mockResolvedValue(JSON.stringify([]));
+    const requests = [
+      {
+        dataSourceId: 'ds-1',
+        fhirVersion: { major: 4, minor: 0, patch: 1 },
+        data: '{"resourceType":"Observation"}',
+      },
+    ];
+    await expect(upsertMedicalResources(requests)).resolves.toEqual([]);
+    expect(mockNative.upsertMedicalResources).toHaveBeenCalledWith(
+      JSON.stringify(requests)
+    );
+  });
+
+  it('deleteMedicalResources forwards request', async () => {
+    mockNative.deleteMedicalResources.mockResolvedValue(true);
+    const request = {
+      ids: [
+        {
+          dataSourceId: 'ds-1',
+          fhirResourceType: 1,
+          fhirResourceId: 'mr-1',
+        },
+      ],
+    };
+    await deleteMedicalResources(request);
+    expect(mockNative.deleteMedicalResources).toHaveBeenCalledWith(
+      JSON.stringify(request)
+    );
   });
 });

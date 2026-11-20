@@ -144,7 +144,20 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
-    ]
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/__tests__/**",
+      "!src/NativeAndroidHealthConnect.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 75,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    }
   },
   "commitlint": {
     "extends": [

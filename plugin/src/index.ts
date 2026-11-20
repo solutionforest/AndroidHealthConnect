@@ -27,9 +27,7 @@ function ensurePermission(
   permission: string
 ): void {
   const manifest = androidManifest.manifest;
-  if (!manifest['uses-permission']) {
-    manifest['uses-permission'] = [];
-  }
+  manifest['uses-permission'] ??= [];
   const exists = manifest['uses-permission'].some(
     (p) => p.$['android:name'] === permission
   );
@@ -52,9 +50,7 @@ function addMainActivityIntentFilter(
     return;
   }
 
-  if (!mainActivity['intent-filter']) {
-    mainActivity['intent-filter'] = [];
-  }
+  mainActivity['intent-filter'] ??= [];
 
   const alreadyPresent = mainActivity['intent-filter'].some((filter) =>
     filter.action?.some((a) => a.$['android:name'] === action)

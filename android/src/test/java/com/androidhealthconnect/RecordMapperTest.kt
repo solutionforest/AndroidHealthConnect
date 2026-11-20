@@ -62,7 +62,8 @@ class RecordMapperTest {
             RecordMapper.jsonToRecord(json)
             throw AssertionError("Expected IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertTrue(e.message!!.contains("Unsupported record type"))
+            val message = requireNotNull(e.message) { "expected exception message" }
+            assertTrue(message.contains("Unsupported record type"))
         }
     }
 
