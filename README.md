@@ -503,37 +503,67 @@ await writeRecords([
 await readPlannedExerciseSessions({ /* timeRangeFilter … */ });
 ```
 
-### Time ranges & waiting for data
+### Time ranges & waiting for data (resume → often `0` first)
 
-Health Connect has **no push observer**. Build Instant windows with helpers, and
-poll when you need data to appear (after a write, or while a wearable syncs):
+Health Connect has **no push observer**. On a real phone, after you **resume /
+re-open the app**, the first read or aggregate is often `0` / empty — vendor apps
+(Samsung Health, Fitbit, …) may still be writing into HC. Google’s guidance: sync
+when the app becomes foreground, and optionally poll while it stays open.
 
 ```ts
+import { AppState } from 'react-native';
 import {
   timeRangeToday,
   timeRangeLastDays,
+  pollUntil,
   waitForRecords,
   readAllRecords,
-  readSteps,
   aggregateRecord,
+  pullChanges,
 } from '@solutionforest/android-health-connect';
 
 const today = timeRangeToday();
-const week = timeRangeLastDays(7);
 
-const { records } = await readSteps({ timeRangeFilter: today });
-
-// Poll until at least one Steps record exists (or timeout):
-const page = await waitForRecords({
-  recordType: 'Steps',
-  timeRangeFilter: week,
-  minCount: 1,
-  timeoutMs: 15_000,
-  intervalMs: 500,
+// On resume: poll aggregate until non-zero (or timeout — keep last value for UI)
+AppState.addEventListener('change', (state) => {
+  if (state !== 'active') return;
+  void (async () => {
+    const { value, satisfied } = await pollUntil(
+      () =>
+        aggregateRecord({
+          recordType: 'Steps',
+          timeRangeFilter: today,
+        }),
+      {
+        // Prefer “> 0” only when you expect activity; true 0 steps will time out.
+        ready: (r) => {
+          const n = r.metrics['COUNT_TOTAL'];
+          return typeof n === 'number' && n > 0;
+        },
+        timeoutMs: 20_000,
+        intervalMs: 1_000,
+        throwOnTimeout: false, // don't crash UI — show 0 until next try
+      }
+    );
+    console.log('steps today', value.metrics['COUNT_TOTAL'] ?? 0, {
+      satisfied,
+    });
+    // Also drain changelog on resume when you sync locally:
+    // const batch = await pullChanges(savedToken);
+  })();
 });
 
-// Follow pageToken until exhausted:
-const all = await readAllRecords('Steps', { timeRangeFilter: week });
+// After your own writeRecords — wait until the row is readable:
+await waitForRecords({
+  recordType: 'Steps',
+  timeRangeFilter: timeRangeLastDays(1),
+  minCount: 1,
+  timeoutMs: 15_000,
+});
+
+const all = await readAllRecords('Steps', {
+  timeRangeFilter: timeRangeLastDays(7),
+});
 ```
 
 ### Aggregates
@@ -733,7 +763,9 @@ if (update.updateAvailable) {
 | `revokeAllPermissions()` | `Promise<void>` | Revoke all permissions |
 | `Permission.*` | `HealthPermission` | Typed permission string constants |
 | `timeRangeToday()` / `timeRangeLastDays(n)` / `timeRangeLastHours(n)` | `TimeRangeFilter` | Instant windows for reads/aggregates |
-| `waitForRecords(opts)` | `Promise<ReadRecordsResponse>` | Poll until data appears (HC has no push) |
+| `pollUntil(fetch, opts)` | `Promise<PollUntilResult>` | Soft poll (resume: first value often `0`) |
+| `waitUntil(fetch, opts)` | `Promise<T>` | Same as pollUntil but throws on timeout |
+| `waitForRecords(opts)` | `Promise<ReadRecordsResponse>` | Poll `readRecords` until rows appear |
 | `readAllRecords(type, opts?)` | `Promise<T[]>` | Follow `pageToken` until exhausted |
 | `pullChanges(token, opts?)` | `Promise<PullChangesResult>` | Drain changelog pages (`hasMore` loop) |
 

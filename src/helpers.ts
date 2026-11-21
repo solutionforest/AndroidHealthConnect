@@ -106,12 +106,43 @@ export type WaitForRecordsOptions<T extends HealthRecord> = {
   signal?: AbortSignal;
 };
 
-export class WaitForRecordsTimeoutError extends Error {
+export class WaitTimeoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WaitTimeoutError';
+  }
+}
+
+/** @deprecated Use {@link WaitTimeoutError}. */
+export class WaitForRecordsTimeoutError extends WaitTimeoutError {
   constructor(message: string) {
     super(message);
     this.name = 'WaitForRecordsTimeoutError';
   }
 }
+
+export type PollUntilOptions<T> = {
+  /** Stop when this returns true. */
+  ready: (value: T) => boolean;
+  /** Give up after this many ms. Default: 15000. */
+  timeoutMs?: number;
+  /** Poll interval. Default: 500. */
+  intervalMs?: number;
+  signal?: AbortSignal;
+  /**
+   * When true (default for {@link waitUntil}), throw {@link WaitTimeoutError}.
+   * When false (recommended on AppState resume), return the last value with
+   * `satisfied: false` so the UI can keep showing 0 / stale until the next open.
+   */
+  throwOnTimeout?: boolean;
+};
+
+export type PollUntilResult<T> = {
+  value: T;
+  /** True when `ready(value)` succeeded before timeout. */
+  satisfied: boolean;
+  attempts: number;
+};
 
 function abortError(signal?: AbortSignal): Error {
   const reason =
@@ -137,10 +168,75 @@ function delay(ms: number, signal?: AbortSignal): Promise<void> {
 }
 
 /**
+ * Generic poller for Health Connect reads/aggregates.
+ *
+ * HC has **no push**. On real devices, the first read after resume is often
+ * empty / `0` until Samsung Health / Fitbit / etc. finish writing into HC —
+ * call this (or {@link waitForRecords}) when `AppState` becomes `active`.
+ */
+export async function pollUntil<T>(
+  fetch: () => Promise<T>,
+  options: PollUntilOptions<T>
+): Promise<PollUntilResult<T>> {
+  const {
+    ready,
+    timeoutMs = 15_000,
+    intervalMs = 500,
+    signal,
+    throwOnTimeout = false,
+  } = options;
+
+  if (timeoutMs <= 0) {
+    throw new Error('pollUntil: timeoutMs must be > 0');
+  }
+  if (intervalMs <= 0) {
+    throw new Error('pollUntil: intervalMs must be > 0');
+  }
+
+  const started = Date.now();
+  let attempts = 0;
+  let last!: T;
+
+  for (;;) {
+    if (signal?.aborted === true) {
+      throw abortError(signal);
+    }
+
+    last = await fetch();
+    attempts += 1;
+    if (ready(last)) {
+      return { value: last, satisfied: true, attempts };
+    }
+
+    const elapsed = Date.now() - started;
+    if (elapsed >= timeoutMs) {
+      if (throwOnTimeout) {
+        throw new WaitTimeoutError(
+          `pollUntil timed out after ${timeoutMs}ms (${attempts} attempt(s))`
+        );
+      }
+      return { value: last, satisfied: false, attempts };
+    }
+
+    await delay(Math.min(intervalMs, timeoutMs - elapsed), signal);
+  }
+}
+
+/**
+ * Like {@link pollUntil} but throws {@link WaitTimeoutError} on timeout.
+ */
+export async function waitUntil<T>(
+  fetch: () => Promise<T>,
+  options: Omit<PollUntilOptions<T>, 'throwOnTimeout'>
+): Promise<T> {
+  const result = await pollUntil(fetch, { ...options, throwOnTimeout: true });
+  return result.value;
+}
+
+/**
  * Polls {@link readRecords} until records appear (or `predicate` / `minCount`
- * is satisfied), or until timeout. Health Connect has no push observer — use
- * this after a write, or while waiting for a wearable sync while the app is
- * foregrounded.
+ * is satisfied), or until timeout. Prefer {@link pollUntil} + `aggregateRecord`
+ * when the UI shows a total that starts at `0` after resume.
  *
  * @throws {WaitForRecordsTimeoutError} when `timeoutMs` elapses
  */
@@ -158,40 +254,36 @@ export async function waitForRecords<T extends HealthRecord>(
     signal,
   } = options;
 
-  if (timeoutMs <= 0) {
-    throw new Error('waitForRecords: timeoutMs must be > 0');
-  }
-  if (intervalMs <= 0) {
-    throw new Error('waitForRecords: intervalMs must be > 0');
+  const readOpts: ReadRecordsOptions = { timeRangeFilter };
+  if (dataOriginFilter !== undefined) {
+    readOpts.dataOriginFilter = dataOriginFilter;
   }
 
-  const started = Date.now();
-  const ready = (records: T[]) =>
-    predicate ? predicate(records) : records.length >= minCount;
+  const waitOpts: Omit<
+    PollUntilOptions<ReadRecordsResponse<T>>,
+    'throwOnTimeout'
+  > = {
+    ready: (page) =>
+      predicate ? predicate(page.records) : page.records.length >= minCount,
+    timeoutMs,
+    intervalMs,
+  };
+  if (signal !== undefined) {
+    waitOpts.signal = signal;
+  }
 
-  for (;;) {
-    if (signal?.aborted === true) {
-      throw abortError(signal);
-    }
-
-    const readOpts: ReadRecordsOptions = { timeRangeFilter };
-    if (dataOriginFilter !== undefined) {
-      readOpts.dataOriginFilter = dataOriginFilter;
-    }
-    const page = await readRecords<T>(recordType, readOpts);
-    if (ready(page.records)) {
-      return page;
-    }
-
-    const elapsed = Date.now() - started;
-    if (elapsed >= timeoutMs) {
+  try {
+    return await waitUntil(
+      () => readRecords<T>(recordType, readOpts),
+      waitOpts
+    );
+  } catch (e) {
+    if (e instanceof WaitTimeoutError) {
       throw new WaitForRecordsTimeoutError(
         `waitForRecords timed out after ${timeoutMs}ms waiting for ${recordType}`
       );
     }
-
-    const sleep = Math.min(intervalMs, timeoutMs - elapsed);
-    await delay(sleep, signal);
+    throw e;
   }
 }
 

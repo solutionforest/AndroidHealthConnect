@@ -6,9 +6,13 @@ import {
   timeRangeToday,
   waitForRecords,
   WaitForRecordsTimeoutError,
+  WaitTimeoutError,
+  pollUntil,
+  waitUntil,
   readAllRecords,
   pullChanges,
   Permission,
+  aggregateRecord,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 
@@ -118,6 +122,95 @@ describe('ensurePermissions', () => {
     expect(mockNative.requestPermissions).not.toHaveBeenCalled();
     expect(result.allGranted).toBe(false);
     expect(result.missing).toEqual([Permission.READ_STEPS]);
+  });
+});
+
+describe('pollUntil / waitUntil', () => {
+  it('pollUntil returns last value soft on timeout (resume UX)', async () => {
+    mockNative.aggregateRecord
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          recordType: 'Steps',
+          dataOrigins: [],
+          metrics: { COUNT_TOTAL: 0 },
+        })
+      )
+      .mockResolvedValue(
+        JSON.stringify({
+          recordType: 'Steps',
+          dataOrigins: [],
+          metrics: { COUNT_TOTAL: 0 },
+        })
+      );
+
+    const result = await pollUntil(
+      () =>
+        aggregateRecord({
+          recordType: 'Steps',
+          timeRangeFilter: timeRangeLastHours(1),
+        }),
+      {
+        ready: (r) => {
+          const n = r.metrics['COUNT_TOTAL'];
+          return typeof n === 'number' && n > 0;
+        },
+        intervalMs: 5,
+        timeoutMs: 20,
+        throwOnTimeout: false,
+      }
+    );
+    expect(result.satisfied).toBe(false);
+    expect(result.value.metrics['COUNT_TOTAL']).toBe(0);
+    expect(result.attempts).toBeGreaterThanOrEqual(1);
+  });
+
+  it('pollUntil satisfies when aggregate becomes non-zero', async () => {
+    mockNative.aggregateRecord
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          recordType: 'Steps',
+          dataOrigins: [],
+          metrics: { COUNT_TOTAL: 0 },
+        })
+      )
+      .mockResolvedValueOnce(
+        JSON.stringify({
+          recordType: 'Steps',
+          dataOrigins: [],
+          metrics: { COUNT_TOTAL: 4200 },
+        })
+      );
+
+    const result = await pollUntil(
+      () =>
+        aggregateRecord({
+          recordType: 'Steps',
+          timeRangeFilter: timeRangeToday(),
+        }),
+      {
+        ready: (r) => {
+          const n = r.metrics['COUNT_TOTAL'];
+          return typeof n === 'number' && n > 0;
+        },
+        intervalMs: 1,
+        timeoutMs: 1000,
+      }
+    );
+    expect(result.satisfied).toBe(true);
+    expect(result.value.metrics['COUNT_TOTAL']).toBe(4200);
+  });
+
+  it('waitUntil throws WaitTimeoutError', async () => {
+    let n = 0;
+    await expect(
+      waitUntil(
+        async () => {
+          n += 1;
+          return n;
+        },
+        { ready: () => false, intervalMs: 5, timeoutMs: 20 }
+      )
+    ).rejects.toBeInstanceOf(WaitTimeoutError);
   });
 });
 

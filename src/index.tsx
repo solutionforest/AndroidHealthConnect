@@ -63,7 +63,10 @@ export {
   timeRangeLastHours,
   timeRangeLastDays,
   timeRangeToday,
+  pollUntil,
+  waitUntil,
   waitForRecords,
+  WaitTimeoutError,
   WaitForRecordsTimeoutError,
   readAllRecords,
   pullChanges,
@@ -71,6 +74,8 @@ export {
 export type {
   EnsurePermissionsResult,
   WaitForRecordsOptions,
+  PollUntilOptions,
+  PollUntilResult,
   PullChangesResult,
 } from './helpers';
 
