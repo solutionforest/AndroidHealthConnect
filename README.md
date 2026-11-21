@@ -273,11 +273,18 @@ console.log('Granted:', granted);
 import {
   hasPermissions,
   missingPermissions,
+  ensurePermissions,
 } from '@solutionforest/android-health-connect';
 
 if (!(await hasPermissions(needed))) {
   const missing = await missingPermissions(needed);
   console.log('Still missing:', missing);
+}
+
+// Or request any missing in one shot:
+const ensured = await ensurePermissions(needed);
+if (!ensured.allGranted) {
+  console.log('User denied:', ensured.missing);
 }
 ```
 
@@ -496,6 +503,39 @@ await writeRecords([
 await readPlannedExerciseSessions({ /* timeRangeFilter … */ });
 ```
 
+### Time ranges & waiting for data
+
+Health Connect has **no push observer**. Build Instant windows with helpers, and
+poll when you need data to appear (after a write, or while a wearable syncs):
+
+```ts
+import {
+  timeRangeToday,
+  timeRangeLastDays,
+  waitForRecords,
+  readAllRecords,
+  readSteps,
+  aggregateRecord,
+} from '@solutionforest/android-health-connect';
+
+const today = timeRangeToday();
+const week = timeRangeLastDays(7);
+
+const { records } = await readSteps({ timeRangeFilter: today });
+
+// Poll until at least one Steps record exists (or timeout):
+const page = await waitForRecords({
+  recordType: 'Steps',
+  timeRangeFilter: week,
+  minCount: 1,
+  timeoutMs: 15_000,
+  intervalMs: 500,
+});
+
+// Follow pageToken until exhausted:
+const all = await readAllRecords('Steps', { timeRangeFilter: week });
+```
+
 ### Aggregates
 
 `aggregateRecord` uses Instant time ranges. Prefer
@@ -507,14 +547,12 @@ UTC wall-clock shift). Use `aggregateGroupByPeriod` for calendar days/weeks
 import {
   aggregateRecord,
   aggregateGroupByDuration,
+  timeRangeLastDays,
 } from '@solutionforest/android-health-connect';
 
 const total = await aggregateRecord({
   recordType: 'Steps',
-  timeRangeFilter: {
-    startTime: '2024-01-01T00:00:00Z',
-    endTime: '2024-01-08T00:00:00Z',
-  },
+  timeRangeFilter: timeRangeLastDays(7),
 });
 console.log(total.metrics['COUNT_TOTAL']); // number | null
 
@@ -550,26 +588,25 @@ Tokens expire after ~30 days. Prefer **one record type per token**. Loop while
 token. Optional `pageSize` (1–5000) is a soft hint.
 
 ```ts
-import { getChangesToken, getChanges } from '@solutionforest/android-health-connect';
+import {
+  getChangesToken,
+  pullChanges,
+} from '@solutionforest/android-health-connect';
 
 let token = await getChangesToken({ recordTypes: ['Steps'] });
-let page = await getChanges(token, { pageSize: 500 });
-while (true) {
-  if (page.changesTokenExpired) {
-    // backfill, then: token = await getChangesToken({ recordTypes: ['Steps'] });
-    break;
-  }
-  for (const { record } of page.upsertionChanges) {
+const batch = await pullChanges(token, { pageSize: 500 });
+if (batch.changesTokenExpired) {
+  // backfill with readRecords, then mint a fresh token
+  token = await getChangesToken({ recordTypes: ['Steps'] });
+} else {
+  for (const { record } of batch.upsertionChanges) {
     console.log('upsert', record.recordType, record.metadata?.id);
   }
-  for (const { recordId } of page.deletionChanges) {
+  for (const { recordId } of batch.deletionChanges) {
     console.log('delete', recordId);
   }
-  token = page.nextChangesToken;
-  if (!page.hasMore) break;
-  page = await getChanges(token, { pageSize: 500 });
+  token = batch.nextChangesToken; // persist for next sync
 }
-// Persist `token` for the next sync.
 ```
 
 ## Supported record types
@@ -691,9 +728,14 @@ if (update.updateAvailable) {
 | `checkPermissions(perms)` | `Promise<string[]>` | Check which are granted |
 | `hasPermissions(perms)` | `Promise<boolean>` | True when all listed perms are granted |
 | `missingPermissions(perms)` | `Promise<string[]>` | Subset that is not granted |
+| `ensurePermissions(perms, opts?)` | `Promise<EnsurePermissionsResult>` | Request any missing (default) + re-check |
 | `ensureAvailable(opts?)` | `Promise<availability>` | Quick gate; opens store if `notInstalled` (default) |
 | `revokeAllPermissions()` | `Promise<void>` | Revoke all permissions |
 | `Permission.*` | `HealthPermission` | Typed permission string constants |
+| `timeRangeToday()` / `timeRangeLastDays(n)` / `timeRangeLastHours(n)` | `TimeRangeFilter` | Instant windows for reads/aggregates |
+| `waitForRecords(opts)` | `Promise<ReadRecordsResponse>` | Poll until data appears (HC has no push) |
+| `readAllRecords(type, opts?)` | `Promise<T[]>` | Follow `pageToken` until exhausted |
+| `pullChanges(token, opts?)` | `Promise<PullChangesResult>` | Drain changelog pages (`hasMore` loop) |
 
 ### Records
 

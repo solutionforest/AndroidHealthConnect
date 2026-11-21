@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- DX helpers: `ensurePermissions`, `timeRangeToday` / `timeRangeLastDays` /
+  `timeRangeLastHours`, `waitForRecords` (poll — HC has no push), `readAllRecords`
+  (pageToken drain), `pullChanges` (changelog `hasMore` loop).
+
 ### Changed
 
 - Docs/demo completeness: README Usage for `ensureAvailable` / `hasPermissions` /

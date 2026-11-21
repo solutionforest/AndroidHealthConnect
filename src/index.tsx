@@ -58,6 +58,21 @@ import type {
 export * from './types';
 export { LIBRARY_VERSION, checkLibraryUpdate, compareSemver } from './upgrade';
 export type { CheckLibraryUpdateOptions, LibraryUpdateInfo } from './upgrade';
+export {
+  ensurePermissions,
+  timeRangeLastHours,
+  timeRangeLastDays,
+  timeRangeToday,
+  waitForRecords,
+  WaitForRecordsTimeoutError,
+  readAllRecords,
+  pullChanges,
+} from './helpers';
+export type {
+  EnsurePermissionsResult,
+  WaitForRecordsOptions,
+  PullChangesResult,
+} from './helpers';
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 
