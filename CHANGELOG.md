@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   goals, performance targets; `Permission.READ/WRITE_PLANNED_EXERCISE`;
   `readPlannedExerciseSessions`; `ExercisePhase` constants.
 
+### Changed
+
+- CONTRIBUTING: document optional npmjs mirror + require `yarn test:android`.
+
 ### Fixed
 
 - Release workflow fails when git tag `v*` does not match `package.json` version.

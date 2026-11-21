@@ -93,7 +93,14 @@ Our pre-commit hooks verify that your commit message matches this format when co
 
 ### Publishing
 
-Published to **GitHub Packages** (`npm.pkg.github.com`) + GitHub Releases `.tgz` — **not** npmjs.org. Tag `v*` on `main` to trigger the Release workflow.
+**Primary:** GitHub Packages (`npm.pkg.github.com`) + GitHub Releases `.tgz`
+(with SPDX SBOM + attestations).
+
+**Optional:** npmjs.org mirror when the repo secret `NPM_TOKEN` is set on the
+Release workflow (`npm publish --provenance`).
+
+Tag `v*` on `main` to trigger Release — the tag **must** match `package.json`
+(`v0.3.10` ↔ `"version": "0.3.10"`).
 
 We use [release-it](https://github.com/release-it/release-it) for version bumps locally when needed:
 
@@ -109,9 +116,11 @@ Before opening a PR, run:
 yarn lint
 yarn typecheck
 yarn test:coverage
+yarn test:android
 ```
 
-CI enforces the same gates (max-strict TypeScript, type-aware ESLint, Jest coverage thresholds).
+CI enforces the same gates (max-strict TypeScript, type-aware ESLint, Jest
+coverage thresholds, Kotlin / Robolectric unit tests).
 
 ### Scripts
 
