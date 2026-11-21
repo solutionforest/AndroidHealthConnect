@@ -4,6 +4,9 @@ import {
   getHealthConnectAvailability,
   requestPermissions,
   checkPermissions,
+  hasPermissions,
+  missingPermissions,
+  ensureAvailable,
   revokeAllPermissions,
   readRecords,
   writeRecords,
@@ -190,6 +193,73 @@ describe('checkPermissions', () => {
       'android.permission.health.WRITE_STEPS',
     ]);
     expect(result).toEqual(['android.permission.health.READ_STEPS']);
+  });
+});
+
+describe('hasPermissions / missingPermissions', () => {
+  it('hasPermissions is true when all granted', async () => {
+    mockNative.checkPermissions.mockResolvedValue([
+      'android.permission.health.READ_STEPS',
+      'android.permission.health.WRITE_STEPS',
+    ]);
+    await expect(
+      hasPermissions([
+        'android.permission.health.READ_STEPS',
+        'android.permission.health.WRITE_STEPS',
+      ])
+    ).resolves.toBe(true);
+  });
+
+  it('hasPermissions is false when any missing', async () => {
+    mockNative.checkPermissions.mockResolvedValue([
+      'android.permission.health.READ_STEPS',
+    ]);
+    await expect(
+      hasPermissions([
+        'android.permission.health.READ_STEPS',
+        'android.permission.health.WRITE_STEPS',
+      ])
+    ).resolves.toBe(false);
+  });
+
+  it('missingPermissions returns only ungated ones', async () => {
+    mockNative.checkPermissions.mockResolvedValue([
+      'android.permission.health.READ_STEPS',
+    ]);
+    await expect(
+      missingPermissions([
+        'android.permission.health.READ_STEPS',
+        'android.permission.health.WRITE_STEPS',
+      ])
+    ).resolves.toEqual(['android.permission.health.WRITE_STEPS']);
+  });
+
+  it('empty list is fully granted / no missing', async () => {
+    await expect(hasPermissions([])).resolves.toBe(true);
+    await expect(missingPermissions([])).resolves.toEqual([]);
+    expect(mockNative.checkPermissions).not.toHaveBeenCalled();
+  });
+});
+
+describe('ensureAvailable', () => {
+  it('returns status and opens store when notInstalled', async () => {
+    mockNative.isHealthConnectAvailable.mockResolvedValue('notInstalled');
+    await expect(ensureAvailable()).resolves.toBe('notInstalled');
+    expect(mockNative.openHealthConnectApp).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips store when openStoreIfMissing is false', async () => {
+    mockNative.isHealthConnectAvailable.mockResolvedValue('notInstalled');
+    await expect(ensureAvailable({ openStoreIfMissing: false })).resolves.toBe(
+      'notInstalled'
+    );
+    expect(mockNative.openHealthConnectApp).not.toHaveBeenCalled();
+  });
+
+  it('does not open store when available', async () => {
+    mockNative.isHealthConnectAvailable.mockResolvedValue('available');
+    await expect(ensureAvailable()).resolves.toBe('available');
+    expect(mockNative.openHealthConnectApp).not.toHaveBeenCalled();
   });
 });
 

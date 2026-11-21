@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Permission` constants for typed Health Connect permission strings
   (autocomplete instead of hand-typed literals).
+- Quick helpers: `hasPermissions`, `missingPermissions`, `ensureAvailable`
+  (optional open store when `notInstalled`).
 
 ## [0.3.10] - 2026-11-21
 

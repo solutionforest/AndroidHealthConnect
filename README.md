@@ -580,7 +580,11 @@ if (update.updateAvailable) {
 |---|---|---|
 | `requestPermissions(perms)` | `Promise<string[]>` | Show permission dialog |
 | `checkPermissions(perms)` | `Promise<string[]>` | Check which are granted |
+| `hasPermissions(perms)` | `Promise<boolean>` | True when all listed perms are granted |
+| `missingPermissions(perms)` | `Promise<string[]>` | Subset that is not granted |
+| `ensureAvailable(opts?)` | `Promise<availability>` | Quick gate; opens store if `notInstalled` (default) |
 | `revokeAllPermissions()` | `Promise<void>` | Revoke all permissions |
+| `Permission.*` | `HealthPermission` | Typed permission string constants |
 
 ### Records
 

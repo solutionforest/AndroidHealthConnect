@@ -112,6 +112,50 @@ export async function checkPermissions(
 }
 
 /**
+ * True when every permission in `permissions` is currently granted.
+ */
+export async function hasPermissions(
+  permissions: HealthPermission[]
+): Promise<boolean> {
+  if (permissions.length === 0) {
+    return true;
+  }
+  const granted = await checkPermissions(permissions);
+  const grantedSet = new Set(granted);
+  return permissions.every((p) => grantedSet.has(p));
+}
+
+/**
+ * Permissions from `permissions` that are not currently granted.
+ */
+export async function missingPermissions(
+  permissions: HealthPermission[]
+): Promise<HealthPermission[]> {
+  if (permissions.length === 0) {
+    return [];
+  }
+  const granted = await checkPermissions(permissions);
+  const grantedSet = new Set(granted);
+  return permissions.filter((p) => !grantedSet.has(p));
+}
+
+/**
+ * Quick availability gate. Returns the status; when `notInstalled` and
+ * `openStoreIfMissing` is true (default), opens Play Store / Settings via
+ * {@link openHealthConnectApp}.
+ */
+export async function ensureAvailable(
+  options: { openStoreIfMissing?: boolean } = {}
+): Promise<HealthConnectAvailability> {
+  const { openStoreIfMissing = true } = options;
+  const status = await isHealthConnectAvailable();
+  if (status === 'notInstalled' && openStoreIfMissing) {
+    openHealthConnectApp();
+  }
+  return status;
+}
+
+/**
  * Revokes all Health Connect permissions granted to this application.
  */
 export async function revokeAllPermissions(): Promise<void> {
