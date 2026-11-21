@@ -24,9 +24,13 @@ import {
   readMindfulnessSessions,
   readSkinTemperature,
   readActivityIntensity,
+  readPlannedExerciseSessions,
   MindfulnessSessionType,
   ActivityIntensityType,
   SkinTemperatureMeasurementLocation,
+  ExerciseType,
+  ExerciseSegmentType,
+  ExercisePhase,
 } from '../index';
 import type { HealthRecord, RecordType } from '../types';
 import type { Spec } from '../NativeAndroidHealthConnect';
@@ -251,14 +255,39 @@ const RECORD_CASES: RecordCase[] = [
     },
     readHelper: readActivityIntensity,
   },
+  {
+    recordType: 'PlannedExerciseSession',
+    sample: {
+      recordType: 'PlannedExerciseSession',
+      exerciseType: ExerciseType.RUNNING,
+      ...interval,
+      title: 'Lake run',
+      blocks: [
+        {
+          repetitions: 1,
+          steps: [
+            {
+              exerciseType: ExerciseSegmentType.RUNNING,
+              exercisePhase: ExercisePhase.ACTIVE,
+              completionGoal: { type: 'Repetitions', repetitions: 3 },
+              performanceTargets: [
+                { type: 'HeartRate', minHeartRate: 90, maxHeartRate: 110 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    readHelper: readPlannedExerciseSessions,
+  },
 ];
 
 beforeEach(() => jest.clearAllMocks());
 
 describe('Supported record types (README table)', () => {
-  it('covers all 22 documented record types', () => {
-    expect(RECORD_CASES).toHaveLength(22);
-    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(22);
+  it('covers all 23 documented record types', () => {
+    expect(RECORD_CASES).toHaveLength(23);
+    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(23);
   });
 
   describe.each(RECORD_CASES)(

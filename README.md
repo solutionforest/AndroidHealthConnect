@@ -35,6 +35,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Aggregate / bucket queries | ✅ Supported | `aggregateRecord`, `aggregateGroupByDuration`, `aggregateGroupByPeriod` |
 | Exercise routes | ✅ Supported | Write on `ExerciseSession`; read `DATA` / `NO_DATA` / `CONSENT_REQUIRED` + `requestExerciseRoute` |
 | Changelog sync | ✅ Supported | `getChangesToken` / `getChanges` (upsert + delete pages; ~30-day tokens) |
+| Planned exercise | ✅ Supported | `PlannedExerciseSession` when `plannedExercise` feature is available |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, Jest + Kotlin unit tests, library + Android build, audit |
 | Distribution | ✅ GitHub Packages + Releases | Primary: `npm.pkg.github.com`. Optional npmjs.org mirror when `NPM_TOKEN` is set. Release `.tgz` has SBOM + attestations |
@@ -87,7 +88,7 @@ Official notes ([full changelog](https://developer.android.com/jetpack/androidx/
 | **1.2.0-alpha01** | 2025-07-30 | Skin temperature / mindfulness compat; activity intensity (Android 14+) |
 | **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` |
 
-JS API: [22 record types](#supported-record-types), feature checks, Matchmaking, PHR. Feature-gated types need `getFeatureStatus(...) === 'available'`.
+JS API: [23 record types](#supported-record-types), feature checks, Matchmaking, PHR. Feature-gated types need `getFeatureStatus(...) === 'available'`.
 
 ## Installation
 
@@ -405,7 +406,7 @@ if ((await getFeatureStatus('exerciseSessionImprovements')) === 'available') {
       startTime: '2024-01-01T08:00:00Z',
       endTime: '2024-01-01T09:00:00Z',
       rateOfPerceivedExertion: 6.5,
-      // plannedExerciseSessionId: '<id from PlannedExerciseSession>',
+      // plannedExerciseSessionId: '<id from PlannedExerciseSession write>',
     },
   ]);
 }
@@ -421,6 +422,56 @@ for (const session of records) {
     console.log(route.route); // LengthResult altitude / accuracy when present
   }
 }
+```
+
+### Planned exercise (training plans)
+
+Requires `getFeatureStatus('plannedExercise') === 'available'` and
+`READ_PLANNED_EXERCISE` / `WRITE_PLANNED_EXERCISE`.
+
+```ts
+import {
+  requestPermissions,
+  writeRecords,
+  readPlannedExerciseSessions,
+  ExerciseType,
+  ExerciseSegmentType,
+  ExercisePhase,
+  Permission,
+} from '@solutionforest/android-health-connect';
+
+await requestPermissions([
+  Permission.READ_PLANNED_EXERCISE,
+  Permission.WRITE_PLANNED_EXERCISE,
+]);
+
+await writeRecords([
+  {
+    recordType: 'PlannedExerciseSession',
+    exerciseType: ExerciseType.RUNNING,
+    startTime: '2024-01-03T08:00:00Z',
+    endTime: '2024-01-03T09:30:00Z',
+    title: 'Lake run',
+    blocks: [
+      {
+        repetitions: 1,
+        description: 'Three laps',
+        steps: [
+          {
+            exerciseType: ExerciseSegmentType.RUNNING,
+            exercisePhase: ExercisePhase.ACTIVE,
+            completionGoal: { type: 'Repetitions', repetitions: 3 },
+            performanceTargets: [
+              { type: 'HeartRate', minHeartRate: 90, maxHeartRate: 110 },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]);
+
+await readPlannedExerciseSessions({ /* timeRangeFilter … */ });
 ```
 
 ### Delete records
@@ -482,7 +533,8 @@ while (true) {
 | `BodyTemperature` | ✅ | ✅ | |
 | `BodyFat` | ✅ | ✅ | |
 | `Hydration` | ✅ | ✅ | |
-| `ExerciseSession` | ✅ | ✅ | Optional `exerciseRoute`; read returns `DATA` / `NO_DATA` / `CONSENT_REQUIRED` |
+| `ExerciseSession` | ✅ | ✅ | Optional `exerciseRoute`; read returns `DATA` / `NO_DATA` / `CONSENT_REQUIRED`; optional RPE / `plannedExerciseSessionId` when `exerciseSessionImprovements` |
+| `PlannedExerciseSession` | ✅ | ✅ | Requires `getFeatureStatus('plannedExercise')`; blocks / steps / goals / targets |
 | `RestingHeartRate` | ✅ | ✅ | |
 | `RespiratoryRate` | ✅ | ✅ | |
 | `FloorsClimbed` | ✅ | ✅ | |

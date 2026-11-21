@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (autocomplete instead of hand-typed literals).
 - Quick helpers: `hasPermissions`, `missingPermissions`, `ensureAvailable`
   (optional open store when `notInstalled`).
+- `PlannedExerciseSession` CRUD (feature-gated): blocks / steps, completion
+  goals, performance targets; `Permission.READ/WRITE_PLANNED_EXERCISE`;
+  `readPlannedExerciseSessions`; `ExercisePhase` constants.
 
 ## [0.3.10] - 2026-11-21
 

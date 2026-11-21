@@ -230,6 +230,17 @@ internal object RecordMapper {
                 buildResponse(res.pageToken) { res.records.map(::activityIntensityToJson) }
             }
 
+            "PlannedExerciseSession" -> {
+                val req = ReadRecordsRequest(
+                    PlannedExerciseSessionRecord::class, timeRangeFilter, dataOriginFilter,
+                    ascendingOrder, pageSize, pageToken
+                )
+                val res = client.readRecords(req)
+                buildResponse(res.pageToken) {
+                    res.records.map(PlannedExerciseMapper::toJson)
+                }
+            }
+
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -259,6 +270,7 @@ internal object RecordMapper {
             is MindfulnessSessionRecord -> mindfulnessSessionToJson(record)
             is SkinTemperatureRecord -> skinTemperatureToJson(record)
             is ActivityIntensityRecord -> activityIntensityToJson(record)
+            is PlannedExerciseSessionRecord -> PlannedExerciseMapper.toJson(record)
             else ->
                 throw IllegalArgumentException(
                     "Unsupported record class: ${record::class.java.simpleName}"
@@ -291,6 +303,7 @@ internal object RecordMapper {
             "MindfulnessSession" -> jsonToMindfulnessSession(json)
             "SkinTemperature" -> jsonToSkinTemperature(json)
             "ActivityIntensity" -> jsonToActivityIntensity(json)
+            "PlannedExerciseSession" -> PlannedExerciseMapper.fromJson(json)
             else -> throw IllegalArgumentException("Unsupported record type: $type")
         }
     }
@@ -325,6 +338,8 @@ internal object RecordMapper {
             "MindfulnessSession" -> client.deleteRecords(MindfulnessSessionRecord::class, filter)
             "SkinTemperature" -> client.deleteRecords(SkinTemperatureRecord::class, filter)
             "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, filter)
+            "PlannedExerciseSession" ->
+                client.deleteRecords(PlannedExerciseSessionRecord::class, filter)
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -357,6 +372,8 @@ internal object RecordMapper {
             "MindfulnessSession" -> client.deleteRecords(MindfulnessSessionRecord::class, ids, emptyList())
             "SkinTemperature" -> client.deleteRecords(SkinTemperatureRecord::class, ids, emptyList())
             "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, ids, emptyList())
+            "PlannedExerciseSession" ->
+                client.deleteRecords(PlannedExerciseSessionRecord::class, ids, emptyList())
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -411,7 +428,7 @@ internal object RecordMapper {
         return id
     }
 
-    private fun metadataToJson(meta: HealthMetadata): JSONObject =
+    fun metadataToJson(meta: HealthMetadata): JSONObject =
         JSONObject().apply {
             put("id", meta.id)
             put("clientRecordId", meta.clientRecordId ?: JSONObject.NULL)

@@ -63,6 +63,7 @@ internal object FeatureSupport {
       "MindfulnessSession" -> MindfulnessSessionRecord::class
       "SkinTemperature" -> SkinTemperatureRecord::class
       "ActivityIntensity" -> ActivityIntensityRecord::class
+      "PlannedExerciseSession" -> PlannedExerciseSessionRecord::class
       else -> throw IllegalArgumentException("Unsupported record type: $recordType")
     }
 }

@@ -23,6 +23,7 @@ import type {
   BodyFatRecord,
   HydrationRecord,
   ExerciseSessionRecord,
+  PlannedExerciseSessionRecord,
   RestingHeartRateRecord,
   RespiratoryRateRecord,
   FloorsClimbedRecord,
@@ -374,6 +375,10 @@ export const readHydration = (options?: ReadRecordsOptions) =>
 
 export const readExerciseSessions = (options?: ReadRecordsOptions) =>
   readRecords<ExerciseSessionRecord>('ExerciseSession', options);
+
+/** Requires `getFeatureStatus('plannedExercise') === 'available'`. */
+export const readPlannedExerciseSessions = (options?: ReadRecordsOptions) =>
+  readRecords<PlannedExerciseSessionRecord>('PlannedExerciseSession', options);
 
 /**
  * Requests one-time consent to read a session's exercise route when

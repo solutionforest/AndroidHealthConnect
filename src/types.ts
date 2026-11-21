@@ -67,6 +67,9 @@ export type HealthPermission =
   | 'android.permission.health.READ_EXERCISE_ROUTES'
   /** Singular — required to insert/update a session with `exerciseRoute`. */
   | 'android.permission.health.WRITE_EXERCISE_ROUTE'
+  /** Requires `getFeatureStatus('plannedExercise') === 'available'`. */
+  | 'android.permission.health.READ_PLANNED_EXERCISE'
+  | 'android.permission.health.WRITE_PLANNED_EXERCISE'
   | 'android.permission.health.READ_RESTING_HEART_RATE'
   | 'android.permission.health.WRITE_RESTING_HEART_RATE'
   | 'android.permission.health.READ_RESPIRATORY_RATE'
@@ -147,6 +150,8 @@ export const Permission = {
   WRITE_EXERCISE: 'android.permission.health.WRITE_EXERCISE',
   READ_EXERCISE_ROUTES: 'android.permission.health.READ_EXERCISE_ROUTES',
   WRITE_EXERCISE_ROUTE: 'android.permission.health.WRITE_EXERCISE_ROUTE',
+  READ_PLANNED_EXERCISE: 'android.permission.health.READ_PLANNED_EXERCISE',
+  WRITE_PLANNED_EXERCISE: 'android.permission.health.WRITE_PLANNED_EXERCISE',
   READ_RESTING_HEART_RATE: 'android.permission.health.READ_RESTING_HEART_RATE',
   WRITE_RESTING_HEART_RATE:
     'android.permission.health.WRITE_RESTING_HEART_RATE',
@@ -687,6 +692,66 @@ export type ActivityIntensityRecord = {
   metadata?: RecordMetadata;
 };
 
+/** Requires `getFeatureStatus('plannedExercise') === 'available'`. */
+export type ExerciseCompletionGoal =
+  | { type: 'Distance'; distance: number }
+  | { type: 'Duration'; durationMillis: number }
+  | { type: 'Repetitions'; repetitions: number }
+  | { type: 'Steps'; steps: number }
+  | { type: 'ActiveCaloriesBurned'; energy: number }
+  | { type: 'TotalCaloriesBurned'; energy: number }
+  | { type: 'DistanceAndDuration'; distance: number; durationMillis: number }
+  | { type: 'ManualCompletion' }
+  | { type: 'Unknown' };
+
+export type ExercisePerformanceTarget =
+  | { type: 'HeartRate'; minHeartRate: number; maxHeartRate: number }
+  | {
+      type: 'Speed';
+      minMetersPerSecond: number;
+      maxMetersPerSecond: number;
+    }
+  | { type: 'Power'; minWatts: number; maxWatts: number }
+  | { type: 'Cadence'; minRpm: number; maxRpm: number }
+  | { type: 'Weight'; mass: number }
+  | { type: 'RateOfPerceivedExertion'; rpe: number }
+  | { type: 'Amrap' }
+  | { type: 'Unknown' };
+
+export type PlannedExerciseStep = {
+  /** Prefer {@link ExerciseSegmentType} (segment ids, not session ExerciseType). */
+  exerciseType: number;
+  /** {@link ExercisePhase} constant. */
+  exercisePhase: number;
+  completionGoal: ExerciseCompletionGoal;
+  performanceTargets?: ExercisePerformanceTarget[];
+  description?: string | null;
+};
+
+export type PlannedExerciseBlock = {
+  repetitions: number;
+  steps: PlannedExerciseStep[];
+  description?: string | null;
+};
+
+/** Requires FEATURE_PLANNED_EXERCISE on the device. */
+export type PlannedExerciseSessionRecord = {
+  recordType: 'PlannedExerciseSession';
+  /** Session-level {@link ExerciseType}. */
+  exerciseType: number;
+  startTime: string;
+  endTime: string;
+  title?: string | null;
+  notes?: string | null;
+  blocks?: PlannedExerciseBlock[];
+  /** Read-only link filled when a related ExerciseSession completes. */
+  completedExerciseSessionId?: string | null;
+  hasExplicitTime?: boolean;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
 // ─── Union & discriminant helpers ─────────────────────────────────────────────
 
 export type HealthRecord =
@@ -711,7 +776,8 @@ export type HealthRecord =
   | ElevationGainedRecord
   | MindfulnessSessionRecord
   | SkinTemperatureRecord
-  | ActivityIntensityRecord;
+  | ActivityIntensityRecord
+  | PlannedExerciseSessionRecord;
 
 export type RecordType = HealthRecord['recordType'];
 
@@ -839,6 +905,16 @@ export const ExerciseType = {
  * `ExerciseSegment.EXERCISE_SEGMENT_TYPE_*` — values match connect-client 1.2.
  * Use on `ExerciseSession.segments[].segmentType`, not `exerciseType`.
  */
+/** `PlannedExerciseStep.EXERCISE_PHASE_*` */
+export const ExercisePhase = {
+  UNKNOWN: 0,
+  WARMUP: 1,
+  REST: 2,
+  ACTIVE: 3,
+  COOLDOWN: 4,
+  RECOVERY: 5,
+} as const;
+
 export const ExerciseSegmentType = {
   UNKNOWN: 0,
   ARM_CURL: 1,
