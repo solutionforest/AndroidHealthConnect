@@ -25,26 +25,26 @@ import {
   requestExerciseRoute,
   ExerciseType,
   RecordingMethod,
+  Permission,
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
 } from '@solutionforest/android-health-connect';
 
 const CORE_PERMS = [
-  'android.permission.health.READ_STEPS',
-  'android.permission.health.WRITE_STEPS',
-  'android.permission.health.READ_HEART_RATE',
-  'android.permission.health.WRITE_HEART_RATE',
+  Permission.READ_STEPS,
+  Permission.WRITE_STEPS,
+  Permission.READ_HEART_RATE,
+  Permission.WRITE_HEART_RATE,
 ] as const;
 
-const HISTORY_PERM = 'android.permission.health.READ_HEALTH_DATA_HISTORY';
-const BACKGROUND_PERM =
-  'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND';
+const HISTORY_PERM = Permission.READ_HEALTH_DATA_HISTORY;
+const BACKGROUND_PERM = Permission.READ_HEALTH_DATA_IN_BACKGROUND;
 const EXERCISE_PERMS = [
-  'android.permission.health.READ_EXERCISE',
-  'android.permission.health.WRITE_EXERCISE',
-  'android.permission.health.WRITE_EXERCISE_ROUTE',
-  'android.permission.health.READ_EXERCISE_ROUTES',
+  Permission.READ_EXERCISE,
+  Permission.WRITE_EXERCISE,
+  Permission.WRITE_EXERCISE_ROUTE,
+  Permission.READ_EXERCISE_ROUTES,
 ] as const;
 
 export default function App() {
@@ -81,11 +81,48 @@ export default function App() {
 
   const handleCheckPermissions = async () => {
     const granted = await checkPermissions([
-      'android.permission.health.READ_STEPS',
-      'android.permission.health.READ_HEART_RATE',
+      Permission.READ_STEPS,
+      Permission.READ_HEART_RATE,
     ]);
     setGrantedPerms(granted);
     setStatus(`Currently granted: ${granted.join(', ')}`);
+  };
+
+  /** Example-only: seed fake Steps + HeartRate + a short run for QA. */
+  const handleSeedDemoData = async () => {
+    setStatus('Seeding demo data…');
+    await requestPermissions([...CORE_PERMS, ...EXERCISE_PERMS]);
+    const end = new Date();
+    const start = new Date(end.getTime() - 3600_000);
+    const mid = new Date(end.getTime() - 1800_000);
+    const lastSample = new Date(end.getTime() - 1000);
+    const walkStart = new Date(end.getTime() - 45 * 60_000);
+    const { recordIdsList } = await writeRecords([
+      {
+        recordType: 'Steps',
+        count: 2500,
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+      },
+      {
+        recordType: 'HeartRate',
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+        samples: [
+          { time: start.toISOString(), beatsPerMinute: 72 },
+          { time: mid.toISOString(), beatsPerMinute: 88 },
+          { time: lastSample.toISOString(), beatsPerMinute: 76 },
+        ],
+      },
+      {
+        recordType: 'ExerciseSession',
+        exerciseType: ExerciseType.WALKING,
+        startTime: walkStart.toISOString(),
+        endTime: end.toISOString(),
+        title: 'Demo walk (seed)',
+      },
+    ]);
+    setStatus(`Seeded ${recordIdsList.length} demo record(s)`);
   };
 
   const handleWriteSteps = async () => {
@@ -354,6 +391,10 @@ export default function App() {
             <Button
               title="Read Heart Rate (7 days)"
               onPress={handleReadHeartRate}
+            />
+            <Button
+              title="Seed Demo Data (fake)"
+              onPress={handleSeedDemoData}
             />
           </View>
 

@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CONTRIBUTING: document optional npmjs mirror + require `yarn test:android`.
+- Example app: `Permission` constants + “Seed Demo Data (fake)” for QA
+  (steps / heart rate / walk — not part of the published API).
 
 ### Fixed
 

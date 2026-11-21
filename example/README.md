@@ -41,6 +41,7 @@ plus recipes for:
 
 | Button | API |
 | --- | --- |
+| Seed Demo Data (fake) | example-only `writeRecords` (steps + HR + walk) |
 | Aggregate Steps (7d) | `aggregateRecord` |
 | Update Steps (+100) | `updateRecords` (requires `metadata.id`) |
 | getChanges (Steps) | `getChangesToken` + `getChanges({ pageSize })` |
