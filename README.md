@@ -244,12 +244,15 @@ Official availability: [Check Health Connect availability](https://developer.and
 ### Request permissions
 
 ```ts
-import { requestPermissions } from '@solutionforest/android-health-connect';
+import {
+  requestPermissions,
+  Permission,
+} from '@solutionforest/android-health-connect';
 
 const granted = await requestPermissions([
-  'android.permission.health.READ_STEPS',
-  'android.permission.health.WRITE_STEPS',
-  'android.permission.health.READ_HEART_RATE',
+  Permission.READ_STEPS,
+  Permission.WRITE_STEPS,
+  Permission.READ_HEART_RATE,
 ]);
 
 console.log('Granted:', granted);

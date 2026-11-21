@@ -106,6 +106,96 @@ export type HealthPermission =
   | 'android.permission.health.READ_MEDICAL_DATA_VITAL_SIGNS'
   | (string & {}); // allow custom / future permissions
 
+/**
+ * Typed Health Connect permission strings for autocomplete.
+ * Prefer these over hand-typed `android.permission.health.*` literals.
+ */
+export const Permission = {
+  READ_STEPS: 'android.permission.health.READ_STEPS',
+  WRITE_STEPS: 'android.permission.health.WRITE_STEPS',
+  READ_HEART_RATE: 'android.permission.health.READ_HEART_RATE',
+  WRITE_HEART_RATE: 'android.permission.health.WRITE_HEART_RATE',
+  READ_SLEEP: 'android.permission.health.READ_SLEEP',
+  WRITE_SLEEP: 'android.permission.health.WRITE_SLEEP',
+  READ_ACTIVE_CALORIES_BURNED:
+    'android.permission.health.READ_ACTIVE_CALORIES_BURNED',
+  WRITE_ACTIVE_CALORIES_BURNED:
+    'android.permission.health.WRITE_ACTIVE_CALORIES_BURNED',
+  READ_TOTAL_CALORIES_BURNED:
+    'android.permission.health.READ_TOTAL_CALORIES_BURNED',
+  WRITE_TOTAL_CALORIES_BURNED:
+    'android.permission.health.WRITE_TOTAL_CALORIES_BURNED',
+  READ_DISTANCE: 'android.permission.health.READ_DISTANCE',
+  WRITE_DISTANCE: 'android.permission.health.WRITE_DISTANCE',
+  READ_WEIGHT: 'android.permission.health.READ_WEIGHT',
+  WRITE_WEIGHT: 'android.permission.health.WRITE_WEIGHT',
+  READ_HEIGHT: 'android.permission.health.READ_HEIGHT',
+  WRITE_HEIGHT: 'android.permission.health.WRITE_HEIGHT',
+  READ_BLOOD_PRESSURE: 'android.permission.health.READ_BLOOD_PRESSURE',
+  WRITE_BLOOD_PRESSURE: 'android.permission.health.WRITE_BLOOD_PRESSURE',
+  READ_BLOOD_GLUCOSE: 'android.permission.health.READ_BLOOD_GLUCOSE',
+  WRITE_BLOOD_GLUCOSE: 'android.permission.health.WRITE_BLOOD_GLUCOSE',
+  READ_OXYGEN_SATURATION: 'android.permission.health.READ_OXYGEN_SATURATION',
+  WRITE_OXYGEN_SATURATION: 'android.permission.health.WRITE_OXYGEN_SATURATION',
+  READ_BODY_TEMPERATURE: 'android.permission.health.READ_BODY_TEMPERATURE',
+  WRITE_BODY_TEMPERATURE: 'android.permission.health.WRITE_BODY_TEMPERATURE',
+  READ_BODY_FAT: 'android.permission.health.READ_BODY_FAT',
+  WRITE_BODY_FAT: 'android.permission.health.WRITE_BODY_FAT',
+  READ_HYDRATION: 'android.permission.health.READ_HYDRATION',
+  WRITE_HYDRATION: 'android.permission.health.WRITE_HYDRATION',
+  READ_EXERCISE: 'android.permission.health.READ_EXERCISE',
+  WRITE_EXERCISE: 'android.permission.health.WRITE_EXERCISE',
+  READ_EXERCISE_ROUTES: 'android.permission.health.READ_EXERCISE_ROUTES',
+  WRITE_EXERCISE_ROUTE: 'android.permission.health.WRITE_EXERCISE_ROUTE',
+  READ_RESTING_HEART_RATE: 'android.permission.health.READ_RESTING_HEART_RATE',
+  WRITE_RESTING_HEART_RATE:
+    'android.permission.health.WRITE_RESTING_HEART_RATE',
+  READ_RESPIRATORY_RATE: 'android.permission.health.READ_RESPIRATORY_RATE',
+  WRITE_RESPIRATORY_RATE: 'android.permission.health.WRITE_RESPIRATORY_RATE',
+  READ_FLOORS_CLIMBED: 'android.permission.health.READ_FLOORS_CLIMBED',
+  WRITE_FLOORS_CLIMBED: 'android.permission.health.WRITE_FLOORS_CLIMBED',
+  READ_ELEVATION_GAINED: 'android.permission.health.READ_ELEVATION_GAINED',
+  WRITE_ELEVATION_GAINED: 'android.permission.health.WRITE_ELEVATION_GAINED',
+  READ_MINDFULNESS: 'android.permission.health.READ_MINDFULNESS',
+  WRITE_MINDFULNESS: 'android.permission.health.WRITE_MINDFULNESS',
+  READ_SKIN_TEMPERATURE: 'android.permission.health.READ_SKIN_TEMPERATURE',
+  WRITE_SKIN_TEMPERATURE: 'android.permission.health.WRITE_SKIN_TEMPERATURE',
+  READ_ACTIVITY_INTENSITY: 'android.permission.health.READ_ACTIVITY_INTENSITY',
+  WRITE_ACTIVITY_INTENSITY:
+    'android.permission.health.WRITE_ACTIVITY_INTENSITY',
+  READ_HEALTH_DATA_HISTORY:
+    'android.permission.health.READ_HEALTH_DATA_HISTORY',
+  READ_HEALTH_DATA_IN_BACKGROUND:
+    'android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND',
+  WRITE_MEDICAL_DATA: 'android.permission.health.WRITE_MEDICAL_DATA',
+  READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES:
+    'android.permission.health.READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES',
+  READ_MEDICAL_DATA_CONDITIONS:
+    'android.permission.health.READ_MEDICAL_DATA_CONDITIONS',
+  READ_MEDICAL_DATA_LABORATORY_RESULTS:
+    'android.permission.health.READ_MEDICAL_DATA_LABORATORY_RESULTS',
+  READ_MEDICAL_DATA_MEDICATIONS:
+    'android.permission.health.READ_MEDICAL_DATA_MEDICATIONS',
+  READ_MEDICAL_DATA_PERSONAL_DETAILS:
+    'android.permission.health.READ_MEDICAL_DATA_PERSONAL_DETAILS',
+  READ_MEDICAL_DATA_PRACTITIONER_DETAILS:
+    'android.permission.health.READ_MEDICAL_DATA_PRACTITIONER_DETAILS',
+  READ_MEDICAL_DATA_PREGNANCY:
+    'android.permission.health.READ_MEDICAL_DATA_PREGNANCY',
+  READ_MEDICAL_DATA_PROCEDURES:
+    'android.permission.health.READ_MEDICAL_DATA_PROCEDURES',
+  READ_MEDICAL_DATA_SOCIAL_HISTORY:
+    'android.permission.health.READ_MEDICAL_DATA_SOCIAL_HISTORY',
+  READ_MEDICAL_DATA_VACCINES:
+    'android.permission.health.READ_MEDICAL_DATA_VACCINES',
+  READ_MEDICAL_DATA_VISITS:
+    'android.permission.health.READ_MEDICAL_DATA_VISITS',
+  READ_MEDICAL_DATA_VITAL_SIGNS:
+    'android.permission.health.READ_MEDICAL_DATA_VITAL_SIGNS',
+} as const satisfies Record<string, HealthPermission>;
+
+export type PermissionKey = keyof typeof Permission;
+
 // ─── Common ───────────────────────────────────────────────────────────────────
 
 export type DeviceInfo = {

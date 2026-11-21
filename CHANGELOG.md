@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Permission` constants for typed Health Connect permission strings
+  (autocomplete instead of hand-typed literals).
+
 ## [0.3.10] - 2026-11-21
 
 ### Added
