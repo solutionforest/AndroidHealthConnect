@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   goals, performance targets; `Permission.READ/WRITE_PLANNED_EXERCISE`;
   `readPlannedExerciseSessions`; `ExercisePhase` constants.
 
+### Fixed
+
+- Release workflow fails when git tag `v*` does not match `package.json` version.
+
 ## [0.3.10] - 2026-11-21
 
 ### Added

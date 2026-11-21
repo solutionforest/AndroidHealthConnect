@@ -1,7 +1,8 @@
 name: Release
 
 # Build, attach GitHub Release .tgz + SPDX SBOM, attest provenance, and publish
-# to GitHub Packages (npm.pkg.github.com). Does NOT publish to registry.npmjs.org.
+# to GitHub Packages (npm.pkg.github.com). Optionally mirrors to npmjs.org when
+# repo secret NPM_TOKEN is set. Tag must match package.json (v${version}).
 
 on:
   push:
@@ -56,6 +57,11 @@ jobs:
             TAG="${{ inputs.tag }}"
           else
             TAG="v${VERSION}"
+          fi
+          EXPECTED_TAG="v${VERSION}"
+          if [[ "${TAG}" != "${EXPECTED_TAG}" ]]; then
+            echo "::error::Tag/version mismatch: tag=${TAG} but package.json version=${VERSION} (expected ${EXPECTED_TAG})"
+            exit 1
           fi
           # yarn pack replaces / with - but keeps @ in scoped package filenames
           ASSET_NAME="${NAME//\//-}-${VERSION}.tgz"
