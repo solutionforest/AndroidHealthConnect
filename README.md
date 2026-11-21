@@ -206,18 +206,28 @@ Create `res/values/health_permissions.xml`:
 
 ## Usage
 
+Runnable host demo (buttons for the flows below): [`example/`](./example/) —
+see [`example/README.md`](./example/README.md) for a first-run checklist.
+
 ### Check availability
 
 ```ts
 import {
+  ensureAvailable,
   isHealthConnectAvailable,
   getHealthConnectAvailability,
   openHealthConnectApp,
 } from '@solutionforest/android-health-connect';
 
+// Quick gate — opens Play Store / Settings when notInstalled (default):
+const status = await ensureAvailable();
+if (status !== 'available') {
+  // notInstalled (store opened) | notSupported (hide HC UI)
+}
+
+// Or check without side effects:
 const availability = await isHealthConnectAvailable();
 // 'available' | 'notInstalled' | 'notSupported'
-
 if (availability === 'notInstalled') {
   openHealthConnectApp(); // Play Store market:// (or Settings on Android 14+)
 }
@@ -250,13 +260,25 @@ import {
   Permission,
 } from '@solutionforest/android-health-connect';
 
-const granted = await requestPermissions([
+const needed = [
   Permission.READ_STEPS,
   Permission.WRITE_STEPS,
   Permission.READ_HEART_RATE,
-]);
+];
 
+const granted = await requestPermissions(needed);
 console.log('Granted:', granted);
+
+// Quick checks (no dialog):
+import {
+  hasPermissions,
+  missingPermissions,
+} from '@solutionforest/android-health-connect';
+
+if (!(await hasPermissions(needed))) {
+  const missing = await missingPermissions(needed);
+  console.log('Still missing:', missing);
+}
 ```
 
 **History / background (optional special permissions):** by default HC only lets apps
@@ -267,19 +289,19 @@ manifest, gate on feature status, then request:
 import {
   getFeatureStatus,
   requestPermissions,
+  Permission,
 } from '@solutionforest/android-health-connect';
 
-const extra: string[] = [];
+import type { HealthPermission } from '@solutionforest/android-health-connect';
+
+const extra: HealthPermission[] = [];
 if ((await getFeatureStatus('readHealthDataHistory')) === 'available') {
-  extra.push('android.permission.health.READ_HEALTH_DATA_HISTORY');
+  extra.push(Permission.READ_HEALTH_DATA_HISTORY);
 }
 if ((await getFeatureStatus('readHealthDataInBackground')) === 'available') {
-  extra.push('android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND');
+  extra.push(Permission.READ_HEALTH_DATA_IN_BACKGROUND);
 }
-await requestPermissions([
-  'android.permission.health.READ_STEPS',
-  ...extra,
-]);
+await requestPermissions([Permission.READ_STEPS, ...extra]);
 ```
 
 ```xml
@@ -474,6 +496,41 @@ await writeRecords([
 await readPlannedExerciseSessions({ /* timeRangeFilter … */ });
 ```
 
+### Aggregates
+
+`aggregateRecord` uses Instant time ranges. Prefer
+`aggregateGroupByDuration` for fixed buckets (also Instant — avoids Android 14+
+UTC wall-clock shift). Use `aggregateGroupByPeriod` for calendar days/weeks
+(LocalDateTime in the device zone).
+
+```ts
+import {
+  aggregateRecord,
+  aggregateGroupByDuration,
+} from '@solutionforest/android-health-connect';
+
+const total = await aggregateRecord({
+  recordType: 'Steps',
+  timeRangeFilter: {
+    startTime: '2024-01-01T00:00:00Z',
+    endTime: '2024-01-08T00:00:00Z',
+  },
+});
+console.log(total.metrics['COUNT_TOTAL']); // number | null
+
+const hourly = await aggregateGroupByDuration({
+  recordType: 'Steps',
+  timeRangeFilter: {
+    startTime: '2024-01-01T00:00:00Z',
+    endTime: '2024-01-02T00:00:00Z',
+  },
+  timeRangeSlicer: { unit: 'hours', value: 1 },
+});
+hourly.forEach((row) => {
+  console.log(row.startTime, row.result.metrics['COUNT_TOTAL']);
+});
+```
+
 ### Delete records
 
 ```ts
@@ -490,13 +547,13 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);
 
 Tokens expire after ~30 days. Prefer **one record type per token**. Loop while
 `hasMore`; if `changesTokenExpired`, backfill with `readRecords` then mint a new
-token.
+token. Optional `pageSize` (1–5000) is a soft hint.
 
 ```ts
 import { getChangesToken, getChanges } from '@solutionforest/android-health-connect';
 
 let token = await getChangesToken({ recordTypes: ['Steps'] });
-let page = await getChanges(token);
+let page = await getChanges(token, { pageSize: 500 });
 while (true) {
   if (page.changesTokenExpired) {
     // backfill, then: token = await getChangesToken({ recordTypes: ['Steps'] });
@@ -510,7 +567,7 @@ while (true) {
   }
   token = page.nextChangesToken;
   if (!page.hasMore) break;
-  page = await getChanges(token);
+  page = await getChanges(token, { pageSize: 500 });
 }
 // Persist `token` for the next sync.
 ```

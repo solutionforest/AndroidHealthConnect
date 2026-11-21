@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Docs/demo completeness: README Usage for `ensureAvailable` / `hasPermissions` /
+  aggregates / `getChanges({ pageSize })`; history uses `Permission.*`; example
+  adds PlannedExercise recipes + manifest perms; example README is a first-run
+  tutorial pointing at the main Usage guide.
+
 ## [0.3.11] - 2026-11-21
 
 ### Added

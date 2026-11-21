@@ -1,80 +1,73 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Android Health Connect — example app
 
-# Getting Started
+Bare React Native host that exercises
+[`@solutionforest/android-health-connect`](../README.md).
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> Complete the [RN environment setup](https://reactnative.dev/docs/set-up-your-environment) first.
 
-## Step 1: Start Metro
-
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Run
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+# from repo root
+yarn
+yarn example start          # Metro
+# other terminal:
+yarn example android
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use the following command to build and run the Android app (the library is Android-only, so the example has no iOS project):
+Or from `example/`:
 
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
+yarn start
 yarn android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator or your connected device.
+Android-only (no iOS project). Prefer an emulator/device with Google Play so
+Health Connect can install.
 
-This is one way to run your app — you can also build it directly from Android Studio.
+## Suggested path (first run)
 
-## Step 3: Try the demo recipes
+1. Confirm **Availability** is `available` (or tap Install / Open Health Connect).
+2. **Request Permissions** → grant Steps / Heart Rate.
+3. **Seed Demo Data (fake)** → writes sample Steps + HR + walk.
+4. **Read Steps** / **Aggregate Steps** / **Update Steps (+100)**.
+5. **getChanges (Steps)** → changelog token + page.
+6. Optional: History / Background permission buttons (feature-gated).
+7. Exercise route write/read; Planned exercise write/read when the device
+   supports `plannedExercise`.
 
-`src/App.tsx` includes buttons for the core flow (permissions / steps / heart rate)
-plus recipes for:
+Full host-app tutorial (install, Expo plugin, manifests, API snippets):
+**[../README.md](../README.md)#usage**.
+
+## Buttons → APIs
+
+### Core
 
 | Button | API |
 | --- | --- |
-| Seed Demo Data (fake) | example-only `writeRecords` (steps + HR + walk) |
+| Request Permissions | `requestPermissions` + `Permission.*` |
+| Check Permissions | `checkPermissions` + `hasPermissions` / `missingPermissions` |
+| Write / Read Steps · Read Heart Rate | `writeRecords` / `readSteps` / `readHeartRate` |
+| Seed Demo Data (fake) | example-only multi-type `writeRecords` |
+
+### Recipes
+
+| Button | API |
+| --- | --- |
 | Aggregate Steps (7d) | `aggregateRecord` |
-| Update Steps (+100) | `updateRecords` (requires `metadata.id`) |
+| Update Steps (+100) | `updateRecords` (`metadata.id`) |
 | getChanges (Steps) | `getChangesToken` + `getChanges({ pageSize })` |
-| Request History Permission | `getFeatureStatus('readHealthDataHistory')` + `READ_HEALTH_DATA_HISTORY` |
-| Request Background Permission | `getFeatureStatus('readHealthDataInBackground')` + `READ_HEALTH_DATA_IN_BACKGROUND` |
-| Write Exercise + Route | `writeRecords` `ExerciseSession` + `exerciseRoute` |
-| Read Exercise Route | `readExerciseSessions` + `requestExerciseRoute` if `CONSENT_REQUIRED` |
+| Request History Permission | `getFeatureStatus('readHealthDataHistory')` + `Permission.READ_HEALTH_DATA_HISTORY` |
+| Request Background Permission | `getFeatureStatus('readHealthDataInBackground')` + `Permission.READ_HEALTH_DATA_IN_BACKGROUND` |
+| Write / Read Exercise Route | `ExerciseSession` + `exerciseRoute` / `requestExerciseRoute` |
+| Write / Read Planned Exercise | `PlannedExerciseSession` (feature-gated) |
 
-Health Connect permissions and rationale intent-filters live in
-`android/app/src/main/AndroidManifest.xml` (plus `res/values/health_permissions.xml`).
+Startup uses `ensureAvailable({ openStoreIfMissing: false })` so the UI can show
+status without auto-opening the store.
 
-Edit `App.tsx` and save — Fast Refresh applies changes. Force reload from the
-Dev Menu if needed (`Cmd ⌘` + `M` on macOS).
+Health Connect permissions + rationale intent-filters:
+`android/app/src/main/AndroidManifest.xml` and
+`res/values/health_permissions.xml`.
 
-## Congratulations! :tada:
-
-You've successfully run the Health Connect example. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Edit `src/App.tsx` and save — Fast Refresh applies. Force reload from the Dev
+Menu if needed (`Cmd ⌘` + `M` on macOS).

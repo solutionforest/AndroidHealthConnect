@@ -9,9 +9,11 @@ import {
   View,
 } from 'react-native';
 import {
-  isHealthConnectAvailable,
+  ensureAvailable,
   requestPermissions,
   checkPermissions,
+  hasPermissions,
+  missingPermissions,
   readSteps,
   readHeartRate,
   writeRecords,
@@ -23,7 +25,10 @@ import {
   getFeatureStatus,
   readExerciseSessions,
   requestExerciseRoute,
+  readPlannedExerciseSessions,
   ExerciseType,
+  ExerciseSegmentType,
+  ExercisePhase,
   RecordingMethod,
   Permission,
   type HealthConnectAvailability,
@@ -46,6 +51,10 @@ const EXERCISE_PERMS = [
   Permission.WRITE_EXERCISE_ROUTE,
   Permission.READ_EXERCISE_ROUTES,
 ] as const;
+const PLANNED_PERMS = [
+  Permission.READ_PLANNED_EXERCISE,
+  Permission.WRITE_PLANNED_EXERCISE,
+] as const;
 
 export default function App() {
   const [availability, setAvailability] =
@@ -60,7 +69,8 @@ export default function App() {
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
-    isHealthConnectAvailable().then(setAvailability);
+    // ensureAvailable opens the store when notInstalled; still set status for UI.
+    ensureAvailable({ openStoreIfMissing: false }).then(setAvailability);
   }, []);
 
   const weekRange = () => {
@@ -80,12 +90,16 @@ export default function App() {
   };
 
   const handleCheckPermissions = async () => {
-    const granted = await checkPermissions([
-      Permission.READ_STEPS,
-      Permission.READ_HEART_RATE,
-    ]);
+    const needed = [Permission.READ_STEPS, Permission.READ_HEART_RATE];
+    const granted = await checkPermissions(needed);
     setGrantedPerms(granted);
-    setStatus(`Currently granted: ${granted.join(', ')}`);
+    const ok = await hasPermissions(needed);
+    const missing = await missingPermissions(needed);
+    setStatus(
+      ok
+        ? `All core read perms granted (${granted.length})`
+        : `Missing: ${missing.map((p) => p.split('.').pop()).join(', ')}`
+    );
   };
 
   /** Example-only: seed fake Steps + HeartRate + a short run for QA. */
@@ -327,6 +341,67 @@ export default function App() {
     setStatus(`Route ${route.type} on ${first.metadata?.id ?? '?'}`);
   };
 
+  /** Recipe: PlannedExerciseSession (feature-gated training plan). */
+  const handleWritePlannedExercise = async () => {
+    setStatus('Checking plannedExercise feature…');
+    const feature = await getFeatureStatus('plannedExercise');
+    if (feature !== 'available') {
+      setStatus('plannedExercise feature unavailable on this device');
+      return;
+    }
+    await requestPermissions([...PLANNED_PERMS]);
+    setStatus('Writing PlannedExerciseSession…');
+    const start = new Date(Date.now() + 2 * 86400_000);
+    const end = new Date(start.getTime() + 90 * 60_000);
+    const { recordIdsList } = await writeRecords([
+      {
+        recordType: 'PlannedExerciseSession',
+        exerciseType: ExerciseType.RUNNING,
+        startTime: start.toISOString(),
+        endTime: end.toISOString(),
+        title: 'Demo lake run (plan)',
+        blocks: [
+          {
+            repetitions: 1,
+            description: 'Three laps',
+            steps: [
+              {
+                exerciseType: ExerciseSegmentType.RUNNING,
+                exercisePhase: ExercisePhase.ACTIVE,
+                completionGoal: { type: 'Repetitions', repetitions: 3 },
+                performanceTargets: [
+                  { type: 'HeartRate', minHeartRate: 90, maxHeartRate: 110 },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+    setStatus(`PlannedExerciseSession id: ${recordIdsList[0]}`);
+  };
+
+  const handleReadPlannedExercise = async () => {
+    setStatus('Reading planned exercise…');
+    const feature = await getFeatureStatus('plannedExercise');
+    if (feature !== 'available') {
+      setStatus('plannedExercise feature unavailable on this device');
+      return;
+    }
+    await requestPermissions([...PLANNED_PERMS]);
+    const { records } = await readPlannedExerciseSessions({
+      timeRangeFilter: {
+        startTime: new Date().toISOString(),
+        endTime: new Date(Date.now() + 14 * 86400_000).toISOString(),
+      },
+    });
+    setStatus(
+      records.length === 0
+        ? 'No PlannedExerciseSession in next 14 days'
+        : `Fetched ${records.length} plan(s); first=${records[0]?.title ?? records[0]?.metadata?.id}`
+    );
+  };
+
   if (Platform.OS !== 'android') {
     return (
       <View style={styles.container}>
@@ -421,6 +496,14 @@ export default function App() {
             <Button
               title="Read Exercise Route"
               onPress={handleReadExerciseRoute}
+            />
+            <Button
+              title="Write Planned Exercise"
+              onPress={handleWritePlannedExercise}
+            />
+            <Button
+              title="Read Planned Exercise"
+              onPress={handleReadPlannedExercise}
             />
           </View>
 
