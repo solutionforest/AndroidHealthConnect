@@ -510,48 +510,55 @@ re-open the app**, the first read or aggregate is often `0` / empty — vendor a
 (Samsung Health, Fitbit, …) may still be writing into HC. Google’s guidance: sync
 when the app becomes foreground, and optionally poll while it stays open.
 
-```ts
-import { AppState } from 'react-native';
+`useForegroundPoll` does this for you: it polls on mount and on every resume,
+aborts the in-flight poll when the app backgrounds (so a stale result never
+overwrites a newer one), and keeps the last value on timeout.
+
+```tsx
 import {
-  timeRangeToday,
-  timeRangeLastDays,
-  pollUntil,
-  waitForRecords,
-  readAllRecords,
   aggregateRecord,
-  pullChanges,
+  timeRangeToday,
+  useForegroundPoll,
 } from '@solutionforest/android-health-connect';
 
-const today = timeRangeToday();
+const stepsOf = (r: { metrics: Record<string, unknown> }) => {
+  const n = r.metrics['COUNT_TOTAL'];
+  return typeof n === 'number' ? n : 0;
+};
 
-// On resume: poll aggregate until non-zero (or timeout — keep last value for UI)
-AppState.addEventListener('change', (state) => {
-  if (state !== 'active') return;
-  void (async () => {
-    const { value, satisfied } = await pollUntil(
-      () =>
-        aggregateRecord({
-          recordType: 'Steps',
-          timeRangeFilter: today,
-        }),
-      {
-        // Prefer “> 0” only when you expect activity; true 0 steps will time out.
-        ready: (r) => {
-          const n = r.metrics['COUNT_TOTAL'];
-          return typeof n === 'number' && n > 0;
-        },
-        timeoutMs: 20_000,
-        intervalMs: 1_000,
-        throwOnTimeout: false, // don't crash UI — show 0 until next try
-      }
-    );
-    console.log('steps today', value.metrics['COUNT_TOTAL'] ?? 0, {
-      satisfied,
-    });
-    // Also drain changelog on resume when you sync locally:
-    // const batch = await pullChanges(savedToken);
-  })();
-});
+function TodaySteps({ granted }: { granted: boolean }) {
+  const { value, satisfied, loading, error, refresh } = useForegroundPoll(
+    () =>
+      aggregateRecord({ recordType: 'Steps', timeRangeFilter: timeRangeToday() }),
+    {
+      // "> 0" only when you expect activity; a real 0-step day times out.
+      ready: (r) => stepsOf(r) > 0,
+      timeoutMs: 20_000,
+      intervalMs: 1_000,
+      enabled: granted, // wait until permissions are granted
+    }
+  );
+
+  if (error) return <Text onPress={refresh}>Couldn’t read steps. Tap to retry</Text>;
+  return (
+    <Text onPress={refresh}>
+      {value ? stepsOf(value) : '–'} steps
+      {loading ? ' · syncing…' : !satisfied && value ? ' · no new data yet' : ''}
+    </Text>
+  );
+}
+```
+
+Outside React, use `pollOnForeground(fetch, { ready, onResult, onError })`;
+it returns `{ refresh, stop }`. For a single one-off wait, use
+`pollUntil` (soft) or `waitUntil` (throws `WaitTimeoutError`).
+
+```ts
+import {
+  timeRangeLastDays,
+  waitForRecords,
+  readAllRecords,
+} from '@solutionforest/android-health-connect';
 
 // After your own writeRecords — wait until the row is readable:
 await waitForRecords({
@@ -765,6 +772,8 @@ if (update.updateAvailable) {
 | `timeRangeToday()` / `timeRangeLastDays(n)` / `timeRangeLastHours(n)` | `TimeRangeFilter` | Instant windows for reads/aggregates |
 | `pollUntil(fetch, opts)` | `Promise<PollUntilResult>` | Soft poll (resume: first value often `0`) |
 | `waitUntil(fetch, opts)` | `Promise<T>` | Same as pollUntil but throws on timeout |
+| `useForegroundPoll(fetch, opts)` | `{ value, satisfied, loading, error, refresh }` | React hook: poll on mount + every resume |
+| `pollOnForeground(fetch, opts)` | `{ refresh, stop }` | Non-React version of `useForegroundPoll` |
 | `waitForRecords(opts)` | `Promise<ReadRecordsResponse>` | Poll `readRecords` until rows appear |
 | `readAllRecords(type, opts?)` | `Promise<T[]>` | Follow `pageToken` until exhausted |
 | `pullChanges(token, opts?)` | `Promise<PullChangesResult>` | Drain changelog pages (`hasMore` loop) |

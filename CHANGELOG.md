@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (pageToken drain), `pullChanges` (changelog `hasMore` loop).
 - `pollUntil` / `waitUntil` for resume UX (first aggregate often `0` until vendor
   sync finishes); soft timeout keeps last value for the UI.
+- `useForegroundPoll` hook and `pollOnForeground` (non-React): poll on mount and
+  every `AppState` resume, abort on background, drop stale results; hook exposes
+  `{ value, satisfied, loading, error, refresh }` and `enabled` to wait for
+  permissions.
 
 ### Changed
 

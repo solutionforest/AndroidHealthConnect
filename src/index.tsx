@@ -78,6 +78,13 @@ export type {
   PollUntilResult,
   PullChangesResult,
 } from './helpers';
+export { pollOnForeground, useForegroundPoll } from './foreground';
+export type {
+  PollOnForegroundOptions,
+  ForegroundPoller,
+  UseForegroundPollOptions,
+  UseForegroundPollState,
+} from './foreground';
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 
