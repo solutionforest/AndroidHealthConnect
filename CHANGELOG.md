@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.12] - 2026-11-21
+
 ### Added
 
 - DX helpers: `ensurePermissions`, `timeRangeToday` / `timeRangeLastDays` /
@@ -18,13 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   every `AppState` resume, abort on background, drop stale results; hook exposes
   `{ value, satisfied, loading, error, refresh }` and `enabled` to wait for
   permissions.
-
-### Changed
-
-- Docs/demo completeness: README Usage for `ensureAvailable` / `hasPermissions` /
-  aggregates / `getChanges({ pageSize })`; history uses `Permission.*`; example
-  adds PlannedExercise recipes + manifest perms; example README is a first-run
-  tutorial pointing at the main Usage guide.
 
 ## [0.3.11] - 2026-11-21
 
@@ -180,6 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Stable 0.2.x line (HC `1.1.0`, AGP 8.9 / sdk 36): GitHub Packages + hosted CI parity and security dependency fixes.
 
+[0.3.12]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.12
 [0.3.11]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.11
 [0.3.10]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.10
 [0.3.9]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.9
