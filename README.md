@@ -38,7 +38,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 | Planned exercise | ✅ Supported | `PlannedExerciseSession` when `plannedExercise` feature is available |
 | Library upgrade reminder | ✅ Supported | `checkLibraryUpdate()` + weekly CI (HC SDK / release drift → issue) |
 | CI / quality gates | ✅ GitHub-hosted | lint, typecheck, Jest + Kotlin unit tests, library + Android build, audit |
-| Distribution | ✅ GitHub Packages + Releases | Primary: `npm.pkg.github.com`. Optional npmjs.org mirror when `NPM_TOKEN` is set. Release `.tgz` has SBOM + attestations |
+| Distribution | ✅ npmjs.org + GitHub Releases | Primary: [npmjs](https://www.npmjs.com/package/@solutionforest/android-health-connect). Mirror: GitHub Packages. Release `.tgz` has SBOM + attestations |
 | CodeQL | ✅ Supported | On `main` PRs/pushes + weekly schedule |
 
 ## Requirements
@@ -54,7 +54,7 @@ Pick a line by Android toolchain (HC SDK / AGP), not by RN major:
 | **[`0.2.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.4)** (maintenance) | **≥0.84** | **≥22.11** | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
-# GitHub Packages (see Installation for .npmrc)
+# npmjs.org (default — no .npmrc needed)
 yarn add @solutionforest/android-health-connect@0.3.13   # AGP 9.1+ / compileSdk 37
 yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSdk 36 (dist-tag release-0.2)
 ```
@@ -63,7 +63,7 @@ yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSd
 
 | Requirement | Value for `0.3.13` |
 |---|---|
-| Install | `@solutionforest/android-health-connect` via GitHub Packages |
+| Install | `@solutionforest/android-health-connect` from **npmjs.org** |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
 | Android Gradle Plugin | **9.1.1** (min **9.1.0**) |
 | Gradle | **9.3.1+** (required by AGP 9.1) |
@@ -94,21 +94,10 @@ JS API: [42 record types](#supported-record-types), feature checks, Matchmaking,
 
 | Registry | Notes |
 |---|---|
-| **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** | Primary (`npm.pkg.github.com`) + Release `.tgz` |
-| **npmjs.org** | Optional — set repo secret `NPM_TOKEN` so Release also runs `npm publish --provenance` |
+| **[npmjs.org](https://www.npmjs.com/package/@solutionforest/android-health-connect)** | **Primary** — `yarn add` / `npm i` with no `.npmrc` |
+| **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** | Mirror (`npm.pkg.github.com`) + Release `.tgz` (SBOM / attestations) |
 
-### 1. Point `@solutionforest` at GitHub Packages
-
-Add to your project `.npmrc` (or user `~/.npmrc`):
-
-```ini
-@solutionforest:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
-```
-
-Use a classic PAT with `read:packages` (and SSO authorized for the `solutionforest` org if required).
-
-### 2. Install the package
+### Install the package
 
 ```sh
 # Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
@@ -122,7 +111,20 @@ yarn add @solutionforest/android-health-connect@release-0.2
 
 Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.13`) or download the Release `.tgz`.
 
-Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, and `npm publish`es to GitHub Packages.
+Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, publishes to **npmjs.org** via Trusted Publishing (OIDC), and mirrors to GitHub Packages.
+
+<details>
+<summary>Optional: install from GitHub Packages instead</summary>
+
+```ini
+# .npmrc
+@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+```
+
+Use a classic PAT with `read:packages` (SSO-authorize for `solutionforest` if required).
+
+</details>
 
 ### Expo setup
 
@@ -763,7 +765,7 @@ if (update.updateAvailable) {
 |---|---|
 | **CI** / **CodeQL** | Lint, tests, build on `ubuntu-latest` |
 | **Version check** | Mondays 08:00 UTC — compares HC SDK (Maven) + library (GitHub Release); opens/updates an `upgrade-reminder` issue. Manual: **Actions → Version check → Run workflow**. Cron options in `.github/workflows/version-check.yml`. |
-| **Release** (`v*` tag) | Packs `.tgz` + SBOM / attestations → GitHub Release + GitHub Packages. Optional npmjs.org mirror if `NPM_TOKEN` is set. |
+| **Release** (`v*` tag) | Packs `.tgz` + SBOM / attestations → GitHub Release → **npmjs.org** (OIDC Trusted Publishing) → GitHub Packages mirror |
 
 ## API reference
 

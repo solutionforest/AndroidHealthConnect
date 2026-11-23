@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Distribution: **npmjs.org is primary** (Trusted Publishing / OIDC from
+  `release.yml`); GitHub Packages remains a mirror. Install docs no longer
+  require a GitHub Packages `.npmrc`.
+
 ## [0.3.13] - 2026-11-23
 
 ### Added

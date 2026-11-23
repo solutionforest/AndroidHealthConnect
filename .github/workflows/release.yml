@@ -1,8 +1,14 @@
 name: Release
 
-# Build, attach GitHub Release .tgz + SPDX SBOM, attest provenance, and publish
-# to GitHub Packages (npm.pkg.github.com). Optionally mirrors to npmjs.org when
-# repo secret NPM_TOKEN is set. Tag must match package.json (v${version}).
+# Build, attach GitHub Release .tgz + SPDX SBOM / attestations, publish to
+# npmjs.org via Trusted Publishing (OIDC — no long-lived npm token), then
+# mirror to GitHub Packages. Tag must match package.json (v${version}).
+#
+# npmjs Trusted Publisher must be configured on the package:
+#   Org/user: solutionforest
+#   Repo: AndroidHealthConnect
+#   Workflow: release.yml
+#   Allow: npm publish
 
 on:
   push:
@@ -11,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build/upload/publish (e.g. v0.3.3). Leave empty to use package.json version.'
+        description: 'Existing tag to build/upload/publish (e.g. v0.3.13). Leave empty to use package.json version.'
         required: false
         type: string
 
@@ -28,12 +34,8 @@ concurrency:
 
 jobs:
   release:
-    name: Build, GitHub Release & Packages
+    name: Build, npmjs & GitHub Release
     runs-on: ubuntu-latest
-    env:
-      # Map secret → env so the optional npmjs step can gate on emptiness
-      # (secrets context is not allowed directly in step `if:`).
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
       - name: Checkout
@@ -44,6 +46,14 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      - name: Ensure npm CLI supports Trusted Publishing
+        run: |
+          set -euo pipefail
+          # Trusted Publishing needs npm ≥ 11.5.1 and Node ≥ 22.14
+          npm install -g npm@latest
+          node -v
+          npm -v
 
       - name: Resolve version
         id: meta
@@ -150,7 +160,19 @@ jobs:
           gh release upload "$TAG" "$ASSET" "$SBOM" --clobber
           echo "Uploaded ${ASSET} and ${SBOM} to ${TAG}"
 
-      - name: Publish to GitHub Packages
+      # Primary: npmjs.org via OIDC Trusted Publishing (no NPM_TOKEN).
+      # Provenance is generated automatically with trusted publishing.
+      - name: Publish to npmjs.org (Trusted Publishing)
+        run: |
+          set -euo pipefail
+          {
+            echo "registry=https://registry.npmjs.org"
+            echo "access=public"
+          } > .npmrc
+          npm publish --access public --registry=https://registry.npmjs.org
+          echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to npmjs.org"
+
+      - name: Publish to GitHub Packages (mirror)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -163,19 +185,3 @@ jobs:
           # (npm --provenance targets registry.npmjs.org).
           npm publish --access public --registry=https://npm.pkg.github.com
           echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to GitHub Packages"
-
-      # Optional mirror: set repo secret NPM_TOKEN (npmjs automation token with
-      # publish rights for @solutionforest). Skipped when the secret is absent.
-      - name: Publish to npmjs.org (optional mirror)
-        if: ${{ env.NPM_TOKEN != '' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
-        run: |
-          set -euo pipefail
-          {
-            echo "registry=https://registry.npmjs.org"
-            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}"
-            echo "always-auth=true"
-          } > .npmrc
-          npm publish --provenance --access public --registry=https://registry.npmjs.org
-          echo "Published ${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }} to npmjs.org"
