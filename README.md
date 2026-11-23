@@ -88,7 +88,7 @@ Official notes ([full changelog](https://developer.android.com/jetpack/androidx/
 | **1.2.0-alpha01** | 2025-07-30 | Skin temperature / mindfulness compat; activity intensity (Android 14+) |
 | **1.1.0** (stable) | 2025-10-08 | First stable `connect-client` |
 
-JS API: [23 record types](#supported-record-types), feature checks, Matchmaking, PHR. Feature-gated types need `getFeatureStatus(...) === 'available'`.
+JS API: [42 record types](#supported-record-types), feature checks, Matchmaking, PHR. Feature-gated types need `getFeatureStatus(...) === 'available'`.
 
 ## Installation
 
@@ -648,6 +648,9 @@ if (batch.changesTokenExpired) {
 
 ## Supported record types
 
+> The 19 parity-batch types marked below are unit-tested but
+> **⚠️ not fully tested on a real device yet**.
+
 | Record type | Read | Write | Notes |
 |---|---|---|---|
 | `Steps` | ✅ | ✅ | |
@@ -673,6 +676,25 @@ if (batch.changesTokenExpired) {
 | `MindfulnessSession` | ✅ | ✅ | Requires `getFeatureStatus('mindfulnessSession')` |
 | `SkinTemperature` | ✅ | ✅ | Requires `getFeatureStatus('skinTemperature')` |
 | `ActivityIntensity` | ✅ | ✅ | Requires `getFeatureStatus('activityIntensity')` |
+| `Nutrition` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `Vo2Max` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `Speed` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `Power` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `StepsCadence` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet; uses steps permission |
+| `CyclingPedalingCadence` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet; uses exercise permission |
+| `WheelchairPushes` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `MenstruationFlow` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet; shares menstruation permission |
+| `MenstruationPeriod` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet; shares menstruation permission |
+| `OvulationTest` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `CervicalMucus` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `IntermenstrualBleeding` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `SexualActivity` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `BasalBodyTemperature` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `LeanBodyMass` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `BoneMass` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `BodyWaterMass` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `BasalMetabolicRate` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
+| `HeartRateVariabilityRmssd` | ✅ | ✅ | ⚠️ Not fully tested on a real device yet |
 
 ### Feature-gated APIs
 

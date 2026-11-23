@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Full Health Connect record parity: `Nutrition`, `Vo2Max`, `Speed`, `Power`,
+  `StepsCadence`, `CyclingPedalingCadence`, `WheelchairPushes`,
+  `MenstruationFlow`, `MenstruationPeriod`, `OvulationTest`, `CervicalMucus`,
+  `IntermenstrualBleeding`, `SexualActivity`, `BasalBodyTemperature`,
+  `LeanBodyMass`, `BoneMass`, `BodyWaterMass`, `BasalMetabolicRate`, and
+  `HeartRateVariabilityRmssd`, including read/write/delete, changelog
+  serialization, typed helpers/permissions, and available aggregate metrics.
+- These types are unit-tested but **not fully verified on real devices yet**.
+
 ## [0.3.12] - 2026-11-21
 
 ### Added

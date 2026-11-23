@@ -241,6 +241,8 @@ internal object RecordMapper {
                 }
             }
 
+            in ExtendedRecordMapper.recordTypes ->
+                ExtendedRecordMapper.readRecords(client, recordType, options)
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -271,6 +273,25 @@ internal object RecordMapper {
             is SkinTemperatureRecord -> skinTemperatureToJson(record)
             is ActivityIntensityRecord -> activityIntensityToJson(record)
             is PlannedExerciseSessionRecord -> PlannedExerciseMapper.toJson(record)
+            is NutritionRecord,
+            is Vo2MaxRecord,
+            is SpeedRecord,
+            is PowerRecord,
+            is StepsCadenceRecord,
+            is CyclingPedalingCadenceRecord,
+            is WheelchairPushesRecord,
+            is MenstruationFlowRecord,
+            is MenstruationPeriodRecord,
+            is OvulationTestRecord,
+            is CervicalMucusRecord,
+            is IntermenstrualBleedingRecord,
+            is SexualActivityRecord,
+            is BasalBodyTemperatureRecord,
+            is LeanBodyMassRecord,
+            is BoneMassRecord,
+            is BodyWaterMassRecord,
+            is BasalMetabolicRateRecord,
+            is HeartRateVariabilityRmssdRecord -> ExtendedRecordMapper.toJson(record)
             else ->
                 throw IllegalArgumentException(
                     "Unsupported record class: ${record::class.java.simpleName}"
@@ -304,6 +325,7 @@ internal object RecordMapper {
             "SkinTemperature" -> jsonToSkinTemperature(json)
             "ActivityIntensity" -> jsonToActivityIntensity(json)
             "PlannedExerciseSession" -> PlannedExerciseMapper.fromJson(json)
+            in ExtendedRecordMapper.recordTypes -> ExtendedRecordMapper.fromJson(json)
             else -> throw IllegalArgumentException("Unsupported record type: $type")
         }
     }
@@ -340,6 +362,8 @@ internal object RecordMapper {
             "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, filter)
             "PlannedExerciseSession" ->
                 client.deleteRecords(PlannedExerciseSessionRecord::class, filter)
+            in ExtendedRecordMapper.recordTypes ->
+                ExtendedRecordMapper.deleteByTimeRange(client, recordType, filter)
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }
@@ -374,6 +398,8 @@ internal object RecordMapper {
             "ActivityIntensity" -> client.deleteRecords(ActivityIntensityRecord::class, ids, emptyList())
             "PlannedExerciseSession" ->
                 client.deleteRecords(PlannedExerciseSessionRecord::class, ids, emptyList())
+            in ExtendedRecordMapper.recordTypes ->
+                ExtendedRecordMapper.deleteByIds(client, recordType, ids)
             else -> throw IllegalArgumentException("Unsupported record type: $recordType")
         }
     }

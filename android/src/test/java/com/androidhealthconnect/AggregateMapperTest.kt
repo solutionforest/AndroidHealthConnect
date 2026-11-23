@@ -19,7 +19,12 @@ class AggregateMapperTest {
         assertTrue(types.contains("HeartRate"))
         assertTrue(types.contains("Distance"))
         assertTrue(types.contains("ActivityIntensity"))
-        assertEquals(16, types.size)
+        assertTrue(types.contains("Nutrition"))
+        assertTrue(types.contains("Speed"))
+        assertTrue(types.contains("Power"))
+        assertTrue(types.contains("WheelchairPushes"))
+        assertTrue(types.contains("BasalMetabolicRate"))
+        assertEquals(23, types.size)
     }
 
     @Test
@@ -29,7 +34,7 @@ class AggregateMapperTest {
             // exercised through IllegalArgumentException from specsFor via aggregate
             // We only assert the message contract by constructing options and catching
             // at the JSON layer is not enough — call supported set instead.
-            assertTrue(!AggregateMapper.supportedRecordTypes().contains("Nutrition"))
+            assertTrue(!AggregateMapper.supportedRecordTypes().contains("Vo2Max"))
         } catch (e: Exception) {
             throw AssertionError("unexpected", e)
         }

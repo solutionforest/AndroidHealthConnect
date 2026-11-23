@@ -24,7 +24,22 @@ describe('Permission constants', () => {
     );
   });
 
+  it('covers full record-parity permissions', () => {
+    expect(Permission.READ_NUTRITION).toBe(
+      'android.permission.health.READ_NUTRITION'
+    );
+    expect(Permission.WRITE_VO2_MAX).toBe(
+      'android.permission.health.WRITE_VO2_MAX'
+    );
+    expect(Permission.READ_MENSTRUATION).toBe(
+      'android.permission.health.READ_MENSTRUATION'
+    );
+    expect(Permission.WRITE_HEART_RATE_VARIABILITY).toBe(
+      'android.permission.health.WRITE_HEART_RATE_VARIABILITY'
+    );
+  });
+
   it('exposes a stable set of keys', () => {
-    expect(Object.keys(Permission).length).toBeGreaterThanOrEqual(50);
+    expect(Object.keys(Permission).length).toBeGreaterThanOrEqual(82);
   });
 });

@@ -6,6 +6,8 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActivityIntensityRecord
 import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -14,11 +16,16 @@ import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.MindfulnessSessionRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -29,6 +36,8 @@ import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.Pressure
 import androidx.health.connect.client.units.Volume
+import androidx.health.connect.client.units.Velocity
+import androidx.health.connect.client.units.Power
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Duration
@@ -141,6 +150,13 @@ internal object AggregateMapper {
       "BloodPressure",
       "MindfulnessSession",
       "ActivityIntensity",
+      "Nutrition",
+      "Speed",
+      "Power",
+      "StepsCadence",
+      "CyclingPedalingCadence",
+      "WheelchairPushes",
+      "BasalMetabolicRate",
     )
 
   private fun specsFor(recordType: String): List<MetricSpec> =
@@ -295,6 +311,100 @@ internal object AggregateMapper {
             }
           },
         )
+      "Nutrition" ->
+        listOf(
+          massSpec("BIOTIN_TOTAL", NutritionRecord.BIOTIN_TOTAL),
+          massSpec("CAFFEINE_TOTAL", NutritionRecord.CAFFEINE_TOTAL),
+          massSpec("CALCIUM_TOTAL", NutritionRecord.CALCIUM_TOTAL),
+          energySpec("ENERGY_TOTAL", NutritionRecord.ENERGY_TOTAL),
+          energySpec("ENERGY_FROM_FAT_TOTAL", NutritionRecord.ENERGY_FROM_FAT_TOTAL),
+          massSpec("CHLORIDE_TOTAL", NutritionRecord.CHLORIDE_TOTAL),
+          massSpec("CHOLESTEROL_TOTAL", NutritionRecord.CHOLESTEROL_TOTAL),
+          massSpec("CHROMIUM_TOTAL", NutritionRecord.CHROMIUM_TOTAL),
+          massSpec("COPPER_TOTAL", NutritionRecord.COPPER_TOTAL),
+          massSpec("DIETARY_FIBER_TOTAL", NutritionRecord.DIETARY_FIBER_TOTAL),
+          massSpec("FOLATE_TOTAL", NutritionRecord.FOLATE_TOTAL),
+          massSpec("FOLIC_ACID_TOTAL", NutritionRecord.FOLIC_ACID_TOTAL),
+          massSpec("IODINE_TOTAL", NutritionRecord.IODINE_TOTAL),
+          massSpec("IRON_TOTAL", NutritionRecord.IRON_TOTAL),
+          massSpec("MAGNESIUM_TOTAL", NutritionRecord.MAGNESIUM_TOTAL),
+          massSpec("MANGANESE_TOTAL", NutritionRecord.MANGANESE_TOTAL),
+          massSpec("MOLYBDENUM_TOTAL", NutritionRecord.MOLYBDENUM_TOTAL),
+          massSpec("MONOUNSATURATED_FAT_TOTAL", NutritionRecord.MONOUNSATURATED_FAT_TOTAL),
+          massSpec("NIACIN_TOTAL", NutritionRecord.NIACIN_TOTAL),
+          massSpec("PANTOTHENIC_ACID_TOTAL", NutritionRecord.PANTOTHENIC_ACID_TOTAL),
+          massSpec("PHOSPHORUS_TOTAL", NutritionRecord.PHOSPHORUS_TOTAL),
+          massSpec("POLYUNSATURATED_FAT_TOTAL", NutritionRecord.POLYUNSATURATED_FAT_TOTAL),
+          massSpec("POTASSIUM_TOTAL", NutritionRecord.POTASSIUM_TOTAL),
+          massSpec("PROTEIN_TOTAL", NutritionRecord.PROTEIN_TOTAL),
+          massSpec("RIBOFLAVIN_TOTAL", NutritionRecord.RIBOFLAVIN_TOTAL),
+          massSpec("SATURATED_FAT_TOTAL", NutritionRecord.SATURATED_FAT_TOTAL),
+          massSpec("SELENIUM_TOTAL", NutritionRecord.SELENIUM_TOTAL),
+          massSpec("SODIUM_TOTAL", NutritionRecord.SODIUM_TOTAL),
+          massSpec("SUGAR_TOTAL", NutritionRecord.SUGAR_TOTAL),
+          massSpec("THIAMIN_TOTAL", NutritionRecord.THIAMIN_TOTAL),
+          massSpec("TOTAL_CARBOHYDRATE_TOTAL", NutritionRecord.TOTAL_CARBOHYDRATE_TOTAL),
+          massSpec("TOTAL_FAT_TOTAL", NutritionRecord.TOTAL_FAT_TOTAL),
+          massSpec("TRANS_FAT_TOTAL", NutritionRecord.TRANS_FAT_TOTAL),
+          massSpec("UNSATURATED_FAT_TOTAL", NutritionRecord.UNSATURATED_FAT_TOTAL),
+          massSpec("VITAMIN_A_TOTAL", NutritionRecord.VITAMIN_A_TOTAL),
+          massSpec("VITAMIN_B12_TOTAL", NutritionRecord.VITAMIN_B12_TOTAL),
+          massSpec("VITAMIN_B6_TOTAL", NutritionRecord.VITAMIN_B6_TOTAL),
+          massSpec("VITAMIN_C_TOTAL", NutritionRecord.VITAMIN_C_TOTAL),
+          massSpec("VITAMIN_D_TOTAL", NutritionRecord.VITAMIN_D_TOTAL),
+          massSpec("VITAMIN_E_TOTAL", NutritionRecord.VITAMIN_E_TOTAL),
+          massSpec("VITAMIN_K_TOTAL", NutritionRecord.VITAMIN_K_TOTAL),
+          massSpec("ZINC_TOTAL", NutritionRecord.ZINC_TOTAL),
+        )
+      "Speed" ->
+        listOf(
+          velocitySpec("SPEED_AVG", SpeedRecord.SPEED_AVG),
+          velocitySpec("SPEED_MIN", SpeedRecord.SPEED_MIN),
+          velocitySpec("SPEED_MAX", SpeedRecord.SPEED_MAX),
+        )
+      "Power" ->
+        listOf(
+          powerSpec("POWER_AVG", PowerRecord.POWER_AVG),
+          powerSpec("POWER_MIN", PowerRecord.POWER_MIN),
+          powerSpec("POWER_MAX", PowerRecord.POWER_MAX),
+        )
+      "StepsCadence" ->
+        listOf(
+          MetricSpec("RATE_AVG", StepsCadenceRecord.RATE_AVG) {
+            it[StepsCadenceRecord.RATE_AVG]
+          },
+          MetricSpec("RATE_MIN", StepsCadenceRecord.RATE_MIN) {
+            it[StepsCadenceRecord.RATE_MIN]
+          },
+          MetricSpec("RATE_MAX", StepsCadenceRecord.RATE_MAX) {
+            it[StepsCadenceRecord.RATE_MAX]
+          },
+        )
+      "CyclingPedalingCadence" ->
+        listOf(
+          MetricSpec("RPM_AVG", CyclingPedalingCadenceRecord.RPM_AVG) {
+            it[CyclingPedalingCadenceRecord.RPM_AVG]
+          },
+          MetricSpec("RPM_MIN", CyclingPedalingCadenceRecord.RPM_MIN) {
+            it[CyclingPedalingCadenceRecord.RPM_MIN]
+          },
+          MetricSpec("RPM_MAX", CyclingPedalingCadenceRecord.RPM_MAX) {
+            it[CyclingPedalingCadenceRecord.RPM_MAX]
+          },
+        )
+      "WheelchairPushes" ->
+        listOf(
+          MetricSpec("COUNT_TOTAL", WheelchairPushesRecord.COUNT_TOTAL) {
+            it[WheelchairPushesRecord.COUNT_TOTAL]
+          }
+        )
+      "BasalMetabolicRate" ->
+        listOf(
+          energySpec(
+            "BASAL_CALORIES_TOTAL",
+            BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL,
+          )
+        )
       else ->
         throw IllegalArgumentException("Aggregation not supported for recordType=$recordType")
     }
@@ -313,6 +423,18 @@ internal object AggregateMapper {
       }
       put("metrics", metrics)
     }
+
+  private fun massSpec(name: String, metric: AggregateMetric<Mass>) =
+    MetricSpec(name, metric) { it[metric]?.let(::massJson) }
+
+  private fun energySpec(name: String, metric: AggregateMetric<Energy>) =
+    MetricSpec(name, metric) { it[metric]?.let(::energyJson) }
+
+  private fun velocitySpec(name: String, metric: AggregateMetric<Velocity>) =
+    MetricSpec(name, metric) { it[metric]?.let(::velocityJson) }
+
+  private fun powerSpec(name: String, metric: AggregateMetric<Power>) =
+    MetricSpec(name, metric) { it[metric]?.let(::powerJson) }
 
   private fun parseInstantTimeRange(options: JSONObject): TimeRangeFilter {
     val filter = options.getJSONObject("timeRangeFilter")
@@ -385,4 +507,15 @@ internal object AggregateMapper {
 
   private fun pressureJson(p: Pressure) =
     JSONObject().put("inMillimetersOfMercury", p.inMillimetersOfMercury)
+
+  private fun velocityJson(v: Velocity) =
+    JSONObject()
+      .put("inMetersPerSecond", v.inMetersPerSecond)
+      .put("inKilometersPerHour", v.inKilometersPerHour)
+      .put("inMilesPerHour", v.inMilesPerHour)
+
+  private fun powerJson(p: Power) =
+    JSONObject()
+      .put("inWatts", p.inWatts)
+      .put("inKilocaloriesPerDay", p.inKilocaloriesPerDay)
 }

@@ -64,6 +64,25 @@ internal object FeatureSupport {
       "SkinTemperature" -> SkinTemperatureRecord::class
       "ActivityIntensity" -> ActivityIntensityRecord::class
       "PlannedExerciseSession" -> PlannedExerciseSessionRecord::class
+      "Nutrition" -> NutritionRecord::class
+      "Vo2Max" -> Vo2MaxRecord::class
+      "Speed" -> SpeedRecord::class
+      "Power" -> PowerRecord::class
+      "StepsCadence" -> StepsCadenceRecord::class
+      "CyclingPedalingCadence" -> CyclingPedalingCadenceRecord::class
+      "WheelchairPushes" -> WheelchairPushesRecord::class
+      "MenstruationFlow" -> MenstruationFlowRecord::class
+      "MenstruationPeriod" -> MenstruationPeriodRecord::class
+      "OvulationTest" -> OvulationTestRecord::class
+      "CervicalMucus" -> CervicalMucusRecord::class
+      "IntermenstrualBleeding" -> IntermenstrualBleedingRecord::class
+      "SexualActivity" -> SexualActivityRecord::class
+      "BasalBodyTemperature" -> BasalBodyTemperatureRecord::class
+      "LeanBodyMass" -> LeanBodyMassRecord::class
+      "BoneMass" -> BoneMassRecord::class
+      "BodyWaterMass" -> BodyWaterMassRecord::class
+      "BasalMetabolicRate" -> BasalMetabolicRateRecord::class
+      "HeartRateVariabilityRmssd" -> HeartRateVariabilityRmssdRecord::class
       else -> throw IllegalArgumentException("Unsupported record type: $recordType")
     }
 }

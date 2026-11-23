@@ -31,6 +31,25 @@ import type {
   MindfulnessSessionRecord,
   SkinTemperatureRecord,
   ActivityIntensityRecord,
+  NutritionRecord,
+  Vo2MaxRecord,
+  SpeedRecord,
+  PowerRecord,
+  StepsCadenceRecord,
+  CyclingPedalingCadenceRecord,
+  WheelchairPushesRecord,
+  MenstruationFlowRecord,
+  MenstruationPeriodRecord,
+  OvulationTestRecord,
+  CervicalMucusRecord,
+  IntermenstrualBleedingRecord,
+  SexualActivityRecord,
+  BasalBodyTemperatureRecord,
+  LeanBodyMassRecord,
+  BoneMassRecord,
+  BodyWaterMassRecord,
+  BasalMetabolicRateRecord,
+  HeartRateVariabilityRmssdRecord,
   HealthConnectFeature,
   FeatureStatus,
   MatchmakingRequest,
@@ -442,6 +461,66 @@ export const readSkinTemperature = (options?: ReadRecordsOptions) =>
 
 export const readActivityIntensity = (options?: ReadRecordsOptions) =>
   readRecords<ActivityIntensityRecord>('ActivityIntensity', options);
+
+export const readNutrition = (options?: ReadRecordsOptions) =>
+  readRecords<NutritionRecord>('Nutrition', options);
+
+export const readVo2Max = (options?: ReadRecordsOptions) =>
+  readRecords<Vo2MaxRecord>('Vo2Max', options);
+
+export const readSpeed = (options?: ReadRecordsOptions) =>
+  readRecords<SpeedRecord>('Speed', options);
+
+export const readPower = (options?: ReadRecordsOptions) =>
+  readRecords<PowerRecord>('Power', options);
+
+export const readStepsCadence = (options?: ReadRecordsOptions) =>
+  readRecords<StepsCadenceRecord>('StepsCadence', options);
+
+export const readCyclingPedalingCadence = (options?: ReadRecordsOptions) =>
+  readRecords<CyclingPedalingCadenceRecord>('CyclingPedalingCadence', options);
+
+export const readWheelchairPushes = (options?: ReadRecordsOptions) =>
+  readRecords<WheelchairPushesRecord>('WheelchairPushes', options);
+
+export const readMenstruationFlow = (options?: ReadRecordsOptions) =>
+  readRecords<MenstruationFlowRecord>('MenstruationFlow', options);
+
+export const readMenstruationPeriods = (options?: ReadRecordsOptions) =>
+  readRecords<MenstruationPeriodRecord>('MenstruationPeriod', options);
+
+export const readOvulationTests = (options?: ReadRecordsOptions) =>
+  readRecords<OvulationTestRecord>('OvulationTest', options);
+
+export const readCervicalMucus = (options?: ReadRecordsOptions) =>
+  readRecords<CervicalMucusRecord>('CervicalMucus', options);
+
+export const readIntermenstrualBleeding = (options?: ReadRecordsOptions) =>
+  readRecords<IntermenstrualBleedingRecord>('IntermenstrualBleeding', options);
+
+export const readSexualActivity = (options?: ReadRecordsOptions) =>
+  readRecords<SexualActivityRecord>('SexualActivity', options);
+
+export const readBasalBodyTemperature = (options?: ReadRecordsOptions) =>
+  readRecords<BasalBodyTemperatureRecord>('BasalBodyTemperature', options);
+
+export const readLeanBodyMass = (options?: ReadRecordsOptions) =>
+  readRecords<LeanBodyMassRecord>('LeanBodyMass', options);
+
+export const readBoneMass = (options?: ReadRecordsOptions) =>
+  readRecords<BoneMassRecord>('BoneMass', options);
+
+export const readBodyWaterMass = (options?: ReadRecordsOptions) =>
+  readRecords<BodyWaterMassRecord>('BodyWaterMass', options);
+
+export const readBasalMetabolicRate = (options?: ReadRecordsOptions) =>
+  readRecords<BasalMetabolicRateRecord>('BasalMetabolicRate', options);
+
+export const readHeartRateVariabilityRmssd = (options?: ReadRecordsOptions) =>
+  readRecords<HeartRateVariabilityRmssdRecord>(
+    'HeartRateVariabilityRmssd',
+    options
+  );
 
 // ─── Feature availability ─────────────────────────────────────────────────────
 

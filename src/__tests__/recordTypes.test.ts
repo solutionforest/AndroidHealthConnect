@@ -25,6 +25,25 @@ import {
   readSkinTemperature,
   readActivityIntensity,
   readPlannedExerciseSessions,
+  readNutrition,
+  readVo2Max,
+  readSpeed,
+  readPower,
+  readStepsCadence,
+  readCyclingPedalingCadence,
+  readWheelchairPushes,
+  readMenstruationFlow,
+  readMenstruationPeriods,
+  readOvulationTests,
+  readCervicalMucus,
+  readIntermenstrualBleeding,
+  readSexualActivity,
+  readBasalBodyTemperature,
+  readLeanBodyMass,
+  readBoneMass,
+  readBodyWaterMass,
+  readBasalMetabolicRate,
+  readHeartRateVariabilityRmssd,
   MindfulnessSessionType,
   ActivityIntensityType,
   SkinTemperatureMeasurementLocation,
@@ -280,14 +299,154 @@ const RECORD_CASES: RecordCase[] = [
     },
     readHelper: readPlannedExerciseSessions,
   },
+  {
+    recordType: 'Nutrition',
+    sample: {
+      recordType: 'Nutrition',
+      energy: 650,
+      protein: 30,
+      name: 'Lunch',
+      ...interval,
+    },
+    readHelper: readNutrition,
+  },
+  {
+    recordType: 'Vo2Max',
+    sample: {
+      recordType: 'Vo2Max',
+      vo2MillilitersPerMinuteKilogram: 48.2,
+      measurementMethod: 1,
+      ...instant,
+    },
+    readHelper: readVo2Max,
+  },
+  {
+    recordType: 'Speed',
+    sample: {
+      recordType: 'Speed',
+      samples: [{ time: instant.time, metersPerSecond: 3.5 }],
+      ...interval,
+    },
+    readHelper: readSpeed,
+  },
+  {
+    recordType: 'Power',
+    sample: {
+      recordType: 'Power',
+      samples: [{ time: instant.time, watts: 220 }],
+      ...interval,
+    },
+    readHelper: readPower,
+  },
+  {
+    recordType: 'StepsCadence',
+    sample: {
+      recordType: 'StepsCadence',
+      samples: [{ time: instant.time, rate: 160 }],
+      ...interval,
+    },
+    readHelper: readStepsCadence,
+  },
+  {
+    recordType: 'CyclingPedalingCadence',
+    sample: {
+      recordType: 'CyclingPedalingCadence',
+      samples: [{ time: instant.time, revolutionsPerMinute: 90 }],
+      ...interval,
+    },
+    readHelper: readCyclingPedalingCadence,
+  },
+  {
+    recordType: 'WheelchairPushes',
+    sample: { recordType: 'WheelchairPushes', count: 125, ...interval },
+    readHelper: readWheelchairPushes,
+  },
+  {
+    recordType: 'MenstruationFlow',
+    sample: { recordType: 'MenstruationFlow', flow: 2, ...instant },
+    readHelper: readMenstruationFlow,
+  },
+  {
+    recordType: 'MenstruationPeriod',
+    sample: { recordType: 'MenstruationPeriod', ...interval },
+    readHelper: readMenstruationPeriods,
+  },
+  {
+    recordType: 'OvulationTest',
+    sample: { recordType: 'OvulationTest', result: 1, ...instant },
+    readHelper: readOvulationTests,
+  },
+  {
+    recordType: 'CervicalMucus',
+    sample: {
+      recordType: 'CervicalMucus',
+      appearance: 5,
+      sensation: 2,
+      ...instant,
+    },
+    readHelper: readCervicalMucus,
+  },
+  {
+    recordType: 'IntermenstrualBleeding',
+    sample: { recordType: 'IntermenstrualBleeding', ...instant },
+    readHelper: readIntermenstrualBleeding,
+  },
+  {
+    recordType: 'SexualActivity',
+    sample: { recordType: 'SexualActivity', protectionUsed: 1, ...instant },
+    readHelper: readSexualActivity,
+  },
+  {
+    recordType: 'BasalBodyTemperature',
+    sample: {
+      recordType: 'BasalBodyTemperature',
+      temperature: 36.5,
+      measurementLocation: 1,
+      ...instant,
+    },
+    readHelper: readBasalBodyTemperature,
+  },
+  {
+    recordType: 'LeanBodyMass',
+    sample: { recordType: 'LeanBodyMass', mass: 58.2, ...instant },
+    readHelper: readLeanBodyMass,
+  },
+  {
+    recordType: 'BoneMass',
+    sample: { recordType: 'BoneMass', mass: 3.1, ...instant },
+    readHelper: readBoneMass,
+  },
+  {
+    recordType: 'BodyWaterMass',
+    sample: { recordType: 'BodyWaterMass', mass: 42.4, ...instant },
+    readHelper: readBodyWaterMass,
+  },
+  {
+    recordType: 'BasalMetabolicRate',
+    sample: {
+      recordType: 'BasalMetabolicRate',
+      basalMetabolicRate: 1650,
+      ...instant,
+    },
+    readHelper: readBasalMetabolicRate,
+  },
+  {
+    recordType: 'HeartRateVariabilityRmssd',
+    sample: {
+      recordType: 'HeartRateVariabilityRmssd',
+      heartRateVariabilityMillis: 42,
+      ...instant,
+    },
+    readHelper: readHeartRateVariabilityRmssd,
+  },
 ];
 
 beforeEach(() => jest.clearAllMocks());
 
 describe('Supported record types (README table)', () => {
-  it('covers all 23 documented record types', () => {
-    expect(RECORD_CASES).toHaveLength(23);
-    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(23);
+  it('covers all 42 documented record types', () => {
+    expect(RECORD_CASES).toHaveLength(42);
+    expect(new Set(RECORD_CASES.map((c) => c.recordType)).size).toBe(42);
   });
 
   describe.each(RECORD_CASES)(

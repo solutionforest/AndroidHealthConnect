@@ -84,6 +84,38 @@ export type HealthPermission =
   | 'android.permission.health.WRITE_SKIN_TEMPERATURE'
   | 'android.permission.health.READ_ACTIVITY_INTENSITY'
   | 'android.permission.health.WRITE_ACTIVITY_INTENSITY'
+  | 'android.permission.health.READ_NUTRITION'
+  | 'android.permission.health.WRITE_NUTRITION'
+  | 'android.permission.health.READ_VO2_MAX'
+  | 'android.permission.health.WRITE_VO2_MAX'
+  | 'android.permission.health.READ_SPEED'
+  | 'android.permission.health.WRITE_SPEED'
+  | 'android.permission.health.READ_POWER'
+  | 'android.permission.health.WRITE_POWER'
+  | 'android.permission.health.READ_WHEELCHAIR_PUSHES'
+  | 'android.permission.health.WRITE_WHEELCHAIR_PUSHES'
+  | 'android.permission.health.READ_MENSTRUATION'
+  | 'android.permission.health.WRITE_MENSTRUATION'
+  | 'android.permission.health.READ_OVULATION_TEST'
+  | 'android.permission.health.WRITE_OVULATION_TEST'
+  | 'android.permission.health.READ_CERVICAL_MUCUS'
+  | 'android.permission.health.WRITE_CERVICAL_MUCUS'
+  | 'android.permission.health.READ_INTERMENSTRUAL_BLEEDING'
+  | 'android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING'
+  | 'android.permission.health.READ_SEXUAL_ACTIVITY'
+  | 'android.permission.health.WRITE_SEXUAL_ACTIVITY'
+  | 'android.permission.health.READ_BASAL_BODY_TEMPERATURE'
+  | 'android.permission.health.WRITE_BASAL_BODY_TEMPERATURE'
+  | 'android.permission.health.READ_LEAN_BODY_MASS'
+  | 'android.permission.health.WRITE_LEAN_BODY_MASS'
+  | 'android.permission.health.READ_BONE_MASS'
+  | 'android.permission.health.WRITE_BONE_MASS'
+  | 'android.permission.health.READ_BODY_WATER_MASS'
+  | 'android.permission.health.WRITE_BODY_WATER_MASS'
+  | 'android.permission.health.READ_BASAL_METABOLIC_RATE'
+  | 'android.permission.health.WRITE_BASAL_METABOLIC_RATE'
+  | 'android.permission.health.READ_HEART_RATE_VARIABILITY'
+  | 'android.permission.health.WRITE_HEART_RATE_VARIABILITY'
   /**
    * Read data older than ~30 days before first grant.
    * Check `getFeatureStatus('readHealthDataHistory')` first.
@@ -168,6 +200,46 @@ export const Permission = {
   READ_ACTIVITY_INTENSITY: 'android.permission.health.READ_ACTIVITY_INTENSITY',
   WRITE_ACTIVITY_INTENSITY:
     'android.permission.health.WRITE_ACTIVITY_INTENSITY',
+  READ_NUTRITION: 'android.permission.health.READ_NUTRITION',
+  WRITE_NUTRITION: 'android.permission.health.WRITE_NUTRITION',
+  READ_VO2_MAX: 'android.permission.health.READ_VO2_MAX',
+  WRITE_VO2_MAX: 'android.permission.health.WRITE_VO2_MAX',
+  READ_SPEED: 'android.permission.health.READ_SPEED',
+  WRITE_SPEED: 'android.permission.health.WRITE_SPEED',
+  READ_POWER: 'android.permission.health.READ_POWER',
+  WRITE_POWER: 'android.permission.health.WRITE_POWER',
+  READ_WHEELCHAIR_PUSHES: 'android.permission.health.READ_WHEELCHAIR_PUSHES',
+  WRITE_WHEELCHAIR_PUSHES: 'android.permission.health.WRITE_WHEELCHAIR_PUSHES',
+  READ_MENSTRUATION: 'android.permission.health.READ_MENSTRUATION',
+  WRITE_MENSTRUATION: 'android.permission.health.WRITE_MENSTRUATION',
+  READ_OVULATION_TEST: 'android.permission.health.READ_OVULATION_TEST',
+  WRITE_OVULATION_TEST: 'android.permission.health.WRITE_OVULATION_TEST',
+  READ_CERVICAL_MUCUS: 'android.permission.health.READ_CERVICAL_MUCUS',
+  WRITE_CERVICAL_MUCUS: 'android.permission.health.WRITE_CERVICAL_MUCUS',
+  READ_INTERMENSTRUAL_BLEEDING:
+    'android.permission.health.READ_INTERMENSTRUAL_BLEEDING',
+  WRITE_INTERMENSTRUAL_BLEEDING:
+    'android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING',
+  READ_SEXUAL_ACTIVITY: 'android.permission.health.READ_SEXUAL_ACTIVITY',
+  WRITE_SEXUAL_ACTIVITY: 'android.permission.health.WRITE_SEXUAL_ACTIVITY',
+  READ_BASAL_BODY_TEMPERATURE:
+    'android.permission.health.READ_BASAL_BODY_TEMPERATURE',
+  WRITE_BASAL_BODY_TEMPERATURE:
+    'android.permission.health.WRITE_BASAL_BODY_TEMPERATURE',
+  READ_LEAN_BODY_MASS: 'android.permission.health.READ_LEAN_BODY_MASS',
+  WRITE_LEAN_BODY_MASS: 'android.permission.health.WRITE_LEAN_BODY_MASS',
+  READ_BONE_MASS: 'android.permission.health.READ_BONE_MASS',
+  WRITE_BONE_MASS: 'android.permission.health.WRITE_BONE_MASS',
+  READ_BODY_WATER_MASS: 'android.permission.health.READ_BODY_WATER_MASS',
+  WRITE_BODY_WATER_MASS: 'android.permission.health.WRITE_BODY_WATER_MASS',
+  READ_BASAL_METABOLIC_RATE:
+    'android.permission.health.READ_BASAL_METABOLIC_RATE',
+  WRITE_BASAL_METABOLIC_RATE:
+    'android.permission.health.WRITE_BASAL_METABOLIC_RATE',
+  READ_HEART_RATE_VARIABILITY:
+    'android.permission.health.READ_HEART_RATE_VARIABILITY',
+  WRITE_HEART_RATE_VARIABILITY:
+    'android.permission.health.WRITE_HEART_RATE_VARIABILITY',
   READ_HEALTH_DATA_HISTORY:
     'android.permission.health.READ_HEALTH_DATA_HISTORY',
   READ_HEALTH_DATA_IN_BACKGROUND:
@@ -270,7 +342,14 @@ export type AggregateRecordType =
   | 'SleepSession'
   | 'BloodPressure'
   | 'MindfulnessSession'
-  | 'ActivityIntensity';
+  | 'ActivityIntensity'
+  | 'Nutrition'
+  | 'Speed'
+  | 'Power'
+  | 'StepsCadence'
+  | 'CyclingPedalingCadence'
+  | 'WheelchairPushes'
+  | 'BasalMetabolicRate';
 
 export type EnergyResult = {
   inKilocalories: number;
@@ -301,6 +380,17 @@ export type PressureResult = {
 
 export type DurationResult = {
   inSeconds: number;
+};
+
+export type VelocityResult = {
+  inMetersPerSecond: number;
+  inKilometersPerHour: number;
+  inMilesPerHour: number;
+};
+
+export type PowerResult = {
+  inWatts: number;
+  inKilocaloriesPerDay: number;
 };
 
 export type AggregateRequest = {
@@ -339,6 +429,8 @@ export type AggregateMetricValue =
   | VolumeResult
   | PressureResult
   | DurationResult
+  | VelocityResult
+  | PowerResult
   | null;
 
 export type AggregateResult = {
@@ -692,6 +784,254 @@ export type ActivityIntensityRecord = {
   metadata?: RecordMetadata;
 };
 
+/**
+ * Nutrient masses are grams; `energy` and `energyFromFat` are kilocalories.
+ */
+export type NutritionRecord = {
+  recordType: 'Nutrition';
+  biotin?: number | null;
+  caffeine?: number | null;
+  calcium?: number | null;
+  energy?: number | null;
+  energyFromFat?: number | null;
+  chloride?: number | null;
+  cholesterol?: number | null;
+  chromium?: number | null;
+  copper?: number | null;
+  dietaryFiber?: number | null;
+  folate?: number | null;
+  folicAcid?: number | null;
+  iodine?: number | null;
+  iron?: number | null;
+  magnesium?: number | null;
+  manganese?: number | null;
+  molybdenum?: number | null;
+  monounsaturatedFat?: number | null;
+  niacin?: number | null;
+  pantothenicAcid?: number | null;
+  phosphorus?: number | null;
+  polyunsaturatedFat?: number | null;
+  potassium?: number | null;
+  protein?: number | null;
+  riboflavin?: number | null;
+  saturatedFat?: number | null;
+  selenium?: number | null;
+  sodium?: number | null;
+  sugar?: number | null;
+  thiamin?: number | null;
+  totalCarbohydrate?: number | null;
+  totalFat?: number | null;
+  transFat?: number | null;
+  unsaturatedFat?: number | null;
+  vitaminA?: number | null;
+  vitaminB12?: number | null;
+  vitaminB6?: number | null;
+  vitaminC?: number | null;
+  vitaminD?: number | null;
+  vitaminE?: number | null;
+  vitaminK?: number | null;
+  zinc?: number | null;
+  name?: string | null;
+  /** MealType.MEAL_TYPE_* constant. */
+  mealType?: number;
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type Vo2MaxRecord = {
+  recordType: 'Vo2Max';
+  vo2MillilitersPerMinuteKilogram: number;
+  /** Vo2MaxRecord.MEASUREMENT_METHOD_* constant (0–5). */
+  measurementMethod?: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type SpeedSample = {
+  time: string;
+  metersPerSecond: number;
+};
+
+export type SpeedRecord = {
+  recordType: 'Speed';
+  samples: SpeedSample[];
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type PowerSample = {
+  time: string;
+  watts: number;
+};
+
+export type PowerRecord = {
+  recordType: 'Power';
+  samples: PowerSample[];
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type StepsCadenceSample = {
+  time: string;
+  /** Steps per minute. */
+  rate: number;
+};
+
+export type StepsCadenceRecord = {
+  recordType: 'StepsCadence';
+  samples: StepsCadenceSample[];
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type CyclingPedalingCadenceSample = {
+  time: string;
+  revolutionsPerMinute: number;
+};
+
+export type CyclingPedalingCadenceRecord = {
+  recordType: 'CyclingPedalingCadence';
+  samples: CyclingPedalingCadenceSample[];
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type WheelchairPushesRecord = {
+  recordType: 'WheelchairPushes';
+  count: number;
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type MenstruationFlowRecord = {
+  recordType: 'MenstruationFlow';
+  /** MenstruationFlowRecord.FLOW_* constant (0–3). */
+  flow?: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type MenstruationPeriodRecord = {
+  recordType: 'MenstruationPeriod';
+  startTime: string;
+  endTime: string;
+  startZoneOffset?: string;
+  endZoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type OvulationTestRecord = {
+  recordType: 'OvulationTest';
+  /** OvulationTestRecord.RESULT_* constant (0–3). */
+  result: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type CervicalMucusRecord = {
+  recordType: 'CervicalMucus';
+  /** CervicalMucusRecord.APPEARANCE_* constant (0–6). */
+  appearance?: number;
+  /** CervicalMucusRecord.SENSATION_* constant (0–3). */
+  sensation?: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type IntermenstrualBleedingRecord = {
+  recordType: 'IntermenstrualBleeding';
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type SexualActivityRecord = {
+  recordType: 'SexualActivity';
+  /** SexualActivityRecord.PROTECTION_USED_* constant (0–2). */
+  protectionUsed?: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type BasalBodyTemperatureRecord = {
+  recordType: 'BasalBodyTemperature';
+  /** Celsius. */
+  temperature: number;
+  /** BodyTemperatureMeasurementLocation constant. */
+  measurementLocation?: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type LeanBodyMassRecord = {
+  recordType: 'LeanBodyMass';
+  /** Kilograms. */
+  mass: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type BoneMassRecord = {
+  recordType: 'BoneMass';
+  /** Kilograms. */
+  mass: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type BodyWaterMassRecord = {
+  recordType: 'BodyWaterMass';
+  /** Kilograms. */
+  mass: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type BasalMetabolicRateRecord = {
+  recordType: 'BasalMetabolicRate';
+  /** Kilocalories per day. */
+  basalMetabolicRate: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
+export type HeartRateVariabilityRmssdRecord = {
+  recordType: 'HeartRateVariabilityRmssd';
+  /** RMSSD in milliseconds. */
+  heartRateVariabilityMillis: number;
+  time: string;
+  zoneOffset?: string;
+  metadata?: RecordMetadata;
+};
+
 /** Requires `getFeatureStatus('plannedExercise') === 'available'`. */
 export type ExerciseCompletionGoal =
   | { type: 'Distance'; distance: number }
@@ -777,6 +1117,25 @@ export type HealthRecord =
   | MindfulnessSessionRecord
   | SkinTemperatureRecord
   | ActivityIntensityRecord
+  | NutritionRecord
+  | Vo2MaxRecord
+  | SpeedRecord
+  | PowerRecord
+  | StepsCadenceRecord
+  | CyclingPedalingCadenceRecord
+  | WheelchairPushesRecord
+  | MenstruationFlowRecord
+  | MenstruationPeriodRecord
+  | OvulationTestRecord
+  | CervicalMucusRecord
+  | IntermenstrualBleedingRecord
+  | SexualActivityRecord
+  | BasalBodyTemperatureRecord
+  | LeanBodyMassRecord
+  | BoneMassRecord
+  | BodyWaterMassRecord
+  | BasalMetabolicRateRecord
+  | HeartRateVariabilityRmssdRecord
   | PlannedExerciseSessionRecord;
 
 export type RecordType = HealthRecord['recordType'];
