@@ -57,6 +57,30 @@ document.querySelectorAll('[data-tabs]').forEach((root) => {
   });
 });
 
+const menuBtn = document.querySelector('[data-menu]');
+const mobileNav = document.querySelector('[data-mobile-nav]');
+if (menuBtn && mobileNav) {
+  const sync = (open) => {
+    menuBtn.setAttribute('aria-expanded', String(open));
+    mobileNav.hidden = !open;
+    menuBtn.textContent = open ? 'Close' : 'Menu';
+  };
+  menuBtn.addEventListener('click', () => {
+    sync(menuBtn.getAttribute('aria-expanded') !== 'true');
+  });
+  mobileNav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => sync(false));
+  });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') sync(false);
+  });
+  window
+    .matchMedia('(min-width: 901px)')
+    .addEventListener('change', (event) => {
+      if (event.matches) sync(false);
+    });
+}
+
 document.querySelectorAll('[data-copy]').forEach((button) => {
   button.addEventListener('click', async () => {
     const source =
