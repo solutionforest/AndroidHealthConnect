@@ -50,7 +50,7 @@ Pick a line by Android toolchain (HC SDK / AGP), not by RN major:
 
 | Package | RN | Node | `connect-client` | Min AGP | compileSdk | Branch / tag |
 |---|---|---|---|---|---|---|
-| **[`0.3.14`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.14)** (default) | **≥0.84** | **≥22.11** | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
+| **[`0.3.14`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.14)** (default) | **≥0.84** | **≥22.22** | **`1.2.0-alpha06`** | **9.1.0** | **37** | `main` |
 | **[`0.2.4`](https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.2.4)** (maintenance) | **≥0.84** | **≥22.11** | **`1.1.0`** (stable) | **8.9.1** | **36** | [`release/0.2.x`](https://github.com/solutionforest/AndroidHealthConnect/tree/release/0.2.x) |
 
 ```sh
@@ -71,7 +71,7 @@ yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSd
 | Android OS | 10 (API 29)+ |
 | Health Connect app | Required on Android 9–13; built-in on Android 14+ |
 | React Native | **≥0.84** (New Architecture / TurboModules) — not 0.6x / 0.7x |
-| Node.js | ≥22.11 |
+| Node.js | ≥22.22 |
 | Expo (optional) | SDK 50+ |
 
 ### Health Connect SDK changelog (context)

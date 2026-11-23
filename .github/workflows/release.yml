@@ -51,11 +51,10 @@ jobs:
         run: |
           set -euo pipefail
           # Trusted Publishing needs npm ≥ 11.5.1 and Node ≥ 22.14.
-          # Pin npm@11: npm@12 requires Node ^22.22.2 (our .nvmrc is 22.20.0).
-          npm install -g npm@11
+          # .nvmrc is ≥22.22.2 so npm@latest (12+) is installable.
+          npm install -g npm@latest
           node -v
           npm -v
-          # Fail fast if the installed CLI is too old for OIDC publish
           node -e "const [maj,min]=require('child_process').execSync('npm -v').toString().trim().split('.').map(Number); if(maj<11||(maj===11&&min<5)) process.exit(1)"
 
       - name: Resolve version
