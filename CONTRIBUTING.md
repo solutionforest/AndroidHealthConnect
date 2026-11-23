@@ -101,7 +101,7 @@ for publish).
 mirror (`npm.pkg.github.com`).
 
 Tag `v*` on `main` to trigger Release — the tag **must** match `package.json`
-(`v0.3.13` ↔ `"version": "0.3.13"`).
+(`v0.3.14` ↔ `"version": "0.3.14"`).
 
 We use [release-it](https://github.com/release-it/release-it) for version bumps locally when needed:
 
