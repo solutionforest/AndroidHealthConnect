@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Install — android-health-connect</title>
+    <meta
+      name="description"
+      content="Install @solutionforest/android-health-connect from npmjs.org or GitHub Packages."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/logo.jpg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <span>android-health-connect</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="./install.html" aria-current="page">Install</a>
+          <a href="./getting-started.html">Getting started</a>
+          <a href="./api.html">API</a>
+          <a href="./llms.txt">llms.txt</a>
+          <a href="./skills.md">skills.md</a>
+          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-hero">
+        <div class="wrap">
+          <h1>Install</h1>
+          <p>
+            Same package name on both registries:
+            <code>@solutionforest/android-health-connect</code>. Prefer npmjs unless
+            your org already consumes GitHub Packages.
+          </p>
+        </div>
+      </div>
+
+      <div class="content wrap">
+        <h2 id="npmjs">npmjs.org (primary)</h2>
+        <p>
+          No <code>.npmrc</code> required. Published via GitHub Actions Trusted
+          Publishing (OIDC).
+        </p>
+        <pre><code># Default 0.3.x — connect-client 1.2.0-alpha06 (AGP 9.1+ / compileSdk 37)
+yarn add @solutionforest/android-health-connect@0.3.14
+# or
+npm install @solutionforest/android-health-connect@0.3.14
+
+# Maintenance 0.2.x — connect-client 1.1.0 stable (AGP 8.9.1+ / compileSdk 36)
+yarn add @solutionforest/android-health-connect@release-0.2</code></pre>
+        <p>
+          Package page:
+          <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect"
+            >npmjs.com/package/@solutionforest/android-health-connect</a
+          >
+        </p>
+
+        <h2 id="github-packages">GitHub Packages (mirror)</h2>
+        <p>
+          Point the <code>@solutionforest</code> scope at
+          <code>npm.pkg.github.com</code>. Use a classic PAT with
+          <code>read:packages</code> (SSO-authorize for the
+          <code>solutionforest</code> org if required).
+        </p>
+        <pre><code># .npmrc
+@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT</code></pre>
+        <pre><code>yarn add @solutionforest/android-health-connect@0.3.14</code></pre>
+        <p>
+          Also available as a GitHub Release
+          <code>.tgz</code> (with SPDX SBOM + attestations):
+          <a href="https://github.com/solutionforest/AndroidHealthConnect/releases"
+            >Releases</a
+          >.
+        </p>
+
+        <h2>Requirements (0.3.x)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>React Native</td>
+                <td>≥0.84 (New Architecture / TurboModules)</td>
+              </tr>
+              <tr>
+                <td>Node.js</td>
+                <td>≥22.22</td>
+              </tr>
+              <tr>
+                <td>AGP / Gradle</td>
+                <td>9.1.0+ / 9.3.1+</td>
+              </tr>
+              <tr>
+                <td>compileSdk</td>
+                <td>37</td>
+              </tr>
+              <tr>
+                <td>Android OS</td>
+                <td>API 29+ (Health Connect app on 9–13; built-in on 14+)</td>
+              </tr>
+              <tr>
+                <td>Platform</td>
+                <td>Android only — no iOS implementation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Alternatives</h2>
+        <ul>
+          <li>
+            Git:
+            <code>solutionforest/AndroidHealthConnect#v0.3.14</code>
+          </li>
+          <li>Download the Release <code>.tgz</code> and install from path</li>
+        </ul>
+
+        <p>
+          Next:
+          <a href="./getting-started.html">Getting started</a>
+          ·
+          <a href="./api.html">API</a>
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>MIT · Solution Forest</span>
+        <a href="./index.html">Home</a>
+      </div>
+    </footer>
+  </body>
+</html>

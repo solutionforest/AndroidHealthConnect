@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Docs site (GitHub Pages): install for **npmjs + GitHub Packages**, getting
+  started, API overview, plus repo `llms.txt` and `skills.md` for agents.
+
 ## [0.3.14] - 2026-11-23
 
 ### Changed

@@ -31,6 +31,8 @@
     "LICENSE",
     "CHANGELOG.md",
     "SECURITY.md",
+    "llms.txt",
+    "skills.md",
     "!ios/build",
     "!android/build",
     "!android/src/test",
@@ -78,7 +80,7 @@
   "bugs": {
     "url": "https://github.com/solutionforest/AndroidHealthConnect/issues"
   },
-  "homepage": "https://github.com/solutionforest/AndroidHealthConnect#readme",
+  "homepage": "https://solutionforest.github.io/AndroidHealthConnect/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"

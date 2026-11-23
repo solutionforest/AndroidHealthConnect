@@ -1,0 +1,66 @@
+# @solutionforest/android-health-connect
+
+> React Native TurboModule for Android Health Connect (API 29+). Android only — no iOS. Requires RN 0.84+ New Architecture.
+
+Package: `@solutionforest/android-health-connect`
+Repo: https://github.com/solutionforest/AndroidHealthConnect
+Docs site: https://solutionforest.github.io/AndroidHealthConnect/
+
+## Install (both registries)
+
+### npmjs.org (primary)
+
+```
+yarn add @solutionforest/android-health-connect
+npm install @solutionforest/android-health-connect
+```
+
+No `.npmrc` needed. Published via GitHub Actions Trusted Publishing (OIDC).
+
+### GitHub Packages (mirror)
+
+```
+# .npmrc
+@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
+```
+
+```
+yarn add @solutionforest/android-health-connect
+```
+
+PAT needs `read:packages` (SSO-authorize for `solutionforest` if required). Release `.tgz` + SBOM also on GitHub Releases.
+
+### Lines
+
+- `0.3.x` (default): connect-client `1.2.0-alpha06`, AGP ≥9.1, compileSdk 37, Node ≥22.22
+- `0.2.x` / tag `release-0.2`: connect-client `1.1.0` stable, AGP ≥8.9.1, compileSdk 36
+
+## Docs
+
+- [Docs home](https://solutionforest.github.io/AndroidHealthConnect/)
+- [Install (npmjs + GitHub Packages)](https://solutionforest.github.io/AndroidHealthConnect/install.html)
+- [Getting started](https://solutionforest.github.io/AndroidHealthConnect/getting-started.html)
+- [API reference](https://solutionforest.github.io/AndroidHealthConnect/api.html)
+- [Agent skill](https://solutionforest.github.io/AndroidHealthConnect/skills.md)
+- [README](https://github.com/solutionforest/AndroidHealthConnect/blob/main/README.md)
+- [CHANGELOG](https://github.com/solutionforest/AndroidHealthConnect/blob/main/CHANGELOG.md)
+- [SECURITY](https://github.com/solutionforest/AndroidHealthConnect/blob/main/SECURITY.md)
+
+## Hard constraints for agents
+
+- Do not invent APIs — use exported functions/types from the package (see `src/index.tsx` / published `.d.ts`).
+- Prefer `Permission.*` constants over hand-typed permission strings.
+- Health Connect has no push observer; first read/aggregate after resume is often empty/`0` — use `useForegroundPoll`, `pollOnForeground`, or `pollUntil`.
+- Feature-gated types need `getFeatureStatus(...) === 'available'` before use.
+- Expo: config plugin + `npx expo prebuild`. Bare RN: host manifest permissions + rationale.
+
+## Canonical flows
+
+1. `getHealthConnectAvailability` / `ensureAvailable`
+2. `ensurePermissions([Permission.ReadSteps, ...])`
+3. `readRecords` / typed helpers (`readSteps`, …) with `timeRangeToday` / `timeRangeLastDays`
+4. `writeRecords` / `updateRecords` (`metadata.id` required for update)
+5. Aggregates: `aggregateRecord`, `aggregateGroupByDuration`, `aggregateGroupByPeriod`
+6. Changelog: `getChangesToken` → `getChanges` / `pullChanges` (~30-day tokens)
+7. Matchmaking / PHR when features are available

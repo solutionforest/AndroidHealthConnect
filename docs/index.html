@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>android-health-connect — React Native Health Connect</title>
+    <meta
+      name="description"
+      content="React Native TurboModule for Android Health Connect. Install from npmjs or GitHub Packages."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/logo.jpg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <span>android-health-connect</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="./install.html">Install</a>
+          <a href="./getting-started.html">Getting started</a>
+          <a href="./api.html">API</a>
+          <a href="./llms.txt">llms.txt</a>
+          <a href="./skills.md">skills.md</a>
+          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <div class="hero__brand">
+            <img src="./assets/logo.jpg" width="88" height="88" alt="android-health-connect" />
+            <p class="hero__name">android-health-connect</p>
+          </div>
+          <h1>Health Connect for React Native, without the maze.</h1>
+          <p class="lede">
+            TurboModule for Android Health Connect — permissions, 42 record types,
+            aggregates, changelog sync, Matchmaking, and PHR helpers. Android only.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn--primary" href="./install.html#npmjs">Install from npmjs</a>
+            <a class="btn btn--ghost" href="./install.html#github-packages">GitHub Packages</a>
+          </div>
+          <div class="quick-links">
+            <a href="./getting-started.html">Getting started</a>
+            <a href="./api.html">API reference</a>
+            <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm package</a>
+            <a href="./llms.txt">llms.txt</a>
+            <a href="./skills.md">skills.md</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2>Two registries, one package</h2>
+          <p class="section-lede">
+            Publish once via OIDC; consume from either registry. Same scoped name:
+            <code>@solutionforest/android-health-connect</code>.
+          </p>
+          <div class="grid-2">
+            <article class="panel">
+              <span class="badge">Primary</span>
+              <h3>npmjs.org</h3>
+              <p>No <code>.npmrc</code>. Trusted Publishing from GitHub Actions.</p>
+              <pre><code>yarn add @solutionforest/android-health-connect</code></pre>
+            </article>
+            <article class="panel">
+              <span class="badge">Mirror</span>
+              <h3>GitHub Packages</h3>
+              <p>Scope registry + <code>read:packages</code> PAT. Release <code>.tgz</code> + SBOM too.</p>
+              <pre><code>@solutionforest:registry=https://npm.pkg.github.com</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2>Built for real devices</h2>
+          <p class="section-lede">
+            Health Connect has no push stream. On resume the first aggregate is often
+            <code>0</code> until vendor apps finish writing — use
+            <code>useForegroundPoll</code> / <code>pollUntil</code>.
+          </p>
+          <pre><code>import {
+  Permission,
+  ensurePermissions,
+  readSteps,
+  timeRangeToday,
+  useForegroundPoll,
+} from '@solutionforest/android-health-connect';
+
+const { value } = useForegroundPoll(
+  () => readSteps({ timeRangeFilter: timeRangeToday() }),
+  { ready: (r) => (r.records?.length ?? 0) > 0 },
+);</code></pre>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>MIT · Solution Forest · RN 0.84+ New Architecture</span>
+        <span>
+          <a href="https://github.com/solutionforest/AndroidHealthConnect">Source</a>
+          ·
+          <a href="./skills.md">Agent skill</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

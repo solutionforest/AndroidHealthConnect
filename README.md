@@ -19,6 +19,8 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 > **Android only.** This library has no iOS implementation.
 
+**Docs site:** [solutionforest.github.io/AndroidHealthConnect](https://solutionforest.github.io/AndroidHealthConnect/) · [llms.txt](./llms.txt) · [skills.md](./skills.md)
+
 **Quality** (since 0.3.6): max-strict TypeScript · type-aware ESLint · Jest coverage gates · Kotlin `allWarningsAsErrors` · CI fails on drop. Security model: [SECURITY.md](./SECURITY.md).
 
 ## Support
@@ -92,12 +94,14 @@ JS API: [42 record types](#supported-record-types), feature checks, Matchmaking,
 
 ## Installation
 
-| Registry | Notes |
-|---|---|
-| **[npmjs.org](https://www.npmjs.com/package/@solutionforest/android-health-connect)** | **Primary** — `yarn add` / `npm i` with no `.npmrc` |
-| **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** | Mirror (`npm.pkg.github.com`) + Release `.tgz` (SBOM / attestations) |
+Same scoped name on **both** registries: `@solutionforest/android-health-connect`. Full dual-registry guide: [docs site → Install](https://solutionforest.github.io/AndroidHealthConnect/install.html).
 
-### Install the package
+| Registry | Role | How |
+|---|---|---|
+| **[npmjs.org](https://www.npmjs.com/package/@solutionforest/android-health-connect)** | **Primary** | `yarn add` / `npm i` — no `.npmrc` |
+| **[GitHub Packages](https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect)** | **Mirror** + Release `.tgz` (SBOM / attestations) | Scope `@solutionforest` → `npm.pkg.github.com` + PAT (`read:packages`) |
+
+### npmjs.org (primary)
 
 ```sh
 # Default (0.3.x): connect-client 1.2.0-alpha06 — needs AGP 9.1+ / compileSdk 37
@@ -109,12 +113,7 @@ npm install @solutionforest/android-health-connect@0.3.14
 yarn add @solutionforest/android-health-connect@release-0.2
 ```
 
-Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.14`) or download the Release `.tgz`.
-
-Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, publishes to **npmjs.org** via Trusted Publishing (OIDC), and mirrors to GitHub Packages.
-
-<details>
-<summary>Optional: install from GitHub Packages instead</summary>
+### GitHub Packages (mirror)
 
 ```ini
 # .npmrc
@@ -122,9 +121,15 @@ Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the G
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT
 ```
 
+```sh
+yarn add @solutionforest/android-health-connect@0.3.14
+```
+
 Use a classic PAT with `read:packages` (SSO-authorize for `solutionforest` if required).
 
-</details>
+Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.14`) or download the Release `.tgz`.
+
+Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, publishes to **npmjs.org** via Trusted Publishing (OIDC), and mirrors to GitHub Packages.
 
 ### Expo setup
 

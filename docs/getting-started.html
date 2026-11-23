@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Getting started — android-health-connect</title>
+    <meta
+      name="description"
+      content="First Health Connect flow: availability, permissions, read steps, resume polling."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/logo.jpg" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <span>android-health-connect</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="./install.html">Install</a>
+          <a href="./getting-started.html" aria-current="page">Getting started</a>
+          <a href="./api.html">API</a>
+          <a href="./llms.txt">llms.txt</a>
+          <a href="./skills.md">skills.md</a>
+          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="page-hero">
+        <div class="wrap">
+          <h1>Getting started</h1>
+          <p>
+            After
+            <a href="./install.html">install</a>
+            from npmjs or GitHub Packages, wire availability → permissions → read.
+          </p>
+        </div>
+      </div>
+
+      <div class="content wrap">
+        <h2>1. Check availability</h2>
+        <pre><code>import {
+  getHealthConnectAvailability,
+  openHealthConnectApp,
+} from '@solutionforest/android-health-connect';
+
+const info = await getHealthConnectAvailability();
+if (info.availability !== 'installed') {
+  openHealthConnectApp(); // opens HC or Play Store
+}</code></pre>
+
+        <h2>2. Request permissions</h2>
+        <p>
+          Prefer typed <code>Permission.*</code> constants over hand-typed strings.
+        </p>
+        <pre><code>import {
+  Permission,
+  ensurePermissions,
+} from '@solutionforest/android-health-connect';
+
+const { granted, missing } = await ensurePermissions([
+  Permission.ReadSteps,
+  Permission.WriteSteps,
+]);</code></pre>
+
+        <h2>3. Read records</h2>
+        <pre><code>import {
+  readSteps,
+  timeRangeToday,
+} from '@solutionforest/android-health-connect';
+
+const page = await readSteps({
+  timeRangeFilter: timeRangeToday(),
+});</code></pre>
+
+        <h2>4. Poll on resume (first value often 0)</h2>
+        <p>
+          Health Connect has no push observer. After the app resumes, the first
+          aggregate/read is frequently empty until Samsung Health / Fitbit / etc.
+          finish syncing. Use <code>useForegroundPoll</code> (or
+          <code>pollUntil</code>).
+        </p>
+        <pre><code>import {
+  readSteps,
+  timeRangeToday,
+  useForegroundPoll,
+} from '@solutionforest/android-health-connect';
+
+const { value, loading, refresh } = useForegroundPoll(
+  () => readSteps({ timeRangeFilter: timeRangeToday() }),
+  {
+    ready: (r) => (r.records?.length ?? 0) > 0,
+    timeoutMs: 15_000,
+  },
+);</code></pre>
+
+        <h2>Expo</h2>
+        <p>SDK 50+ — add the config plugin, then <code>npx expo prebuild</code>:</p>
+        <pre><code>{
+  "expo": {
+    "plugins": [
+      [
+        "@solutionforest/android-health-connect",
+        {
+          "permissions": [
+            "android.permission.health.READ_STEPS",
+            "android.permission.health.WRITE_STEPS"
+          ]
+        }
+      ]
+    ]
+  }
+}</code></pre>
+
+        <h2>Bare React Native</h2>
+        <ol>
+          <li>
+            Declare the same health permissions in the host
+            <code>AndroidManifest.xml</code>.
+          </li>
+          <li>
+            Add the Health Connect rationale activity / intent-filters (see repo
+            README).
+          </li>
+          <li>Match AGP / compileSdk to the package line you installed (0.3 vs 0.2).</li>
+        </ol>
+
+        <p>
+          Full API tables:
+          <a href="./api.html">API reference</a>
+          · agent notes:
+          <a href="./skills.md">skills.md</a>
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>MIT · Solution Forest</span>
+        <a href="./index.html">Home</a>
+      </div>
+    </footer>
+  </body>
+</html>
