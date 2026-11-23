@@ -100,13 +100,59 @@ Our pre-commit hooks verify that your commit message matches this format when co
 Release workflow (`npm publish --provenance`).
 
 Tag `v*` on `main` to trigger Release — the tag **must** match `package.json`
-(`v0.3.10` ↔ `"version": "0.3.10"`).
+(`v0.3.12` ↔ `"version": "0.3.12"`).
 
 We use [release-it](https://github.com/release-it/release-it) for version bumps locally when needed:
 
 ```sh
 yarn release
 ```
+
+#### Setup npmjs.org mirror (one-time)
+
+The Release workflow already publishes to npmjs when `secrets.NPM_TOKEN` is
+non-empty. As of this writing the `@solutionforest` **npm org does not exist
+yet**, so create it before the first mirror publish.
+
+1. **Create the npm org / claim the scope**  
+   Sign in at [npmjs.com](https://www.npmjs.com/) with an account that should
+   own `@solutionforest`.  
+   Create org: https://www.npmjs.com/org/create  
+   Use name **`solutionforest`** (must match the package scope).  
+   Public packages are enough — no paid plan required for a public mirror.
+
+2. **Create an automation token** (not a classic publish token tied to 2FA
+   prompts)  
+   Org → **Access Tokens** → **Generate New Token** → type **Automation**  
+   Or: https://www.npmjs.com/settings/~/tokens → **Generate New Token** →
+   **Automation**, with publish rights on `@solutionforest`.  
+   Copy the token once (it is shown only at creation).
+
+3. **Add the GitHub Actions secret** (repo or org):
+
+   ```sh
+   # from a local clone; paste the token when prompted
+   gh secret set NPM_TOKEN --repo solutionforest/AndroidHealthConnect
+   ```
+
+   Or UI:  
+   https://github.com/solutionforest/AndroidHealthConnect/settings/secrets/actions  
+   → **New repository secret** → name `NPM_TOKEN` → paste token.
+
+4. **Publish** — push a matching `v*` tag (or re-run the Release workflow on an
+   existing tag). The “Publish to npmjs.org (optional mirror)” step runs
+   `npm publish --provenance --access public`.  
+   First publish creates  
+   https://www.npmjs.com/package/@solutionforest/android-health-connect
+
+5. **Verify**
+
+   ```sh
+   npm view @solutionforest/android-health-connect version
+   ```
+
+If the npmjs step is still skipped, the secret is missing or empty in the
+Actions environment (check the Release job log for that step being skipped).
 
 ### Quality gates (required)
 
