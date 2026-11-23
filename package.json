@@ -31,7 +31,6 @@
     "LICENSE",
     "CHANGELOG.md",
     "SECURITY.md",
-    "llms.txt",
     "skills.md",
     "!ios/build",
     "!android/build",

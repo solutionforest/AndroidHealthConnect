@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Record types — android-health-connect</title>
+    <meta
+      name="description"
+      content="All 42 Health Connect record types supported by @solutionforest/android-health-connect, with read helpers and feature gates."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/logo.jpg" />
+    <script src="./site.js" defer></script>
+  </head>
+  <body>
+    <header class="band band--header">
+      <div class="shell header">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo.jpg" alt="" />
+          <span>android-health-connect</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="./install.html">Install</a>
+          <a href="./getting-started.html">Quickstart</a>
+          <a href="./guides.html">Guides</a>
+          <a href="./records.html" aria-current="page">Records</a>
+          <a href="./api.html">API</a>
+          <a href="./index.html#agents">AI agents</a>
+        </nav>
+        <div class="header__actions">
+          <a class="btn btn--sm" href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a>
+          <a class="btn btn--sm btn--dark" href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="band">
+        <div class="shell page-head">
+          <span class="label">Docs · Reference</span>
+          <h1>Record types</h1>
+          <p>
+            All 42 Health Connect record types can be read and written. Each has a typed
+            read helper; you can also use <code>readRecords('Type', options)</code>.
+          </p>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="shell docs">
+          <aside class="docs__nav">
+            <nav aria-label="Docs">
+              <h4>Docs</h4>
+              <a href="./install.html">Install</a>
+              <a href="./getting-started.html">Quickstart</a>
+              <a href="./guides.html">Guides</a>
+              <a href="./records.html" aria-current="page">Record types</a>
+              <a href="./api.html">API reference</a>
+              <h4>On this page</h4>
+              <a href="#types">All types</a>
+              <a href="#usage">Read and write any type</a>
+            </nav>
+          </aside>
+
+          <article class="prose">
+            <section id="types">
+              <h2><span class="step">42</span>All types<a class="anchor" href="#types">#</a></h2>
+              <p>
+                Types marked "Needs feature" require
+                <code>getFeatureStatus(key) === 'available'</code> first. Each type also needs its matching <code>Permission.READ_*</code> /
+                <code>Permission.WRITE_*</code>.
+              </p>
+              <label class="filter">
+                <input type="search" placeholder="Filter by type, helper, or note…" data-filter="#types tbody tr" aria-label="Filter record types" />
+                <span><b data-filter-count>42</b> / 42</span>
+              </label>
+              <div class="table table--ids">
+                <table>
+                  <thead><tr><th>Record type</th><th>Read helper</th><th>Notes</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>Steps</code></td><td><code>readSteps()</code></td><td>—</td></tr>
+                    <tr><td><code>HeartRate</code></td><td><code>readHeartRate()</code></td><td>—</td></tr>
+                    <tr><td><code>SleepSession</code></td><td><code>readSleepSessions()</code></td><td>—</td></tr>
+                    <tr><td><code>ActiveCaloriesBurned</code></td><td><code>readActiveCaloriesBurned()</code></td><td>—</td></tr>
+                    <tr><td><code>TotalCaloriesBurned</code></td><td><code>readTotalCaloriesBurned()</code></td><td>—</td></tr>
+                    <tr><td><code>Distance</code></td><td><code>readDistance()</code></td><td>—</td></tr>
+                    <tr><td><code>Weight</code></td><td><code>readWeight()</code></td><td>—</td></tr>
+                    <tr><td><code>Height</code></td><td><code>readHeight()</code></td><td>—</td></tr>
+                    <tr><td><code>BloodPressure</code></td><td><code>readBloodPressure()</code></td><td>—</td></tr>
+                    <tr><td><code>BloodGlucose</code></td><td><code>readBloodGlucose()</code></td><td>—</td></tr>
+                    <tr><td><code>OxygenSaturation</code></td><td><code>readOxygenSaturation()</code></td><td>—</td></tr>
+                    <tr><td><code>BodyTemperature</code></td><td><code>readBodyTemperature()</code></td><td>—</td></tr>
+                    <tr><td><code>BodyFat</code></td><td><code>readBodyFat()</code></td><td>—</td></tr>
+                    <tr><td><code>Hydration</code></td><td><code>readHydration()</code></td><td>—</td></tr>
+                    <tr><td><code>ExerciseSession</code></td><td><code>readExerciseSessions()</code></td><td>Optional <code>exerciseRoute</code>; RPE when <code>exerciseSessionImprovements</code></td></tr>
+                    <tr><td><code>PlannedExerciseSession</code></td><td><code>readPlannedExerciseSessions()</code></td><td>Needs feature <code>plannedExercise</code>. Blocks, steps, goals, targets</td></tr>
+                    <tr><td><code>RestingHeartRate</code></td><td><code>readRestingHeartRate()</code></td><td>—</td></tr>
+                    <tr><td><code>RespiratoryRate</code></td><td><code>readRespiratoryRate()</code></td><td>—</td></tr>
+                    <tr><td><code>FloorsClimbed</code></td><td><code>readFloorsClimbed()</code></td><td>—</td></tr>
+                    <tr><td><code>ElevationGained</code></td><td><code>readElevationGained()</code></td><td>—</td></tr>
+                    <tr><td><code>MindfulnessSession</code></td><td><code>readMindfulnessSessions()</code></td><td>Needs feature <code>mindfulnessSession</code></td></tr>
+                    <tr><td><code>SkinTemperature</code></td><td><code>readSkinTemperature()</code></td><td>Needs feature <code>skinTemperature</code></td></tr>
+                    <tr><td><code>ActivityIntensity</code></td><td><code>readActivityIntensity()</code></td><td>Needs feature <code>activityIntensity</code></td></tr>
+                    <tr><td><code>Nutrition</code></td><td><code>readNutrition()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>Vo2Max</code></td><td><code>readVo2Max()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>Speed</code></td><td><code>readSpeed()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>Power</code></td><td><code>readPower()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>StepsCadence</code></td><td><code>readStepsCadence()</code></td><td>Not yet tested on a real device; uses the steps permission</td></tr>
+                    <tr><td><code>CyclingPedalingCadence</code></td><td><code>readCyclingPedalingCadence()</code></td><td>Not yet tested on a real device; uses the exercise permission</td></tr>
+                    <tr><td><code>WheelchairPushes</code></td><td><code>readWheelchairPushes()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>MenstruationFlow</code></td><td><code>readMenstruationFlow()</code></td><td>Not yet tested on a real device; shares the menstruation permission</td></tr>
+                    <tr><td><code>MenstruationPeriod</code></td><td><code>readMenstruationPeriods()</code></td><td>Not yet tested on a real device; shares the menstruation permission</td></tr>
+                    <tr><td><code>OvulationTest</code></td><td><code>readOvulationTests()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>CervicalMucus</code></td><td><code>readCervicalMucus()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>IntermenstrualBleeding</code></td><td><code>readIntermenstrualBleeding()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>SexualActivity</code></td><td><code>readSexualActivity()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>BasalBodyTemperature</code></td><td><code>readBasalBodyTemperature()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>LeanBodyMass</code></td><td><code>readLeanBodyMass()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>BoneMass</code></td><td><code>readBoneMass()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>BodyWaterMass</code></td><td><code>readBodyWaterMass()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>BasalMetabolicRate</code></td><td><code>readBasalMetabolicRate()</code></td><td>Not yet tested on a real device</td></tr>
+                    <tr><td><code>HeartRateVariabilityRmssd</code></td><td><code>readHeartRateVariabilityRmssd()</code></td><td>Not yet tested on a real device</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="usage">
+              <h2><span class="step">→</span>Read and write any type<a class="anchor" href="#usage">#</a></h2>
+              <div class="code">
+                <div class="code__bar"><span>any-type.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  readRecords,
+  writeRecords,
+  getFeatureStatus,
+  timeRangeLastDays,
+} from '@solutionforest/android-health-connect';
+import type { HydrationRecord } from '@solutionforest/android-health-connect';
+
+const { records } = await readRecords&lt;HydrationRecord&gt;('Hydration', {
+  timeRangeFilter: timeRangeLastDays(7),
+});
+
+if ((await getFeatureStatus('skinTemperature')) === 'available') {
+  const skin = await readRecords('SkinTemperature', {
+    timeRangeFilter: timeRangeLastDays(7),
+  });
+}</code></pre>
+              </div>
+              <p>
+                Field shapes for every type ship as TypeScript types (for example
+                <code>StepsRecord</code>, <code>HeartRateRecord</code>). See the
+                <a href="./guides.html#write">write guide</a> for examples.
+              </p>
+            </section>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="band">
+      <div class="shell footer">
+        <div>
+          <a class="brand" href="./index.html">
+            <img src="./assets/logo.jpg" alt="" />
+            <span>android-health-connect</span>
+          </a>
+          <p>MIT licensed · Built by Solution Forest</p>
+        </div>
+        <div>
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="./install.html">Install</a></li>
+            <li><a href="./getting-started.html">Quickstart</a></li>
+            <li><a href="./guides.html">Guides</a></li>
+            <li><a href="./records.html">Record types</a></li>
+            <li><a href="./api.html">API reference</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Agents</h4>
+          <ul>
+            <li><a href="./index.html#agents">Install the skill</a></li>
+            <li><a href="./skills.md">skills.md</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a></li>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect/releases">Releases</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -19,7 +19,7 @@ A React Native library for integrating with [Android Health Connect](https://dev
 
 > **Android only.** This library has no iOS implementation.
 
-**Docs site:** [solutionforest.github.io/AndroidHealthConnect](https://solutionforest.github.io/AndroidHealthConnect/) · [llms.txt](./llms.txt) · [skills.md](./skills.md)
+**Docs site:** [solutionforest.github.io/AndroidHealthConnect](https://solutionforest.github.io/AndroidHealthConnect/) ([guides](https://solutionforest.github.io/AndroidHealthConnect/guides.html) · [record types](https://solutionforest.github.io/AndroidHealthConnect/records.html)) · **AI agent skill:** [skills.md](./skills.md) ([install it](#ai-agent-skill-skillsmd))
 
 **Quality** (since 0.3.6): max-strict TypeScript · type-aware ESLint · Jest coverage gates · Kotlin `allWarningsAsErrors` · CI fails on drop. Security model: [SECURITY.md](./SECURITY.md).
 
@@ -130,6 +130,43 @@ Use a classic PAT with `read:packages` (SSO-authorize for `solutionforest` if re
 Alternatives: install from git (`solutionforest/AndroidHealthConnect#v0.3.14`) or download the Release `.tgz`.
 
 Pushing a `v*` tag runs the **Release** workflow: packs `.tgz`, uploads to the GitHub Release, publishes to **npmjs.org** via Trusted Publishing (OIDC), and mirrors to GitHub Packages.
+
+### AI agent skill (`skills.md`)
+
+The package ships [`skills.md`](./skills.md): an agent skill that tells AI coding agents (Cursor, Claude Code, Codex, …) how to use this library correctly. It covers which version line to pick, the hard constraints (Android only, RN 0.84+ New Architecture), the availability → permissions → read order, and resume polling. Install it into your app repo so your agent follows it.
+
+Copy it from the installed package, so the skill always matches the version you installed:
+
+```sh
+# Cursor
+mkdir -p .cursor/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .cursor/skills/android-health-connect/SKILL.md
+
+# Claude Code
+mkdir -p .claude/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .claude/skills/android-health-connect/SKILL.md
+
+# Other agents (Codex, Gemini CLI, … — any tool that reads .agents/skills)
+mkdir -p .agents/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .agents/skills/android-health-connect/SKILL.md
+```
+
+Or download the latest from the docs site, before the package is installed:
+
+```sh
+curl -fsSL --create-dirs \
+  -o .cursor/skills/android-health-connect/SKILL.md \
+  https://solutionforest.github.io/AndroidHealthConnect/skills.md
+```
+
+Or paste this prompt into your agent:
+
+> Install the android-health-connect agent skill: download https://solutionforest.github.io/AndroidHealthConnect/skills.md and save it as `SKILL.md` in this project's skills folder (`.cursor/skills/android-health-connect/` for Cursor, `.claude/skills/android-health-connect/` for Claude Code, otherwise `.agents/skills/android-health-connect/`). Then follow it whenever you work with `@solutionforest/android-health-connect`.
+
+Commit the skill folder so the whole team's agents get it. Re-copy after upgrading the package.
 
 ### Expo setup
 

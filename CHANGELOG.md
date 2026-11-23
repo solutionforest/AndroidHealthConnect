@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Docs site (GitHub Pages): install for **npmjs + GitHub Packages**, getting
-  started, API overview, plus repo `llms.txt` and `skills.md` for agents.
+  started, API overview, plus an agent skill (`skills.md`) with install steps
+  for Cursor, Claude Code, and other agents.
 
 ## [0.3.14] - 2026-11-23
 

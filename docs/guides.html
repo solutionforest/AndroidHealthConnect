@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Guides — android-health-connect</title>
+    <meta
+      name="description"
+      content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, resume polling, exercise routes, Matchmaking, PHR."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/logo.jpg" />
+    <script src="./site.js" defer></script>
+  </head>
+  <body>
+    <header class="band band--header">
+      <div class="shell header">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo.jpg" alt="" />
+          <span>android-health-connect</span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="./install.html">Install</a>
+          <a href="./getting-started.html">Quickstart</a>
+          <a href="./guides.html" aria-current="page">Guides</a>
+          <a href="./records.html">Records</a>
+          <a href="./api.html">API</a>
+          <a href="./index.html#agents">AI agents</a>
+        </nav>
+        <div class="header__actions">
+          <a class="btn btn--sm" href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a>
+          <a class="btn btn--sm btn--dark" href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="band">
+        <div class="shell page-head">
+          <span class="label">Docs · Guides</span>
+          <h1>Usage guides</h1>
+          <p>
+            Every flow the library supports, with copy-paste examples. New here? Start
+            with the <a href="./getting-started.html">quickstart</a>, then come back for
+            the details.
+          </p>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="shell docs">
+          <aside class="docs__nav">
+            <nav aria-label="Docs">
+              <h4>Docs</h4>
+              <a href="./install.html">Install</a>
+              <a href="./getting-started.html">Quickstart</a>
+              <a href="./guides.html" aria-current="page">Guides</a>
+              <a href="./records.html">Record types</a>
+              <a href="./api.html">API reference</a>
+              <h4>Basics</h4>
+              <a href="#availability">Availability</a>
+              <a href="#devices">Device &amp; region notes</a>
+              <a href="#permissions">Permissions</a>
+              <a href="#history">History &amp; background</a>
+              <h4>Data</h4>
+              <a href="#read">Read records</a>
+              <a href="#write">Write records</a>
+              <a href="#update">Update records</a>
+              <a href="#delete">Delete records</a>
+              <a href="#time-ranges">Time ranges</a>
+              <a href="#resume">Poll on resume</a>
+              <a href="#wait">Wait after writing</a>
+              <a href="#aggregates">Aggregates</a>
+              <a href="#changelog">Changelog sync</a>
+              <h4>Advanced</h4>
+              <a href="#routes">Exercise routes</a>
+              <a href="#planned">Planned exercise</a>
+              <a href="#features">Matchmaking &amp; PHR</a>
+              <a href="#upgrades">Upgrade reminders</a>
+              <a href="#mistakes">Common mistakes</a>
+            </nav>
+          </aside>
+
+          <article class="prose">
+            <div class="toc">
+              <a href="#availability"><span>01</span>Availability</a>
+              <a href="#devices"><span>02</span>Device &amp; region notes</a>
+              <a href="#permissions"><span>03</span>Permissions</a>
+              <a href="#history"><span>04</span>History &amp; background</a>
+              <a href="#read"><span>05</span>Read records</a>
+              <a href="#write"><span>06</span>Write records</a>
+              <a href="#update"><span>07</span>Update records</a>
+              <a href="#delete"><span>08</span>Delete records</a>
+              <a href="#time-ranges"><span>09</span>Time ranges</a>
+              <a href="#resume"><span>10</span>Poll on resume</a>
+              <a href="#wait"><span>11</span>Wait after writing</a>
+              <a href="#aggregates"><span>12</span>Aggregates</a>
+              <a href="#changelog"><span>13</span>Changelog sync</a>
+              <a href="#routes"><span>14</span>Exercise routes</a>
+              <a href="#planned"><span>15</span>Planned exercise</a>
+              <a href="#features"><span>16</span>Matchmaking &amp; PHR</a>
+              <a href="#upgrades"><span>17</span>Upgrade reminders</a>
+              <a href="#mistakes"><span>18</span>Common mistakes</a>
+            </div>
+
+            <section id="availability">
+              <h2><span class="step">01</span>Availability<a class="anchor" href="#availability">#</a></h2>
+              <p>
+                Check that Health Connect is usable before calling anything else.
+                <code>ensureAvailable</code> is the one-line gate: it opens the Play Store
+                (or Settings) when Health Connect is missing.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>availability.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  ensureAvailable,
+  isHealthConnectAvailable,
+  getHealthConnectAvailability,
+  openHealthConnectApp,
+} from '@solutionforest/android-health-connect';
+
+// Quick gate: opens the Play Store / Settings when notInstalled (default)
+const status = await ensureAvailable();
+if (status !== 'available') {
+  // notInstalled (store opened) | notSupported (hide Health Connect UI)
+}
+
+// Or check without side effects
+const availability = await isHealthConnectAvailable();
+if (availability === 'notInstalled') {
+  openHealthConnectApp(); // Play Store on Android 9–13, Settings on 14+
+}
+
+// Details when diagnosing install vs built-in vs no Google Play services
+const info = await getHealthConnectAvailability();
+// info.provider: 'framework' (Android 14+) | 'apk' (9–13) | 'none'
+// info.sdkStatus: 1 = UNAVAILABLE, 2 = PROVIDER_UPDATE_REQUIRED, 3 = AVAILABLE
+// info.googlePlayServicesAvailable, info.playStoreAvailable, info.advice</code></pre>
+              </div>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Status</th><th>Meaning</th><th>What to do</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>'available'</code></td><td>Installed and ready</td><td>Continue to permissions</td></tr>
+                    <tr><td><code>'notInstalled'</code></td><td>App missing or needs an update</td><td><code>openHealthConnectApp()</code></td></tr>
+                    <tr><td><code>'notSupported'</code></td><td>OS too old, or no Google Play services</td><td>Hide Health Connect features</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="devices">
+              <h2><span class="step">02</span>Device &amp; region notes<a class="anchor" href="#devices">#</a></h2>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Situation</th><th>What happens</th><th>What to do</th></tr></thead>
+                  <tbody>
+                    <tr><td>Android 14+</td><td>Health Connect is built into the system</td><td><code>openHealthConnectSettings()</code></td></tr>
+                    <tr><td>Android 9–13</td><td>Health Connect is a Play Store app</td><td><code>openHealthConnectApp()</code> to install or update</td></tr>
+                    <tr><td><code>sdkStatus === 3</code></td><td>Available. This does not mean "version too old"</td><td>Safe to call the APIs</td></tr>
+                    <tr><td>Mainland China, no Google Play services</td><td>Health Connect needs Google Play services and is not listed in the CN Play Store</td><td>Status is <code>'notSupported'</code>; hide the UI</td></tr>
+                    <tr><td>Huawei / HMS without GMS</td><td>Same as no Google Play services</td><td>Not supported</td></tr>
+                    <tr><td>Samsung / Xiaomi data missing</td><td>Vendor apps must write into Health Connect; this library only reads Health Connect</td><td>Turn on Health Connect sharing in the vendor app</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="permissions">
+              <h2><span class="step">03</span>Permissions<a class="anchor" href="#permissions">#</a></h2>
+              <p>
+                Every permission you request must also be declared in the host app's
+                manifest (the Expo plugin does this from its <code>permissions</code>
+                option). Use the typed <code>Permission.*</code> constants.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>permissions.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  Permission,
+  requestPermissions,
+  hasPermissions,
+  missingPermissions,
+  ensurePermissions,
+} from '@solutionforest/android-health-connect';
+
+const needed = [
+  Permission.READ_STEPS,
+  Permission.WRITE_STEPS,
+  Permission.READ_HEART_RATE,
+];
+
+// Show the system dialog; returns the granted list
+const granted = await requestPermissions(needed);
+
+// Checks without a dialog
+if (!(await hasPermissions(needed))) {
+  const missing = await missingPermissions(needed);
+  console.log('Still missing:', missing);
+}
+
+// Or request only what is missing, then re-check
+const result = await ensurePermissions(needed);
+if (!result.allGranted) {
+  console.log('User denied:', result.missing);
+}</code></pre>
+              </div>
+              <div class="callout">
+                <p>
+                  <strong>Denied twice?</strong> Android stops showing the dialog. Send the
+                  user to <code>openHealthConnectDataManagement()</code> so they can grant
+                  access manually.
+                </p>
+              </div>
+            </section>
+
+            <section id="history">
+              <h2><span class="step">04</span>History &amp; background reads<a class="anchor" href="#history">#</a></h2>
+              <p>
+                By default Health Connect only lets apps read about 30 days of data before
+                the first grant, and only while the app is in the foreground. Two special
+                permissions lift those limits. Declare them, check the feature, then
+                request.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>history.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  getFeatureStatus,
+  requestPermissions,
+  Permission,
+} from '@solutionforest/android-health-connect';
+import type { HealthPermission } from '@solutionforest/android-health-connect';
+
+const extra: HealthPermission[] = [];
+if ((await getFeatureStatus('readHealthDataHistory')) === 'available') {
+  extra.push(Permission.READ_HEALTH_DATA_HISTORY);
+}
+if ((await getFeatureStatus('readHealthDataInBackground')) === 'available') {
+  extra.push(Permission.READ_HEALTH_DATA_IN_BACKGROUND);
+}
+await requestPermissions([Permission.READ_STEPS, ...extra]);</code></pre>
+              </div>
+              <div class="code">
+                <div class="code__bar"><span>AndroidManifest.xml</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="xml"><code>&lt;uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" /&gt;
+&lt;uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" /&gt;</code></pre>
+              </div>
+            </section>
+
+            <section id="read">
+              <h2><span class="step">05</span>Read records<a class="anchor" href="#read">#</a></h2>
+              <p>
+                Each record type has a helper (<code>readSteps</code>,
+                <code>readHeartRate</code>, <code>readSleepSessions</code>, …; see
+                <a href="./records.html">all 42</a>). Reads are paged: pass the returned
+                <code>pageToken</code> to get the next page, or use
+                <code>readAllRecords</code> to drain every page.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>read.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  readSteps,
+  readRecords,
+  readAllRecords,
+  timeRangeLastDays,
+} from '@solutionforest/android-health-connect';
+import type { WeightRecord } from '@solutionforest/android-health-connect';
+
+// Typed helper, one page
+const { records, pageToken } = await readSteps({
+  timeRangeFilter: {
+    startTime: '2024-01-01T00:00:00Z',
+    endTime: '2024-01-08T00:00:00Z',
+  },
+  ascendingOrder: true,
+  pageSize: 100,
+});
+records.forEach((r) =&gt; console.log(r.count, r.startTime));
+
+// Generic read by record type
+const weights = await readRecords&lt;WeightRecord&gt;('Weight', {
+  timeRangeFilter: timeRangeLastDays(30),
+});
+
+// Every page at once
+const all = await readAllRecords('Steps', {
+  timeRangeFilter: timeRangeLastDays(7),
+});</code></pre>
+              </div>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>timeRangeFilter</code></td><td>none</td><td><code>{ startTime, endTime }</code> ISO strings, or a <code>timeRange*</code> helper</td></tr>
+                    <tr><td><code>dataOriginFilter</code></td><td>all apps</td><td>Only records written by these package names</td></tr>
+                    <tr><td><code>ascendingOrder</code></td><td><code>true</code></td><td>Oldest first</td></tr>
+                    <tr><td><code>pageSize</code></td><td><code>1000</code></td><td>Maximum records per page</td></tr>
+                    <tr><td><code>pageToken</code></td><td>none</td><td>Token from the previous page</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="write">
+              <h2><span class="step">06</span>Write records<a class="anchor" href="#write">#</a></h2>
+              <p>
+                <code>writeRecords</code> inserts a batch of mixed record types and returns
+                the new IDs. Each record needs a <code>recordType</code> and the matching
+                write permission.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>write.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import { writeRecords } from '@solutionforest/android-health-connect';
+
+const { recordIdsList } = await writeRecords([
+  {
+    recordType: 'Steps',
+    count: 8000,
+    startTime: '2024-01-01T08:00:00Z',
+    endTime: '2024-01-01T09:00:00Z',
+  },
+  {
+    recordType: 'Weight',
+    weight: 75.5, // kg
+    time: '2024-01-01T07:30:00Z',
+  },
+]);</code></pre>
+              </div>
+            </section>
+
+            <section id="update">
+              <h2><span class="step">07</span>Update records<a class="anchor" href="#update">#</a></h2>
+              <p>
+                <code>updateRecords</code> takes the same shape as a write plus
+                <code>metadata.id</code> from a previous read. <code>recordingMethod</code>
+                and <code>device</code> round-trip when they are present on the read record.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>update.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  readSteps,
+  updateRecords,
+  RecordingMethod,
+} from '@solutionforest/android-health-connect';
+
+const { records } = await readSteps({ timeRangeFilter });
+const existing = records[0];
+if (!existing?.metadata?.id) throw new Error('nothing to update');
+
+await updateRecords([
+  {
+    ...existing,
+    count: existing.count + 100,
+    metadata: {
+      ...existing.metadata,
+      id: existing.metadata.id,
+      recordingMethod:
+        existing.metadata.recordingMethod ?? RecordingMethod.MANUAL_ENTRY,
+    },
+  },
+]);</code></pre>
+              </div>
+            </section>
+
+            <section id="delete">
+              <h2><span class="step">08</span>Delete records<a class="anchor" href="#delete">#</a></h2>
+              <p>Delete by time range or by record ID. Apps can only delete records they wrote.</p>
+              <div class="code">
+                <div class="code__bar"><span>delete.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  deleteRecordsByTime,
+  deleteRecordsById,
+} from '@solutionforest/android-health-connect';
+
+// By time range
+await deleteRecordsByTime('Steps', '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z');
+
+// By ID
+await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);</code></pre>
+              </div>
+            </section>
+
+            <section id="time-ranges">
+              <h2><span class="step">09</span>Time ranges<a class="anchor" href="#time-ranges">#</a></h2>
+              <p>
+                The helpers return an Instant <code>TimeRangeFilter</code> you can pass to
+                any read or aggregate.
+              </p>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Helper</th><th>Range</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>timeRangeToday()</code></td><td>Local midnight until now</td></tr>
+                    <tr><td><code>timeRangeLastDays(n)</code></td><td>The last <code>n</code> days until now</td></tr>
+                    <tr><td><code>timeRangeLastHours(n)</code></td><td>The last <code>n</code> hours until now</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="code">
+                <div class="code__bar"><span>ranges.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  readHeartRate,
+  timeRangeLastHours,
+} from '@solutionforest/android-health-connect';
+
+const { records } = await readHeartRate({
+  timeRangeFilter: timeRangeLastHours(6),
+});</code></pre>
+              </div>
+            </section>
+
+            <section id="resume">
+              <h2><span class="step">10</span>Poll on resume<a class="anchor" href="#resume">#</a></h2>
+              <p>
+                Health Connect has no push observer. After the app resumes, the first read
+                is often <code>0</code> because Samsung Health, Fitbit, and other apps are
+                still writing. <code>useForegroundPoll</code> polls on mount and on every
+                resume, cancels the in-flight poll when the app goes to the background (so
+                a stale result never overwrites a newer one), and keeps the last value on
+                timeout.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>TodaySteps.tsx</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import { Text } from 'react-native';
+import {
+  aggregateRecord,
+  timeRangeToday,
+  useForegroundPoll,
+} from '@solutionforest/android-health-connect';
+
+const stepsOf = (r: { metrics: Record&lt;string, unknown&gt; }) =&gt; {
+  const n = r.metrics['COUNT_TOTAL'];
+  return typeof n === 'number' ? n : 0;
+};
+
+export function TodaySteps({ granted }: { granted: boolean }) {
+  const { value, satisfied, loading, error, refresh } = useForegroundPoll(
+    () =&gt;
+      aggregateRecord({ recordType: 'Steps', timeRangeFilter: timeRangeToday() }),
+    {
+      // "&gt; 0" only when you expect activity; a real 0-step day times out
+      ready: (r) =&gt; stepsOf(r) &gt; 0,
+      timeoutMs: 20_000,
+      intervalMs: 1_000,
+      enabled: granted, // wait until permissions are granted
+    },
+  );
+
+  if (error) return &lt;Text onPress={refresh}&gt;Couldn't read steps. Tap to retry&lt;/Text&gt;;
+  return (
+    &lt;Text onPress={refresh}&gt;
+      {value ? stepsOf(value) : '–'} steps
+      {loading ? ' · syncing…' : !satisfied &amp;&amp; value ? ' · no new data yet' : ''}
+    &lt;/Text&gt;
+  );
+}</code></pre>
+              </div>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>ready(value)</code></td><td>required</td><td>Stop polling once this returns true</td></tr>
+                    <tr><td><code>timeoutMs</code></td><td><code>15000</code></td><td>Give up after this long and keep the last value</td></tr>
+                    <tr><td><code>intervalMs</code></td><td><code>500</code></td><td>Delay between polls</td></tr>
+                    <tr><td><code>enabled</code></td><td><code>true</code></td><td>Set <code>false</code> to pause, for example until permissions are granted</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                The hook returns <code>value</code>, <code>satisfied</code> (false when the
+                timeout hit, so it may be a real zero), <code>loading</code>,
+                <code>error</code>, and <code>refresh</code>.
+              </p>
+              <h3>Outside React</h3>
+              <p>
+                <code>pollOnForeground</code> does the same with callbacks and returns
+                <code>{ refresh, stop }</code>. For a single wait, use
+                <code>pollUntil</code> (returns <code>{ value, satisfied, attempts }</code>)
+                or <code>waitUntil</code> (throws <code>WaitTimeoutError</code>).
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>poller.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  pollOnForeground,
+  readSteps,
+  timeRangeToday,
+} from '@solutionforest/android-health-connect';
+
+const poller = pollOnForeground(
+  () =&gt; readSteps({ timeRangeFilter: timeRangeToday() }),
+  {
+    ready: (r) =&gt; r.records.length &gt; 0,
+    onResult: (r) =&gt; store.setSteps(r.records),
+    onError: (e) =&gt; console.warn(e),
+  },
+);
+
+// Later, e.g. on logout
+poller.stop();</code></pre>
+              </div>
+            </section>
+
+            <section id="wait">
+              <h2><span class="step">11</span>Wait after writing<a class="anchor" href="#wait">#</a></h2>
+              <p>
+                A record you just wrote may not be readable immediately.
+                <code>waitForRecords</code> polls until at least <code>minCount</code> rows
+                come back.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>wait.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  timeRangeLastDays,
+  waitForRecords,
+} from '@solutionforest/android-health-connect';
+
+await waitForRecords({
+  recordType: 'Steps',
+  timeRangeFilter: timeRangeLastDays(1),
+  minCount: 1,
+  timeoutMs: 15_000,
+});</code></pre>
+              </div>
+            </section>
+
+            <section id="aggregates">
+              <h2><span class="step">12</span>Aggregates<a class="anchor" href="#aggregates">#</a></h2>
+              <p>
+                Health Connect deduplicates overlapping sources in aggregates, so prefer
+                them over summing raw records yourself.
+              </p>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Function</th><th>Time model</th><th>Use for</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>aggregateRecord</code></td><td>Instant</td><td>One total over a range</td></tr>
+                    <tr><td><code>aggregateGroupByDuration</code></td><td>Instant</td><td>Fixed buckets (hours, minutes). Avoids the Android 14+ UTC wall-clock shift</td></tr>
+                    <tr><td><code>aggregateGroupByPeriod</code></td><td>Local date-time</td><td>Calendar days, weeks, months in the device time zone</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="code">
+                <div class="code__bar"><span>aggregates.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  aggregateRecord,
+  aggregateGroupByDuration,
+  timeRangeLastDays,
+} from '@solutionforest/android-health-connect';
+
+const total = await aggregateRecord({
+  recordType: 'Steps',
+  timeRangeFilter: timeRangeLastDays(7),
+});
+console.log(total.metrics['COUNT_TOTAL']); // number | null
+
+const hourly = await aggregateGroupByDuration({
+  recordType: 'Steps',
+  timeRangeFilter: {
+    startTime: '2024-01-01T00:00:00Z',
+    endTime: '2024-01-02T00:00:00Z',
+  },
+  timeRangeSlicer: { unit: 'hours', value: 1 },
+});
+hourly.forEach((row) =&gt; {
+  console.log(row.startTime, row.result.metrics['COUNT_TOTAL']);
+});</code></pre>
+              </div>
+            </section>
+
+            <section id="changelog">
+              <h2><span class="step">13</span>Changelog sync<a class="anchor" href="#changelog">#</a></h2>
+              <p>
+                Sync only what changed since last time. Tokens expire after about 30 days;
+                use one record type per token. When <code>changesTokenExpired</code> is
+                true, backfill with a normal read and mint a new token.
+                <code>pageSize</code> (1–5000) is a soft hint.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>sync.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  getChangesToken,
+  pullChanges,
+} from '@solutionforest/android-health-connect';
+
+let token = await getChangesToken({ recordTypes: ['Steps'] });
+
+// ...later
+const batch = await pullChanges(token, { pageSize: 500 });
+if (batch.changesTokenExpired) {
+  // backfill with readRecords, then mint a fresh token
+  token = await getChangesToken({ recordTypes: ['Steps'] });
+} else {
+  for (const { record } of batch.upsertionChanges) {
+    console.log('upsert', record.recordType, record.metadata?.id);
+  }
+  for (const { recordId } of batch.deletionChanges) {
+    console.log('delete', recordId);
+  }
+  token = batch.nextChangesToken; // persist for the next sync
+}</code></pre>
+              </div>
+            </section>
+
+            <section id="routes">
+              <h2><span class="step">14</span>Exercise routes<a class="anchor" href="#routes">#</a></h2>
+              <p>
+                Writing a route with a session needs <code>WRITE_EXERCISE_ROUTE</code>;
+                reading routes from other apps needs <code>READ_EXERCISE_ROUTES</code>. On
+                read, a route is <code>DATA</code>, <code>NO_DATA</code>, or
+                <code>CONSENT_REQUIRED</code>. Leave out optional altitude and accuracy
+                fields rather than sending empty objects.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>routes.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  writeRecords,
+  readExerciseSessions,
+  requestExerciseRoute,
+  getFeatureStatus,
+  ExerciseType,
+} from '@solutionforest/android-health-connect';
+
+await writeRecords([
+  {
+    recordType: 'ExerciseSession',
+    exerciseType: ExerciseType.RUNNING,
+    startTime: '2024-01-01T08:00:00Z',
+    endTime: '2024-01-01T09:00:00Z',
+    exerciseRoute: {
+      route: [
+        { time: '2024-01-01T08:00:00Z', latitude: 51.5, longitude: -0.12, altitude: 19 },
+        { time: '2024-01-01T08:30:00Z', latitude: 51.51, longitude: -0.11 },
+      ],
+    },
+  },
+]);
+
+// Optional 1.2 fields, behind a feature check
+if ((await getFeatureStatus('exerciseSessionImprovements')) === 'available') {
+  await writeRecords([
+    {
+      recordType: 'ExerciseSession',
+      exerciseType: ExerciseType.RUNNING,
+      startTime: '2024-01-01T08:00:00Z',
+      endTime: '2024-01-01T09:00:00Z',
+      rateOfPerceivedExertion: 6.5,
+    },
+  ]);
+}
+
+const { records } = await readExerciseSessions({ timeRangeFilter });
+for (const session of records) {
+  const route = session.exerciseRoute;
+  if (!route || route.type === 'NO_DATA') continue;
+  if (route.type === 'CONSENT_REQUIRED') {
+    const granted = await requestExerciseRoute(session.metadata?.id ?? '');
+    console.log(granted?.route);
+  } else {
+    console.log(route.route);
+  }
+}</code></pre>
+              </div>
+            </section>
+
+            <section id="planned">
+              <h2><span class="step">15</span>Planned exercise<a class="anchor" href="#planned">#</a></h2>
+              <p>
+                Training plans need <code>getFeatureStatus('plannedExercise')</code> to be
+                <code>'available'</code>, plus <code>READ_PLANNED_EXERCISE</code> /
+                <code>WRITE_PLANNED_EXERCISE</code>.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>plan.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  requestPermissions,
+  writeRecords,
+  readPlannedExerciseSessions,
+  ExerciseType,
+  ExerciseSegmentType,
+  ExercisePhase,
+  Permission,
+} from '@solutionforest/android-health-connect';
+
+await requestPermissions([
+  Permission.READ_PLANNED_EXERCISE,
+  Permission.WRITE_PLANNED_EXERCISE,
+]);
+
+await writeRecords([
+  {
+    recordType: 'PlannedExerciseSession',
+    exerciseType: ExerciseType.RUNNING,
+    startTime: '2024-01-03T08:00:00Z',
+    endTime: '2024-01-03T09:30:00Z',
+    title: 'Lake run',
+    blocks: [
+      {
+        repetitions: 1,
+        description: 'Three laps',
+        steps: [
+          {
+            exerciseType: ExerciseSegmentType.RUNNING,
+            exercisePhase: ExercisePhase.ACTIVE,
+            completionGoal: { type: 'Repetitions', repetitions: 3 },
+            performanceTargets: [
+              { type: 'HeartRate', minHeartRate: 90, maxHeartRate: 110 },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]);
+
+const plans = await readPlannedExerciseSessions({ timeRangeFilter });</code></pre>
+              </div>
+            </section>
+
+            <section id="features">
+              <h2><span class="step">16</span>Matchmaking &amp; PHR<a class="anchor" href="#features">#</a></h2>
+              <p>
+                Newer Health Connect features are not on every device. Always check
+                <code>getFeatureStatus</code> first. It returns <code>'available'</code> or
+                <code>'unavailable'</code>.
+              </p>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Feature key</th><th>Unlocks</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>skinTemperature</code></td><td><code>SkinTemperature</code> records</td></tr>
+                    <tr><td><code>mindfulnessSession</code></td><td><code>MindfulnessSession</code> records</td></tr>
+                    <tr><td><code>activityIntensity</code></td><td><code>ActivityIntensity</code> records</td></tr>
+                    <tr><td><code>plannedExercise</code></td><td><code>PlannedExerciseSession</code> records</td></tr>
+                    <tr><td><code>exerciseSessionImprovements</code></td><td>RPE and <code>plannedExerciseSessionId</code> on sessions</td></tr>
+                    <tr><td><code>readHealthDataHistory</code></td><td>Reads older than 30 days</td></tr>
+                    <tr><td><code>readHealthDataInBackground</code></td><td>Reads while backgrounded</td></tr>
+                    <tr><td><code>extendedDeviceTypes</code></td><td>Additional device type values in record metadata</td></tr>
+                    <tr><td><code>matchmaking</code></td><td>Discover apps and devices that can write data you read</td></tr>
+                    <tr><td><code>personalHealthRecord</code></td><td>FHIR medical data sources and resources</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="code">
+                <div class="code__bar"><span>features.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  getFeatureStatus,
+  checkIfMatchmakingIsPossible,
+  launchMatchmaking,
+  createMedicalDataSource,
+  upsertMedicalResources,
+  readMedicalResources,
+  MedicalResourceType,
+} from '@solutionforest/android-health-connect';
+
+// Matchmaking (experimental)
+if ((await getFeatureStatus('matchmaking')) === 'available') {
+  const { isMatchmakingPossible } = await checkIfMatchmakingIsPossible({
+    recordTypes: ['Steps', 'HeartRate'],
+  });
+  if (isMatchmakingPossible) {
+    await launchMatchmaking({ recordTypes: ['Steps', 'HeartRate'] });
+  }
+}
+
+// Personal Health Record (experimental): FHIR data source + resources
+if ((await getFeatureStatus('personalHealthRecord')) === 'available') {
+  const source = await createMedicalDataSource({
+    displayName: 'Clinic FHIR',
+    fhirBaseUri: 'https://example.com/fhir/',
+    fhirVersion: { major: 4, minor: 0, patch: 1 },
+  });
+  await upsertMedicalResources([
+    {
+      dataSourceId: source.id,
+      fhirVersion: source.fhirVersion,
+      data: JSON.stringify({ resourceType: 'AllergyIntolerance', id: '1' }),
+    },
+  ]);
+  const page = await readMedicalResources({
+    medicalResourceType: MedicalResourceType.ALLERGIES_INTOLERANCES,
+    medicalDataSourceIds: [source.id],
+  });
+}</code></pre>
+              </div>
+            </section>
+
+            <section id="upgrades">
+              <h2><span class="step">17</span>Upgrade reminders<a class="anchor" href="#upgrades">#</a></h2>
+              <p>
+                <code>checkLibraryUpdate</code> compares the installed version with the
+                latest GitHub Release, so you can show a banner in debug builds.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>update.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import {
+  checkLibraryUpdate,
+  LIBRARY_VERSION,
+} from '@solutionforest/android-health-connect';
+
+const update = await checkLibraryUpdate();
+if (update.updateAvailable) {
+  console.warn(update.advice); // update.currentVersion → update.latestVersion
+}</code></pre>
+              </div>
+            </section>
+
+            <section id="mistakes">
+              <h2><span class="step">18</span>Common mistakes<a class="anchor" href="#mistakes">#</a></h2>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+                  <tbody>
+                    <tr><td>Permission dialog never shows</td><td>Permission not declared in the host manifest</td><td>Add it to <code>AndroidManifest.xml</code> or the Expo plugin's <code>permissions</code></td></tr>
+                    <tr><td>Steps show 0 right after opening the app</td><td>Other apps are still syncing</td><td><code>useForegroundPoll</code> with a <code>ready</code> check</td></tr>
+                    <tr><td><code>updateRecords</code> fails</td><td>Missing <code>metadata.id</code></td><td>Read the record first and keep its metadata</td></tr>
+                    <tr><td>Day totals off by hours on Android 14+</td><td>Calendar math done with Instant buckets</td><td>Use <code>aggregateGroupByPeriod</code> for calendar days</td></tr>
+                    <tr><td>Changelog returns nothing after weeks</td><td>Token older than about 30 days</td><td>Handle <code>changesTokenExpired</code>: backfill, then new token</td></tr>
+                    <tr><td>Crash on a newer API</td><td>Feature missing on the device</td><td>Gate on <code>getFeatureStatus</code></td></tr>
+                    <tr><td>Build fails resolving the module</td><td>Old Architecture or RN below 0.84</td><td>Enable New Architecture; use RN 0.84+</td></tr>
+                    <tr><td>Gradle or AGP errors</td><td>Wrong release line for the toolchain</td><td>0.3.x needs AGP 9.1+; otherwise use <code>release-0.2</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                Next: browse <a href="./records.html">all record types</a> or the
+                <a href="./api.html">API reference</a>.
+              </p>
+            </section>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="band">
+      <div class="shell footer">
+        <div>
+          <a class="brand" href="./index.html">
+            <img src="./assets/logo.jpg" alt="" />
+            <span>android-health-connect</span>
+          </a>
+          <p>MIT licensed · Built by Solution Forest</p>
+        </div>
+        <div>
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="./install.html">Install</a></li>
+            <li><a href="./getting-started.html">Quickstart</a></li>
+            <li><a href="./guides.html">Guides</a></li>
+            <li><a href="./records.html">Record types</a></li>
+            <li><a href="./api.html">API reference</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Agents</h4>
+          <ul>
+            <li><a href="./index.html#agents">Install the skill</a></li>
+            <li><a href="./skills.md">skills.md</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a></li>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect/releases">Releases</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

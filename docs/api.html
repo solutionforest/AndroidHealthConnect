@@ -3,265 +3,188 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>API — android-health-connect</title>
+    <title>API reference — android-health-connect</title>
     <meta
       name="description"
-      content="API reference for @solutionforest/android-health-connect TurboModule."
+      content="API reference for the @solutionforest/android-health-connect TurboModule."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" href="./assets/logo.jpg" />
+    <script src="./site.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header__inner">
+    <header class="band band--header">
+      <div class="shell header">
         <a class="brand" href="./index.html">
-          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <img src="./assets/logo.jpg" alt="" />
           <span>android-health-connect</span>
         </a>
         <nav class="nav" aria-label="Primary">
           <a href="./install.html">Install</a>
-          <a href="./getting-started.html">Getting started</a>
+          <a href="./getting-started.html">Quickstart</a>
+          <a href="./guides.html">Guides</a>
+          <a href="./records.html">Records</a>
           <a href="./api.html" aria-current="page">API</a>
-          <a href="./llms.txt">llms.txt</a>
-          <a href="./skills.md">skills.md</a>
-          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+          <a href="./index.html#agents">AI agents</a>
         </nav>
+        <div class="header__actions">
+          <a class="btn btn--sm" href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a>
+          <a class="btn btn--sm btn--dark" href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </div>
       </div>
     </header>
 
     <main>
-      <div class="page-hero">
-        <div class="wrap">
+      <section class="band">
+        <div class="shell page-head">
+          <span class="label">Docs · Reference</span>
           <h1>API reference</h1>
           <p>
-            Condensed from the repo README. Types live in the published package;
-            do not invent APIs — check
-            <code>src/index.tsx</code> / TypeScript declarations.
+            A condensed map of the exports. Full types ship with the package; the
+            source of truth is <code>src/index.tsx</code>.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div class="content wrap">
-        <h2 id="availability">Availability</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Function</th>
-                <th>Returns</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>isHealthConnectAvailable()</code></td>
-                <td><code>Promise&lt;HealthConnectAvailability&gt;</code></td>
-                <td>Check if HC is usable</td>
-              </tr>
-              <tr>
-                <td><code>getHealthConnectAvailability()</code></td>
-                <td><code>Promise&lt;HealthConnectAvailabilityInfo&gt;</code></td>
-                <td>Detailed status + advice</td>
-              </tr>
-              <tr>
-                <td><code>openHealthConnectApp()</code></td>
-                <td><code>void</code></td>
-                <td>Open HC app or Play Store</td>
-              </tr>
-              <tr>
-                <td><code>openHealthConnectSettings()</code></td>
-                <td><code>void</code></td>
-                <td>Open HC settings</td>
-              </tr>
-              <tr>
-                <td><code>openHealthConnectDataManagement(pkg?)</code></td>
-                <td><code>void</code></td>
-                <td>Open permission management</td>
-              </tr>
-              <tr>
-                <td><code>checkLibraryUpdate(options?)</code></td>
-                <td><code>Promise&lt;LibraryUpdateInfo&gt;</code></td>
-                <td>Upgrade reminder vs GitHub Releases</td>
-              </tr>
-              <tr>
-                <td><code>LIBRARY_VERSION</code></td>
-                <td><code>string</code></td>
-                <td>Current package version</td>
-              </tr>
-            </tbody>
-          </table>
+      <section class="band">
+        <div class="shell docs">
+          <aside class="docs__nav">
+            <nav aria-label="Docs">
+              <h4>Docs</h4>
+              <a href="./install.html">Install</a>
+              <a href="./getting-started.html">Quickstart</a>
+              <a href="./guides.html">Guides</a>
+              <a href="./records.html">Record types</a>
+              <a href="./api.html" aria-current="page">API reference</a>
+              <h4>On this page</h4>
+              <a href="#availability">Availability</a>
+              <a href="#permissions">Permissions &amp; helpers</a>
+              <a href="#records">Records</a>
+              <a href="#features">Features, Matchmaking, PHR</a>
+            </nav>
+          </aside>
+
+          <article class="prose">
+            <section id="availability">
+              <h2><span class="step">01</span>Availability</h2>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Function</th><th>Returns</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>isHealthConnectAvailable()</code></td><td><code>Promise&lt;HealthConnectAvailability&gt;</code></td><td>Whether Health Connect is usable</td></tr>
+                    <tr><td><code>getHealthConnectAvailability()</code></td><td><code>Promise&lt;HealthConnectAvailabilityInfo&gt;</code></td><td>Detailed status and advice</td></tr>
+                    <tr><td><code>openHealthConnectApp()</code></td><td><code>void</code></td><td>Open Health Connect or the Play Store</td></tr>
+                    <tr><td><code>openHealthConnectSettings()</code></td><td><code>void</code></td><td>Open Health Connect settings</td></tr>
+                    <tr><td><code>openHealthConnectDataManagement(pkg?)</code></td><td><code>void</code></td><td>Open permission management</td></tr>
+                    <tr><td><code>checkLibraryUpdate(options?)</code></td><td><code>Promise&lt;LibraryUpdateInfo&gt;</code></td><td>Compare against GitHub Releases</td></tr>
+                    <tr><td><code>LIBRARY_VERSION</code></td><td><code>string</code></td><td>Installed package version</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="permissions">
+              <h2><span class="step">02</span>Permissions &amp; helpers</h2>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Function</th><th>Returns</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>requestPermissions(perms)</code></td><td><code>Promise&lt;string[]&gt;</code></td><td>Show the permission dialog</td></tr>
+                    <tr><td><code>checkPermissions(perms)</code></td><td><code>Promise&lt;string[]&gt;</code></td><td>Which are granted</td></tr>
+                    <tr><td><code>hasPermissions(perms)</code></td><td><code>Promise&lt;boolean&gt;</code></td><td>True when all are granted</td></tr>
+                    <tr><td><code>missingPermissions(perms)</code></td><td><code>Promise&lt;string[]&gt;</code></td><td>The subset not granted</td></tr>
+                    <tr><td><code>ensurePermissions(perms, opts?)</code></td><td><code>Promise&lt;EnsurePermissionsResult&gt;</code></td><td>Request missing, then re-check</td></tr>
+                    <tr><td><code>ensureAvailable(opts?)</code></td><td>availability</td><td>Gate; opens the store when not installed</td></tr>
+                    <tr><td><code>revokeAllPermissions()</code></td><td><code>Promise&lt;void&gt;</code></td><td>Revoke everything</td></tr>
+                    <tr><td><code>Permission.*</code></td><td><code>HealthPermission</code></td><td>Typed constants, e.g. <code>Permission.READ_STEPS</code></td></tr>
+                    <tr><td><code>timeRangeToday()</code>, <code>timeRangeLastDays()</code>, <code>timeRangeLastHours()</code></td><td><code>TimeRangeFilter</code></td><td>Instant windows</td></tr>
+                    <tr><td><code>pollUntil</code>, <code>waitUntil</code></td><td>result / <code>T</code></td><td>Soft poll; <code>waitUntil</code> throws on timeout</td></tr>
+                    <tr><td><code>useForegroundPoll</code>, <code>pollOnForeground</code></td><td>hook / controller</td><td>Poll on mount and on every resume</td></tr>
+                    <tr><td><code>waitForRecords</code>, <code>readAllRecords</code>, <code>pullChanges</code></td><td>paged helpers</td><td>Wait for rows, drain pages, changelog loop</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="records">
+              <h2><span class="step">03</span>Records</h2>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Function</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>readRecords&lt;T&gt;(type, options)</code></td><td>Generic paged read</td></tr>
+                    <tr><td><code>writeRecords(records)</code></td><td>Insert</td></tr>
+                    <tr><td><code>updateRecords(records)</code></td><td>Update; needs <code>metadata.id</code> from a prior read</td></tr>
+                    <tr><td><code>deleteRecordsByTime</code>, <code>deleteRecordsById</code></td><td>Delete</td></tr>
+                    <tr><td><code>aggregateRecord</code>, <code>aggregateGroupByDuration</code>, <code>aggregateGroupByPeriod</code></td><td>Totals, Instant buckets, calendar buckets</td></tr>
+                    <tr><td><code>getChangesToken</code>, <code>getChanges</code></td><td>Changelog sync; tokens last about 30 days</td></tr>
+                    <tr><td><code>requestExerciseRoute(recordId)</code></td><td>Consent UI when a route is <code>CONSENT_REQUIRED</code></td></tr>
+                    <tr><td><code>readSteps</code>, <code>readHeartRate</code>, …</td><td>One helper per record type (42 types)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="features">
+              <h2><span class="step">04</span>Features, Matchmaking, PHR</h2>
+              <p>Check <code>getFeatureStatus</code> before calling any of these.</p>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Function</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>getFeatureStatus(feature)</code></td><td><code>'available'</code> or <code>'unavailable'</code></td></tr>
+                    <tr><td><code>checkIfMatchmakingIsPossible</code>, <code>launchMatchmaking</code></td><td>Matchmaking UI</td></tr>
+                    <tr><td><code>createMedicalDataSource</code>, <code>getMedicalDataSources</code></td><td>FHIR data sources</td></tr>
+                    <tr><td><code>upsertMedicalResources</code>, <code>readMedicalResources</code>, <code>deleteMedicalResources</code></td><td>Medical resources</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </article>
         </div>
-
-        <h2 id="permissions">Permissions &amp; helpers</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Function</th>
-                <th>Returns</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>requestPermissions(perms)</code></td>
-                <td><code>Promise&lt;string[]&gt;</code></td>
-                <td>Show permission dialog</td>
-              </tr>
-              <tr>
-                <td><code>checkPermissions(perms)</code></td>
-                <td><code>Promise&lt;string[]&gt;</code></td>
-                <td>Which are granted</td>
-              </tr>
-              <tr>
-                <td><code>hasPermissions(perms)</code></td>
-                <td><code>Promise&lt;boolean&gt;</code></td>
-                <td>True when all listed are granted</td>
-              </tr>
-              <tr>
-                <td><code>missingPermissions(perms)</code></td>
-                <td><code>Promise&lt;string[]&gt;</code></td>
-                <td>Subset not granted</td>
-              </tr>
-              <tr>
-                <td><code>ensurePermissions(perms, opts?)</code></td>
-                <td><code>Promise&lt;EnsurePermissionsResult&gt;</code></td>
-                <td>Request missing + re-check</td>
-              </tr>
-              <tr>
-                <td><code>ensureAvailable(opts?)</code></td>
-                <td>availability</td>
-                <td>Gate; opens store if not installed</td>
-              </tr>
-              <tr>
-                <td><code>revokeAllPermissions()</code></td>
-                <td><code>Promise&lt;void&gt;</code></td>
-                <td>Revoke all</td>
-              </tr>
-              <tr>
-                <td><code>Permission.*</code></td>
-                <td><code>HealthPermission</code></td>
-                <td>Typed permission constants</td>
-              </tr>
-              <tr>
-                <td><code>timeRangeToday()</code> / <code>LastDays</code> / <code>LastHours</code></td>
-                <td><code>TimeRangeFilter</code></td>
-                <td>Instant windows</td>
-              </tr>
-              <tr>
-                <td><code>pollUntil</code> / <code>waitUntil</code></td>
-                <td>poll result / <code>T</code></td>
-                <td>Soft poll; wait throws on timeout</td>
-              </tr>
-              <tr>
-                <td><code>useForegroundPoll</code> / <code>pollOnForeground</code></td>
-                <td>hook / controllers</td>
-                <td>Poll on mount + every resume</td>
-              </tr>
-              <tr>
-                <td><code>waitForRecords</code> / <code>readAllRecords</code> / <code>pullChanges</code></td>
-                <td>paged helpers</td>
-                <td>Poll until rows; drain pages; changelog loop</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h2 id="records">Records</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Function</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>readRecords&lt;T&gt;(type, options)</code></td>
-                <td>Generic read</td>
-              </tr>
-              <tr>
-                <td><code>writeRecords(records)</code></td>
-                <td>Insert</td>
-              </tr>
-              <tr>
-                <td><code>updateRecords(records)</code></td>
-                <td>Update (<code>metadata.id</code> required)</td>
-              </tr>
-              <tr>
-                <td><code>deleteRecordsByTime</code> / <code>ById</code></td>
-                <td>Delete</td>
-              </tr>
-              <tr>
-                <td><code>aggregateRecord</code> / <code>aggregateGroupByDuration</code> / <code>Period</code></td>
-                <td>Aggregates &amp; buckets</td>
-              </tr>
-              <tr>
-                <td><code>getChangesToken</code> / <code>getChanges</code></td>
-                <td>Changelog sync (~30-day tokens)</td>
-              </tr>
-              <tr>
-                <td><code>requestExerciseRoute(recordId)</code></td>
-                <td>Consent UI when route is <code>CONSENT_REQUIRED</code></td>
-              </tr>
-              <tr>
-                <td><code>readSteps</code>, <code>readHeartRate</code>, …</td>
-                <td>One convenience helper per record type (42 types)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h2 id="features">Features / Matchmaking / PHR</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Function</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>getFeatureStatus(feature)</code></td>
-                <td><code>'available' | 'unavailable'</code></td>
-              </tr>
-              <tr>
-                <td><code>checkIfMatchmakingIsPossible</code> / <code>launchMatchmaking</code></td>
-                <td>Matchmaking UI</td>
-              </tr>
-              <tr>
-                <td><code>createMedicalDataSource</code> / <code>getMedicalDataSources</code></td>
-                <td>FHIR data sources</td>
-              </tr>
-              <tr>
-                <td><code>upsertMedicalResources</code> / <code>readMedicalResources</code> / <code>deleteMedicalResources</code></td>
-                <td>Medical resources</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p>
-          Install:
-          <a href="./install.html">npmjs + GitHub Packages</a>
-          · flows:
-          <a href="./getting-started.html">Getting started</a>
-        </p>
-      </div>
+      </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap">
-        <span>MIT · Solution Forest</span>
-        <a href="./index.html">Home</a>
+    <footer class="band">
+      <div class="shell footer">
+        <div>
+          <a class="brand" href="./index.html">
+            <img src="./assets/logo.jpg" alt="" />
+            <span>android-health-connect</span>
+          </a>
+          <p>MIT licensed · Built by Solution Forest</p>
+        </div>
+        <div>
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="./install.html">Install</a></li>
+            <li><a href="./getting-started.html">Quickstart</a></li>
+            <li><a href="./guides.html">Guides</a></li>
+            <li><a href="./records.html">Record types</a></li>
+            <li><a href="./api.html">API reference</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Agents</h4>
+          <ul>
+            <li><a href="./index.html#agents">Install the skill</a></li>
+            <li><a href="./skills.md">skills.md</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a></li>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect/releases">Releases</a></li>
+          </ul>
+        </div>
       </div>
     </footer>
   </body>

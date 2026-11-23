@@ -3,120 +3,385 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>android-health-connect — React Native Health Connect</title>
+    <title>android-health-connect — Health Connect for React Native</title>
     <meta
       name="description"
-      content="React Native TurboModule for Android Health Connect. Install from npmjs or GitHub Packages."
+      content="React Native TurboModule for Android Health Connect. Permissions, 42 record types, aggregates, changelog sync, resume polling. Ships an AI agent skill."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" href="./assets/logo.jpg" />
+    <script src="./site.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header__inner">
+    <header class="band band--header">
+      <div class="shell header">
         <a class="brand" href="./index.html">
-          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <img src="./assets/logo.jpg" alt="" />
           <span>android-health-connect</span>
         </a>
         <nav class="nav" aria-label="Primary">
           <a href="./install.html">Install</a>
-          <a href="./getting-started.html">Getting started</a>
+          <a href="./getting-started.html">Quickstart</a>
+          <a href="./guides.html">Guides</a>
+          <a href="./records.html">Records</a>
           <a href="./api.html">API</a>
-          <a href="./llms.txt">llms.txt</a>
-          <a href="./skills.md">skills.md</a>
-          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+          <a href="#agents">AI agents</a>
         </nav>
+        <div class="header__actions">
+          <a class="btn btn--sm" href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a>
+          <a class="btn btn--sm btn--dark" href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </div>
       </div>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="wrap">
-          <div class="hero__brand">
-            <img src="./assets/logo.jpg" width="88" height="88" alt="android-health-connect" />
-            <p class="hero__name">android-health-connect</p>
+      <section class="band">
+        <div class="shell hero">
+          <div class="hero__mesh" aria-hidden="true"></div>
+          <div class="hero__copy">
+            <a class="pill rise" href="https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.14">
+              <b>v0.3.14</b> Published to npm with Trusted Publishing
+            </a>
+            <h1 class="rise" style="--i: 1">
+              Health Connect,<br /><em>native</em> to React&nbsp;Native.
+            </h1>
+            <p class="hero__lead rise" style="--i: 2">
+              A typed TurboModule for Android Health Connect: permissions, 42 record
+              types, aggregates, changelog sync, and polling that survives the
+              "0 steps on resume" problem.
+            </p>
+            <div class="hero__cta rise" style="--i: 3">
+              <a class="btn btn--dark" href="./getting-started.html">Get started <span class="arrow">→</span></a>
+              <a class="btn" href="#agents">Install the AI skill</a>
+            </div>
           </div>
-          <h1>Health Connect for React Native, without the maze.</h1>
-          <p class="lede">
-            TurboModule for Android Health Connect — permissions, 42 record types,
-            aggregates, changelog sync, Matchmaking, and PHR helpers. Android only.
-          </p>
-          <div class="cta-row">
-            <a class="btn btn--primary" href="./install.html#npmjs">Install from npmjs</a>
-            <a class="btn btn--ghost" href="./install.html#github-packages">GitHub Packages</a>
-          </div>
-          <div class="quick-links">
-            <a href="./getting-started.html">Getting started</a>
-            <a href="./api.html">API reference</a>
-            <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm package</a>
-            <a href="./llms.txt">llms.txt</a>
-            <a href="./skills.md">skills.md</a>
+
+          <div class="hero__panel rise" style="--i: 2">
+            <div class="tabs" data-tabs>
+              <div class="tabs__list" role="tablist">
+                <button role="tab" aria-selected="true" data-tab="yarn">yarn</button>
+                <button role="tab" aria-selected="false" data-tab="npm">npm</button>
+                <button role="tab" aria-selected="false" data-tab="ghp">GitHub Packages</button>
+              </div>
+              <div class="tabs__panel" data-panel="yarn">
+                <div class="code">
+                  <div class="code__bar"><span>terminal · npmjs.org</span><button class="copy" data-copy>Copy</button></div>
+                  <pre><code>yarn add @solutionforest/android-health-connect</code></pre>
+                </div>
+              </div>
+              <div class="tabs__panel" data-panel="npm" hidden>
+                <div class="code">
+                  <div class="code__bar"><span>terminal · npmjs.org</span><button class="copy" data-copy>Copy</button></div>
+                  <pre><code>npm install @solutionforest/android-health-connect</code></pre>
+                </div>
+              </div>
+              <div class="tabs__panel" data-panel="ghp" hidden>
+                <div class="code">
+                  <div class="code__bar"><span>.npmrc · npm.pkg.github.com</span><button class="copy" data-copy>Copy</button></div>
+                  <pre><code>@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT</code></pre>
+                </div>
+              </div>
+            </div>
+            <div class="code">
+              <div class="code__bar"><span>Steps.tsx</span><button class="copy" data-copy>Copy</button></div>
+              <pre><code><span class="k">const</span> { value, satisfied } = <span class="f">useForegroundPoll</span>(
+  () =&gt; <span class="f">readSteps</span>({
+    timeRangeFilter: <span class="f">timeRangeToday</span>(),
+  }),
+  {
+    <span class="f">ready</span>: (r) =&gt; r.records.length &gt; <span class="s">0</span>,
+    timeoutMs: <span class="s">15_000</span>,
+  },
+);</code></pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
-        <div class="wrap">
-          <h2>Two registries, one package</h2>
-          <p class="section-lede">
-            Publish once via OIDC; consume from either registry. Same scoped name:
-            <code>@solutionforest/android-health-connect</code>.
-          </p>
-          <div class="grid-2">
-            <article class="panel">
-              <span class="badge">Primary</span>
-              <h3>npmjs.org</h3>
-              <p>No <code>.npmrc</code>. Trusted Publishing from GitHub Actions.</p>
-              <pre><code>yarn add @solutionforest/android-health-connect</code></pre>
+      <section class="band">
+        <div class="shell stats">
+          <div class="stat"><strong>42</strong><span>record types</span></div>
+          <div class="stat"><strong>RN 0.84+</strong><span>New Architecture</span></div>
+          <div class="stat"><strong>API 29+</strong><span>Android 10 and up</span></div>
+          <div class="stat"><strong>100%</strong><span>line coverage · strict TS</span></div>
+        </div>
+      </section>
+
+      <section class="band spacer" aria-hidden="true"><div class="shell"></div></section>
+
+      <section class="band" id="features">
+        <div class="shell">
+          <div class="section-head">
+            <div><span class="label">Features</span></div>
+            <div>
+              <h2>Everything Health Connect exposes.</h2>
+              <p>
+                One package covers the whole Jetpack SDK surface, with TypeScript types
+                that mirror Health Connect records one-to-one.
+              </p>
+            </div>
+          </div>
+          <div class="grid">
+            <article class="cell">
+              <span class="cell__num">01</span>
+              <h3>Permissions</h3>
+              <p><code>ensurePermissions</code> requests what is missing and re-checks. Typed <code>Permission.*</code> constants, no string typos.</p>
+              <a class="cell__link" href="./guides.html#permissions">Read the guide <span>→</span></a>
             </article>
-            <article class="panel">
-              <span class="badge">Mirror</span>
-              <h3>GitHub Packages</h3>
-              <p>Scope registry + <code>read:packages</code> PAT. Release <code>.tgz</code> + SBOM too.</p>
-              <pre><code>@solutionforest:registry=https://npm.pkg.github.com</code></pre>
+            <article class="cell">
+              <span class="cell__num">02</span>
+              <h3>Read, write, update</h3>
+              <p>All 42 record types with a <code>readSteps</code>-style helper each, plus generic <code>readRecords</code> with paging.</p>
+              <a class="cell__link" href="./guides.html#read">Read the guide <span>→</span></a>
+            </article>
+            <article class="cell">
+              <span class="cell__num">03</span>
+              <h3>Aggregates</h3>
+              <p><code>aggregateRecord</code>, Instant buckets by duration, calendar buckets by period.</p>
+              <a class="cell__link" href="./guides.html#aggregates">Read the guide <span>→</span></a>
+            </article>
+            <article class="cell">
+              <span class="cell__num">04</span>
+              <h3>Changelog sync</h3>
+              <p><code>getChangesToken</code> → <code>pullChanges</code> drains upserts and deletes for incremental sync.</p>
+              <a class="cell__link" href="./guides.html#changelog">Read the guide <span>→</span></a>
+            </article>
+            <article class="cell">
+              <span class="cell__num">05</span>
+              <h3>Resume polling</h3>
+              <p><code>useForegroundPoll</code> re-reads on every foreground until the data arrives, without fake zeros.</p>
+              <a class="cell__link" href="./guides.html#resume">Read the guide <span>→</span></a>
+            </article>
+            <article class="cell">
+              <span class="cell__num">06</span>
+              <span class="tag">1.2.0-alpha</span>
+              <h3>Matchmaking &amp; PHR</h3>
+              <p>Feature-gated Matchmaking, planned exercise, and FHIR medical records behind <code>getFeatureStatus</code>.</p>
+              <a class="cell__link" href="./guides.html#features">Read the guide <span>→</span></a>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="section">
-        <div class="wrap">
-          <h2>Built for real devices</h2>
-          <p class="section-lede">
-            Health Connect has no push stream. On resume the first aggregate is often
-            <code>0</code> until vendor apps finish writing — use
-            <code>useForegroundPoll</code> / <code>pollUntil</code>.
-          </p>
-          <pre><code>import {
-  Permission,
-  ensurePermissions,
+      <section class="band">
+        <div class="shell split">
+          <div>
+            <span class="label">The resume problem</span>
+            <h2>Health Connect has no push. Your first read is often 0.</h2>
+            <p>
+              Samsung Health, Fitbit, and Google Fit sync in the background. When your
+              app comes to the foreground, the first read usually returns before they
+              finish. The polling helpers keep trying until <code>ready</code> passes,
+              then report whether the result is real.
+            </p>
+            <ul class="checks">
+              <li>Polls on mount and on every AppState resume</li>
+              <li><code>satisfied: false</code> means the timeout hit, so it may be a real zero</li>
+              <li>Non-React: <code>pollOnForeground</code>, <code>pollUntil</code>, <code>waitUntil</code></li>
+            </ul>
+          </div>
+          <div>
+            <div class="code">
+              <div class="code__bar"><span>TodaySteps.tsx</span><button class="copy" data-copy>Copy</button></div>
+              <pre><code><span class="k">import</span> {
   readSteps,
   timeRangeToday,
   useForegroundPoll,
-} from '@solutionforest/android-health-connect';
+} <span class="k">from</span> <span class="s">'@solutionforest/android-health-connect'</span>;
 
-const { value } = useForegroundPoll(
-  () => readSteps({ timeRangeFilter: timeRangeToday() }),
-  { ready: (r) => (r.records?.length ?? 0) > 0 },
-);</code></pre>
+<span class="k">export function</span> <span class="f">TodaySteps</span>() {
+  <span class="k">const</span> { value, satisfied, loading } = <span class="f">useForegroundPoll</span>(
+    () =&gt; <span class="f">readSteps</span>({ timeRangeFilter: <span class="f">timeRangeToday</span>() }),
+    {
+      <span class="f">ready</span>: (r) =&gt; r.records.length &gt; <span class="s">0</span>,
+      timeoutMs: <span class="s">15_000</span>,
+    },
+  );
+  <span class="c">// satisfied === false → timed out; may be a real 0</span>
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="band" id="registries">
+        <div class="shell">
+          <div class="section-head">
+            <div><span class="label">Install</span></div>
+            <div>
+              <h2>Two registries, one package name.</h2>
+              <p>
+                Every release goes to npmjs.org with provenance and is mirrored to
+                GitHub Packages. Pick whichever your org already uses.
+              </p>
+            </div>
+          </div>
+          <div class="grid grid--2">
+            <article class="cell">
+              <span class="cell__num">npmjs.org</span>
+              <span class="tag tag--accent">primary</span>
+              <h3>No setup needed</h3>
+              <p>Published by GitHub Actions through OIDC Trusted Publishing.</p>
+              <div class="code">
+                <div class="code__bar"><span>terminal</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>yarn add @solutionforest/android-health-connect</code></pre>
+              </div>
+            </article>
+            <article class="cell">
+              <span class="cell__num">npm.pkg.github.com</span>
+              <span class="tag">mirror</span>
+              <h3>GitHub Packages</h3>
+              <p>Scope the registry, then use a classic PAT with <code>read:packages</code>.</p>
+              <div class="code">
+                <div class="code__bar"><span>.npmrc</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>@solutionforest:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT</code></pre>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band band--night" id="agents">
+        <div class="shell">
+          <div class="section-head">
+            <div><span class="label">For AI agents</span></div>
+            <div>
+              <h2>Teach your coding agent this library.</h2>
+              <p>
+                The package ships <code>skills.md</code>, an agent skill with the
+                version lines, hard constraints, and the right call order. Install it in
+                your app repo and Cursor, Claude Code, or Codex will follow it instead
+                of guessing APIs.
+              </p>
+            </div>
+          </div>
+          <div class="grid grid--2">
+            <article class="cell">
+              <span class="cell__num">01 · from the package</span>
+              <span class="tag tag--accent">recommended</span>
+              <h3>Copy the skill that matches your install</h3>
+              <p>Run in your app root after installing the package. Commit the folder so the whole team gets it.</p>
+              <div class="tabs" data-tabs style="margin-top: 1.25rem">
+                <div class="tabs__list" role="tablist">
+                  <button role="tab" aria-selected="true" data-tab="cursor">Cursor</button>
+                  <button role="tab" aria-selected="false" data-tab="claude">Claude Code</button>
+                  <button role="tab" aria-selected="false" data-tab="other">Other agents</button>
+                </div>
+                <div class="tabs__panel" data-panel="cursor">
+                  <div class="code">
+                    <div class="code__bar"><span>terminal</span><button class="copy" data-copy>Copy</button></div>
+                    <pre><code>mkdir -p .cursor/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .cursor/skills/android-health-connect/SKILL.md</code></pre>
+                  </div>
+                </div>
+                <div class="tabs__panel" data-panel="claude" hidden>
+                  <div class="code">
+                    <div class="code__bar"><span>terminal</span><button class="copy" data-copy>Copy</button></div>
+                    <pre><code>mkdir -p .claude/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .claude/skills/android-health-connect/SKILL.md</code></pre>
+                  </div>
+                </div>
+                <div class="tabs__panel" data-panel="other" hidden>
+                  <div class="code">
+                    <div class="code__bar"><span>terminal</span><button class="copy" data-copy>Copy</button></div>
+                    <pre><code>mkdir -p .agents/skills/android-health-connect
+cp node_modules/@solutionforest/android-health-connect/skills.md \
+  .agents/skills/android-health-connect/SKILL.md</code></pre>
+                  </div>
+                </div>
+              </div>
+              <table class="paths">
+                <tr><td>Cursor</td><td><code>.cursor/skills/android-health-connect/SKILL.md</code></td></tr>
+                <tr><td>Claude Code</td><td><code>.claude/skills/android-health-connect/SKILL.md</code></td></tr>
+                <tr><td>Codex, others</td><td><code>.agents/skills/android-health-connect/SKILL.md</code></td></tr>
+              </table>
+            </article>
+            <article class="cell">
+              <span class="cell__num">02 · ask your agent</span>
+              <h3>Or paste this prompt</h3>
+              <p>Works before the package is installed. The agent downloads the latest skill from this site.</p>
+              <div class="prompt-wrap" style="margin-top: 1.25rem">
+                <p class="prompt" id="agent-prompt">
+                  Install the android-health-connect agent skill: download
+                  https://solutionforest.github.io/AndroidHealthConnect/skills.md and save it
+                  as SKILL.md in this project's skills folder
+                  (.cursor/skills/android-health-connect/ for Cursor,
+                  .claude/skills/android-health-connect/ for Claude Code, otherwise
+                  .agents/skills/android-health-connect/). Then follow it whenever you work
+                  with @solutionforest/android-health-connect.
+                </p>
+                <button class="copy" data-copy="agent-prompt">Copy prompt</button>
+              </div>
+              <div class="code" style="margin-top: 1.25rem">
+                <div class="code__bar"><span>or with curl</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>curl -fsSL --create-dirs \
+  -o .cursor/skills/android-health-connect/SKILL.md \
+  https://solutionforest.github.io/AndroidHealthConnect/skills.md</code></pre>
+              </div>
+              <p style="margin-top: 1rem"><a href="./skills.md">Read skills.md →</a></p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="shell cta">
+          <div>
+            <h2>Ship health features this week.</h2>
+            <p>Availability, permissions, first read, and resume polling in four steps.</p>
+          </div>
+          <div class="hero__cta">
+            <a class="btn btn--dark" href="./getting-started.html">Quickstart <span class="arrow">→</span></a>
+            <a class="btn" href="./guides.html">Browse 18 guides</a>
+          </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap">
-        <span>MIT · Solution Forest · RN 0.84+ New Architecture</span>
-        <span>
-          <a href="https://github.com/solutionforest/AndroidHealthConnect">Source</a>
-          ·
-          <a href="./skills.md">Agent skill</a>
-        </span>
+    <footer class="band">
+      <div class="shell footer">
+        <div>
+          <a class="brand" href="./index.html">
+            <img src="./assets/logo.jpg" alt="" />
+            <span>android-health-connect</span>
+          </a>
+          <p>MIT licensed · Built by Solution Forest</p>
+        </div>
+        <div>
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="./install.html">Install</a></li>
+            <li><a href="./getting-started.html">Quickstart</a></li>
+            <li><a href="./guides.html">Guides</a></li>
+            <li><a href="./records.html">Record types</a></li>
+            <li><a href="./api.html">API reference</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Agents</h4>
+          <ul>
+            <li><a href="#agents">Install the skill</a></li>
+            <li><a href="./skills.md">skills.md</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a></li>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect/releases">Releases</a></li>
+          </ul>
+        </div>
       </div>
     </footer>
   </body>

@@ -87,3 +87,6 @@ android/generated
 
 # React Native Nitro Modules
 nitrogen/
+
+# Copied from skills.md by the Pages workflow
+docs/skills.md

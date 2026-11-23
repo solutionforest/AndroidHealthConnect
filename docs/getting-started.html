@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Getting started — android-health-connect</title>
+    <title>Quickstart — android-health-connect</title>
     <meta
       name="description"
       content="First Health Connect flow: availability, permissions, read steps, resume polling."
@@ -11,143 +11,282 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="icon" href="./assets/logo.jpg" />
+    <script src="./site.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header__inner">
+    <header class="band band--header">
+      <div class="shell header">
         <a class="brand" href="./index.html">
-          <img src="./assets/logo.jpg" width="34" height="34" alt="" />
+          <img src="./assets/logo.jpg" alt="" />
           <span>android-health-connect</span>
         </a>
         <nav class="nav" aria-label="Primary">
           <a href="./install.html">Install</a>
-          <a href="./getting-started.html" aria-current="page">Getting started</a>
+          <a href="./getting-started.html" aria-current="page">Quickstart</a>
+          <a href="./guides.html">Guides</a>
+          <a href="./records.html">Records</a>
           <a href="./api.html">API</a>
-          <a href="./llms.txt">llms.txt</a>
-          <a href="./skills.md">skills.md</a>
-          <a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+          <a href="./index.html#agents">AI agents</a>
         </nav>
+        <div class="header__actions">
+          <a class="btn btn--sm" href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a>
+          <a class="btn btn--sm btn--dark" href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a>
+        </div>
       </div>
     </header>
 
     <main>
-      <div class="page-hero">
-        <div class="wrap">
-          <h1>Getting started</h1>
+      <section class="band">
+        <div class="shell page-head">
+          <span class="label">Docs · Quickstart</span>
+          <h1>Quickstart</h1>
           <p>
-            After
-            <a href="./install.html">install</a>
-            from npmjs or GitHub Packages, wire availability → permissions → read.
+            After you <a href="./install.html">install</a> the package, wire up
+            availability, then permissions, then reads.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div class="content wrap">
-        <h2>1. Check availability</h2>
-        <pre><code>import {
+      <section class="band">
+        <div class="shell docs">
+          <aside class="docs__nav">
+            <nav aria-label="Docs">
+              <h4>Docs</h4>
+              <a href="./install.html">Install</a>
+              <a href="./getting-started.html" aria-current="page">Quickstart</a>
+              <a href="./guides.html">Guides</a>
+              <a href="./records.html">Record types</a>
+              <a href="./api.html">API reference</a>
+              <h4>On this page</h4>
+              <a href="#availability">Availability</a>
+              <a href="#permissions">Permissions</a>
+              <a href="#read">Read records</a>
+              <a href="#resume">Poll on resume</a>
+              <a href="#expo">Expo</a>
+              <a href="#bare">Bare React Native</a>
+            </nav>
+          </aside>
+
+          <article class="prose">
+            <section id="availability">
+              <h2><span class="step">01</span>Check availability</h2>
+              <p>
+                Health Connect is built into Android 14+, and is a Play Store app on
+                Android 9–13. Check before anything else.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>availability.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code><span class="k">import</span> {
   getHealthConnectAvailability,
   openHealthConnectApp,
-} from '@solutionforest/android-health-connect';
+} <span class="k">from</span> <span class="s">'@solutionforest/android-health-connect'</span>;
 
-const info = await getHealthConnectAvailability();
-if (info.availability !== 'installed') {
-  openHealthConnectApp(); // opens HC or Play Store
+<span class="k">const</span> info = <span class="k">await</span> <span class="f">getHealthConnectAvailability</span>();
+<span class="k">if</span> (info.status === <span class="s">'notInstalled'</span>) {
+  <span class="f">openHealthConnectApp</span>(); <span class="c">// opens Health Connect or the Play Store</span>
 }</code></pre>
+              </div>
+              <div class="table">
+                <table>
+                  <thead><tr><th>status</th><th>Meaning</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>'available'</code></td><td>Installed and ready</td></tr>
+                    <tr><td><code>'notInstalled'</code></td><td>The Health Connect app needs installing or updating</td></tr>
+                    <tr><td><code>'notSupported'</code></td><td>OS too old, no Google Play services, or otherwise unusable</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
-        <h2>2. Request permissions</h2>
-        <p>
-          Prefer typed <code>Permission.*</code> constants over hand-typed strings.
-        </p>
-        <pre><code>import {
+            <section id="permissions">
+              <h2><span class="step">02</span>Request permissions</h2>
+              <p>
+                Use the typed <code>Permission.*</code> constants rather than hand-typed
+                strings. <code>ensurePermissions</code> requests only what is missing,
+                then re-checks.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>permissions.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code><span class="k">import</span> {
   Permission,
   ensurePermissions,
-} from '@solutionforest/android-health-connect';
+} <span class="k">from</span> <span class="s">'@solutionforest/android-health-connect'</span>;
 
-const { granted, missing } = await ensurePermissions([
-  Permission.ReadSteps,
-  Permission.WriteSteps,
+<span class="k">const</span> { allGranted, missing } = <span class="k">await</span> <span class="f">ensurePermissions</span>([
+  Permission.READ_STEPS,
+  Permission.WRITE_STEPS,
 ]);</code></pre>
+              </div>
+            </section>
 
-        <h2>3. Read records</h2>
-        <pre><code>import {
+            <section id="read">
+              <h2><span class="step">03</span>Read records</h2>
+              <p>
+                Every record type has a helper such as <code>readSteps</code>. Results
+                are paged with <code>pageToken</code>.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>read.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code><span class="k">import</span> {
   readSteps,
   timeRangeToday,
-} from '@solutionforest/android-health-connect';
+} <span class="k">from</span> <span class="s">'@solutionforest/android-health-connect'</span>;
 
-const page = await readSteps({
-  timeRangeFilter: timeRangeToday(),
+<span class="k">const</span> { records, pageToken } = <span class="k">await</span> <span class="f">readSteps</span>({
+  timeRangeFilter: <span class="f">timeRangeToday</span>(),
 });</code></pre>
+              </div>
+            </section>
 
-        <h2>4. Poll on resume (first value often 0)</h2>
-        <p>
-          Health Connect has no push observer. After the app resumes, the first
-          aggregate/read is frequently empty until Samsung Health / Fitbit / etc.
-          finish syncing. Use <code>useForegroundPoll</code> (or
-          <code>pollUntil</code>).
-        </p>
-        <pre><code>import {
+            <section id="resume">
+              <h2><span class="step">04</span>Poll on resume</h2>
+              <p>
+                Health Connect has no push observer. When the app resumes, the first read
+                is often empty until Samsung Health, Fitbit, and others finish syncing.
+                <code>useForegroundPoll</code> polls on mount and on every resume until
+                <code>ready</code> passes.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>TodaySteps.tsx</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code><span class="k">import</span> {
   readSteps,
   timeRangeToday,
   useForegroundPoll,
-} from '@solutionforest/android-health-connect';
+} <span class="k">from</span> <span class="s">'@solutionforest/android-health-connect'</span>;
 
-const { value, loading, refresh } = useForegroundPoll(
-  () => readSteps({ timeRangeFilter: timeRangeToday() }),
+<span class="k">const</span> { value, satisfied, loading, refresh } = <span class="f">useForegroundPoll</span>(
+  () =&gt; <span class="f">readSteps</span>({ timeRangeFilter: <span class="f">timeRangeToday</span>() }),
   {
-    ready: (r) => (r.records?.length ?? 0) > 0,
-    timeoutMs: 15_000,
+    <span class="f">ready</span>: (r) =&gt; r.records.length &gt; <span class="s">0</span>,
+    timeoutMs: <span class="s">15_000</span>,
   },
 );</code></pre>
+              </div>
+              <div class="callout">
+                <p>
+                  <strong><code>satisfied: false</code></strong> means the timeout hit
+                  before <code>ready</code> passed. The value may be a real zero, so show
+                  it as stale rather than as an error. Outside React, use
+                  <code>pollOnForeground</code>, <code>pollUntil</code>, or
+                  <code>waitUntil</code>.
+                </p>
+              </div>
+            </section>
 
-        <h2>Expo</h2>
-        <p>SDK 50+ — add the config plugin, then <code>npx expo prebuild</code>:</p>
-        <pre><code>{
-  "expo": {
-    "plugins": [
+            <section id="expo">
+              <h2><span class="step">05</span>Expo</h2>
+              <p>SDK 50+. Add the config plugin with only the permissions you need, then run <code>npx expo prebuild</code>.</p>
+              <div class="code">
+                <div class="code__bar"><span>app.json</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>{
+  <span class="s">"expo"</span>: {
+    <span class="s">"plugins"</span>: [
       [
-        "@solutionforest/android-health-connect",
+        <span class="s">"@solutionforest/android-health-connect"</span>,
         {
-          "permissions": [
-            "android.permission.health.READ_STEPS",
-            "android.permission.health.WRITE_STEPS"
+          <span class="s">"permissions"</span>: [
+            <span class="s">"android.permission.health.READ_STEPS"</span>,
+            <span class="s">"android.permission.health.WRITE_STEPS"</span>
           ]
         }
       ]
     ]
   }
 }</code></pre>
+              </div>
+            </section>
 
-        <h2>Bare React Native</h2>
-        <ol>
-          <li>
-            Declare the same health permissions in the host
-            <code>AndroidManifest.xml</code>.
-          </li>
-          <li>
-            Add the Health Connect rationale activity / intent-filters (see repo
-            README).
-          </li>
-          <li>Match AGP / compileSdk to the package line you installed (0.3 vs 0.2).</li>
-        </ol>
+            <section id="bare">
+              <h2><span class="step">06</span>Bare React Native</h2>
+              <p>
+                Declare every health permission in your app's manifest (the library
+                manifest merges in, but Health Connect checks the host app), and add the
+                two intent filters Health Connect uses to show your permission rationale.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>android/app/src/main/AndroidManifest.xml</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="xml"><code>&lt;manifest ...&gt;
+  &lt;!-- Declare only the permissions your app actually needs --&gt;
+  &lt;uses-permission android:name="android.permission.health.READ_STEPS" /&gt;
+  &lt;uses-permission android:name="android.permission.health.WRITE_STEPS" /&gt;
 
-        <p>
-          Full API tables:
-          <a href="./api.html">API reference</a>
-          · agent notes:
-          <a href="./skills.md">skills.md</a>
-        </p>
-      </div>
+  &lt;application ...&gt;
+    &lt;activity android:name=".MainActivity" ...&gt;
+      &lt;!-- Permission rationale (Android 13 and below) --&gt;
+      &lt;intent-filter&gt;
+        &lt;action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" /&gt;
+      &lt;/intent-filter&gt;
+
+      &lt;!-- Permission usage screen (Android 14+) --&gt;
+      &lt;intent-filter&gt;
+        &lt;action android:name="android.intent.action.VIEW_PERMISSION_USAGE" /&gt;
+        &lt;category android:name="android.intent.category.HEALTH_PERMISSIONS" /&gt;
+      &lt;/intent-filter&gt;
+    &lt;/activity&gt;
+  &lt;/application&gt;
+&lt;/manifest&gt;</code></pre>
+              </div>
+              <div class="code">
+                <div class="code__bar"><span>android/app/src/main/res/values/health_permissions.xml</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="xml"><code>&lt;resources&gt;
+  &lt;string name="health_permissions_rationale"&gt;
+    This app uses Health Connect to read and write your health data.
+  &lt;/string&gt;
+&lt;/resources&gt;</code></pre>
+              </div>
+              <p>Then match AGP and compileSdk to the line you installed (0.3.x or 0.2.x).</p>
+              <div class="callout">
+                <p>
+                  <strong>Next:</strong> the <a href="./guides.html">usage guides</a> cover
+                  writes, updates, deletes, aggregates, changelog sync, exercise routes,
+                  Matchmaking, PHR, and common mistakes.
+                </p>
+              </div>
+            </section>
+          </article>
+        </div>
+      </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap">
-        <span>MIT · Solution Forest</span>
-        <a href="./index.html">Home</a>
+    <footer class="band">
+      <div class="shell footer">
+        <div>
+          <a class="brand" href="./index.html">
+            <img src="./assets/logo.jpg" alt="" />
+            <span>android-health-connect</span>
+          </a>
+          <p>MIT licensed · Built by Solution Forest</p>
+        </div>
+        <div>
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="./install.html">Install</a></li>
+            <li><a href="./getting-started.html">Quickstart</a></li>
+            <li><a href="./guides.html">Guides</a></li>
+            <li><a href="./records.html">Record types</a></li>
+            <li><a href="./api.html">API reference</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Agents</h4>
+          <ul>
+            <li><a href="./index.html#agents">Install the skill</a></li>
+            <li><a href="./skills.md">skills.md</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect">GitHub</a></li>
+            <li><a href="https://www.npmjs.com/package/@solutionforest/android-health-connect">npm</a></li>
+            <li><a href="https://github.com/solutionforest/AndroidHealthConnect/releases">Releases</a></li>
+          </ul>
+        </div>
       </div>
     </footer>
   </body>

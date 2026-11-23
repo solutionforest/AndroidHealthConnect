@@ -66,7 +66,7 @@ Same scoped name on both registries: `@solutionforest/android-health-connect`.
 ## Canonical implementation order
 
 1. **Availability** — `getHealthConnectAvailability()` / `ensureAvailable()`; open store with `openHealthConnectApp()` when needed.
-2. **Permissions** — `ensurePermissions([Permission.ReadSteps, ...])` (or `requestPermissions` / `checkPermissions`).
+2. **Permissions** — `ensurePermissions([Permission.READ_STEPS, ...])` (or `requestPermissions` / `checkPermissions`).
 3. **Read** — `readSteps({ timeRangeFilter: timeRangeToday() })` or `readRecords('Steps', …)`.
 4. **Resume UX** — first value after foreground is often `0`/empty. Use:
 
@@ -98,12 +98,25 @@ Add the config plugin, list only needed health permissions, then `npx expo prebu
 
 Declare the same health permissions in the host `AndroidManifest.xml` and add Health Connect rationale / intent-filters (see repo README).
 
+## Installing this skill
+
+Save this file as `SKILL.md` in the project's skills folder, then commit it:
+
+| Agent | Path |
+|---|---|
+| Cursor | `.cursor/skills/android-health-connect/SKILL.md` |
+| Claude Code | `.claude/skills/android-health-connect/SKILL.md` |
+| Others (Codex, Gemini CLI, …) | `.agents/skills/android-health-connect/SKILL.md` |
+
+Source: `node_modules/@solutionforest/android-health-connect/skills.md` (matches the installed version) or https://solutionforest.github.io/AndroidHealthConnect/skills.md (latest). Re-copy after upgrading the package.
+
 ## References
+
+- Skill install guide: https://solutionforest.github.io/AndroidHealthConnect/#agents
 
 - Docs: https://solutionforest.github.io/AndroidHealthConnect/
 - Install: https://solutionforest.github.io/AndroidHealthConnect/install.html
 - API: https://solutionforest.github.io/AndroidHealthConnect/api.html
-- `llms.txt`: https://solutionforest.github.io/AndroidHealthConnect/llms.txt
 - npm: https://www.npmjs.com/package/@solutionforest/android-health-connect
 - GitHub Packages: https://github.com/orgs/solutionforest/packages?repo_name=AndroidHealthConnect
 - Source: https://github.com/solutionforest/AndroidHealthConnect
