@@ -75,7 +75,7 @@
           <h1>Record types</h1>
           <p>
             All 42 Health Connect record types can be read and written. Each has a typed
-            read helper; you can also use <code>readRecords('Type', options)</code>.
+            read helper; you can also use <code>readRecords(RecordType.*, options)</code>.
           </p>
         </div>
       </section>
@@ -168,15 +168,16 @@
   writeRecords,
   getFeatureStatus,
   timeRangeLastDays,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 import type { HydrationRecord } from '@solutionforest/android-health-connect';
 
-const { records } = await readRecords&lt;HydrationRecord&gt;('Hydration', {
+const { records } = await readRecords&lt;HydrationRecord&gt;(RecordType.HYDRATION, {
   timeRangeFilter: timeRangeLastDays(7),
 });
 
 if ((await getFeatureStatus('skinTemperature')) === 'available') {
-  const skin = await readRecords('SkinTemperature', {
+  const skin = await readRecords(RecordType.SKIN_TEMPERATURE, {
     timeRangeFilter: timeRangeLastDays(7),
   });
 }</code></pre>

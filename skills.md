@@ -68,7 +68,7 @@ Same scoped name on both registries: `@solutionforest/android-health-connect`.
 
 1. **Availability** — `getHealthConnectAvailability()` / `ensureAvailable()`; open store with `openHealthConnectApp()` when needed.
 2. **Permissions** — `ensurePermissions([Permission.READ_STEPS, ...])` (or `requestPermissions` / `checkPermissions`).
-3. **Read** — `readSteps({ timeRangeFilter: timeRangeToday() })` or `readRecords('Steps', …)`.
+3. **Read** — `readSteps({ timeRangeFilter: timeRangeToday() })` or `readRecords(RecordType.STEPS, …)`.
 4. **Resume UX** — first value after foreground is often `0`/empty. Use:
 
 ```ts

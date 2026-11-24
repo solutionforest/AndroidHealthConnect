@@ -296,6 +296,7 @@ await requestPermissions([Permission.READ_STEPS, ...extra]);</code></pre>
   readRecords,
   readAllRecords,
   timeRangeLastDays,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 import type { WeightRecord } from '@solutionforest/android-health-connect';
 
@@ -311,12 +312,12 @@ const { records, pageToken } = await readSteps({
 records.forEach((r) =&gt; console.log(r.count, r.startTime));
 
 // Generic read by record type
-const weights = await readRecords&lt;WeightRecord&gt;('Weight', {
+const weights = await readRecords&lt;WeightRecord&gt;(RecordType.WEIGHT, {
   timeRangeFilter: timeRangeLastDays(30),
 });
 
 // Every page at once
-const all = await readAllRecords('Steps', {
+const all = await readAllRecords(RecordType.STEPS, {
   timeRangeFilter: timeRangeLastDays(7),
 });</code></pre>
               </div>
@@ -412,13 +413,14 @@ await updateRecords([
                 <pre data-lang="ts"><code>import {
   deleteRecordsByTime,
   deleteRecordsById,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 // By time range
-await deleteRecordsByTime('Steps', '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z');
+await deleteRecordsByTime(RecordType.STEPS, '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z');
 
 // By ID
-await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);</code></pre>
+await deleteRecordsById(RecordType.STEPS, ['record-id-1', 'record-id-2']);</code></pre>
               </div>
             </section>
 
@@ -475,6 +477,7 @@ import {
   aggregateRecord,
   timeRangeToday,
   useForegroundPoll,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 const stepsOf = (r: { metrics: Record&lt;string, unknown&gt; }) =&gt; {
@@ -485,7 +488,7 @@ const stepsOf = (r: { metrics: Record&lt;string, unknown&gt; }) =&gt; {
 export function TodaySteps({ granted }: { granted: boolean }) {
   const { value, satisfied, loading, error, refresh } = useForegroundPoll(
     () =&gt;
-      aggregateRecord({ recordType: 'Steps', timeRangeFilter: timeRangeToday() }),
+      aggregateRecord({ recordType: RecordType.STEPS, timeRangeFilter: timeRangeToday() }),
     {
       // "&gt; 0" only when you expect activity; a real 0-step day times out
       ready: (r) =&gt; stepsOf(r) &gt; 0,
@@ -561,10 +564,11 @@ poller.stop();</code></pre>
                 <pre data-lang="ts"><code>import {
   timeRangeLastDays,
   waitForRecords,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 await waitForRecords({
-  recordType: 'Steps',
+  recordType: RecordType.STEPS,
   timeRangeFilter: timeRangeLastDays(1),
   minCount: 1,
   timeoutMs: 15_000,
@@ -594,16 +598,17 @@ await waitForRecords({
   aggregateRecord,
   aggregateGroupByDuration,
   timeRangeLastDays,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 const total = await aggregateRecord({
-  recordType: 'Steps',
+  recordType: RecordType.STEPS,
   timeRangeFilter: timeRangeLastDays(7),
 });
 console.log(total.metrics['COUNT_TOTAL']); // number | null
 
 const hourly = await aggregateGroupByDuration({
-  recordType: 'Steps',
+  recordType: RecordType.STEPS,
   timeRangeFilter: {
     startTime: '2024-01-01T00:00:00Z',
     endTime: '2024-01-02T00:00:00Z',
@@ -629,15 +634,16 @@ hourly.forEach((row) =&gt; {
                 <pre data-lang="ts"><code>import {
   getChangesToken,
   pullChanges,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
-let token = await getChangesToken({ recordTypes: ['Steps'] });
+let token = await getChangesToken({ recordTypes: [RecordType.STEPS] });
 
 // ...later
 const batch = await pullChanges(token, { pageSize: 500 });
 if (batch.changesTokenExpired) {
   // backfill with readRecords, then mint a fresh token
-  token = await getChangesToken({ recordTypes: ['Steps'] });
+  token = await getChangesToken({ recordTypes: [RecordType.STEPS] });
 } else {
   for (const { record } of batch.upsertionChanges) {
     console.log('upsert', record.recordType, record.metadata?.id);
@@ -667,11 +673,12 @@ if (batch.changesTokenExpired) {
   requestExerciseRoute,
   getFeatureStatus,
   ExerciseType,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 await writeRecords([
   {
-    recordType: 'ExerciseSession',
+    recordType: RecordType.EXERCISE_SESSION,
     exerciseType: ExerciseType.RUNNING,
     startTime: '2024-01-01T08:00:00Z',
     endTime: '2024-01-01T09:00:00Z',
@@ -688,7 +695,7 @@ await writeRecords([
 if ((await getFeatureStatus('exerciseSessionImprovements')) === 'available') {
   await writeRecords([
     {
-      recordType: 'ExerciseSession',
+      recordType: RecordType.EXERCISE_SESSION,
       exerciseType: ExerciseType.RUNNING,
       startTime: '2024-01-01T08:00:00Z',
       endTime: '2024-01-01T09:00:00Z',
@@ -728,6 +735,7 @@ for (const session of records) {
   ExerciseSegmentType,
   ExercisePhase,
   Permission,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 await requestPermissions([
@@ -737,7 +745,7 @@ await requestPermissions([
 
 await writeRecords([
   {
-    recordType: 'PlannedExerciseSession',
+    recordType: RecordType.PLANNED_EXERCISE_SESSION,
     exerciseType: ExerciseType.RUNNING,
     startTime: '2024-01-03T08:00:00Z',
     endTime: '2024-01-03T09:30:00Z',
@@ -799,15 +807,16 @@ const plans = await readPlannedExerciseSessions({ timeRangeFilter });</code></pr
   upsertMedicalResources,
   readMedicalResources,
   MedicalResourceType,
+  RecordType,
 } from '@solutionforest/android-health-connect';
 
 // Matchmaking (experimental)
 if ((await getFeatureStatus('matchmaking')) === 'available') {
   const { isMatchmakingPossible } = await checkIfMatchmakingIsPossible({
-    recordTypes: ['Steps', 'HeartRate'],
+    recordTypes: [RecordType.STEPS, RecordType.HEART_RATE],
   });
   if (isMatchmakingPossible) {
-    await launchMatchmaking({ recordTypes: ['Steps', 'HeartRate'] });
+    await launchMatchmaking({ recordTypes: [RecordType.STEPS, RecordType.HEART_RATE] });
   }
 }
 

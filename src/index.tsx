@@ -1,10 +1,10 @@
 import NativeAndroidHealthConnect from './NativeAndroidHealthConnect';
+import { RecordType } from './types';
 import type {
   HealthConnectAvailability,
   HealthConnectAvailabilityInfo,
   HealthPermission,
   HealthRecord,
-  RecordType,
   ReadRecordsOptions,
   ReadRecordsResponse,
   InsertRecordsResponse,
@@ -239,7 +239,7 @@ export function openHealthConnectApp(): void {
  * Reads health records of a specific type.
  *
  * @example
- * const { records } = await readRecords('Steps', {
+ * const { records } = await readRecords(RecordType.STEPS, {
  *   timeRangeFilter: { startTime: '2024-01-01T00:00:00Z', endTime: '2024-01-02T00:00:00Z' },
  * });
  */
@@ -260,7 +260,7 @@ export async function readRecords<T extends HealthRecord>(
  *
  * @example
  * const { recordIdsList } = await writeRecords([
- *   { recordType: 'Steps', count: 1000, startTime: '...', endTime: '...' },
+ *   { recordType: RecordType.STEPS, count: 1000, startTime: '...', endTime: '...' },
  * ]);
  */
 export async function writeRecords(
@@ -380,53 +380,62 @@ export async function getChanges(
 // ─── Typed convenience helpers ────────────────────────────────────────────────
 
 export const readSteps = (options?: ReadRecordsOptions) =>
-  readRecords<StepsRecord>('Steps', options);
+  readRecords<StepsRecord>(RecordType.STEPS, options);
 
 export const readHeartRate = (options?: ReadRecordsOptions) =>
-  readRecords<HeartRateRecord>('HeartRate', options);
+  readRecords<HeartRateRecord>(RecordType.HEART_RATE, options);
 
 export const readSleepSessions = (options?: ReadRecordsOptions) =>
-  readRecords<SleepSessionRecord>('SleepSession', options);
+  readRecords<SleepSessionRecord>(RecordType.SLEEP_SESSION, options);
 
 export const readActiveCaloriesBurned = (options?: ReadRecordsOptions) =>
-  readRecords<ActiveCaloriesBurnedRecord>('ActiveCaloriesBurned', options);
+  readRecords<ActiveCaloriesBurnedRecord>(
+    RecordType.ACTIVE_CALORIES_BURNED,
+    options
+  );
 
 export const readTotalCaloriesBurned = (options?: ReadRecordsOptions) =>
-  readRecords<TotalCaloriesBurnedRecord>('TotalCaloriesBurned', options);
+  readRecords<TotalCaloriesBurnedRecord>(
+    RecordType.TOTAL_CALORIES_BURNED,
+    options
+  );
 
 export const readDistance = (options?: ReadRecordsOptions) =>
-  readRecords<DistanceRecord>('Distance', options);
+  readRecords<DistanceRecord>(RecordType.DISTANCE, options);
 
 export const readWeight = (options?: ReadRecordsOptions) =>
-  readRecords<WeightRecord>('Weight', options);
+  readRecords<WeightRecord>(RecordType.WEIGHT, options);
 
 export const readHeight = (options?: ReadRecordsOptions) =>
-  readRecords<HeightRecord>('Height', options);
+  readRecords<HeightRecord>(RecordType.HEIGHT, options);
 
 export const readBloodPressure = (options?: ReadRecordsOptions) =>
-  readRecords<BloodPressureRecord>('BloodPressure', options);
+  readRecords<BloodPressureRecord>(RecordType.BLOOD_PRESSURE, options);
 
 export const readBloodGlucose = (options?: ReadRecordsOptions) =>
-  readRecords<BloodGlucoseRecord>('BloodGlucose', options);
+  readRecords<BloodGlucoseRecord>(RecordType.BLOOD_GLUCOSE, options);
 
 export const readOxygenSaturation = (options?: ReadRecordsOptions) =>
-  readRecords<OxygenSaturationRecord>('OxygenSaturation', options);
+  readRecords<OxygenSaturationRecord>(RecordType.OXYGEN_SATURATION, options);
 
 export const readBodyTemperature = (options?: ReadRecordsOptions) =>
-  readRecords<BodyTemperatureRecord>('BodyTemperature', options);
+  readRecords<BodyTemperatureRecord>(RecordType.BODY_TEMPERATURE, options);
 
 export const readBodyFat = (options?: ReadRecordsOptions) =>
-  readRecords<BodyFatRecord>('BodyFat', options);
+  readRecords<BodyFatRecord>(RecordType.BODY_FAT, options);
 
 export const readHydration = (options?: ReadRecordsOptions) =>
-  readRecords<HydrationRecord>('Hydration', options);
+  readRecords<HydrationRecord>(RecordType.HYDRATION, options);
 
 export const readExerciseSessions = (options?: ReadRecordsOptions) =>
-  readRecords<ExerciseSessionRecord>('ExerciseSession', options);
+  readRecords<ExerciseSessionRecord>(RecordType.EXERCISE_SESSION, options);
 
 /** Requires `getFeatureStatus('plannedExercise') === 'available'`. */
 export const readPlannedExerciseSessions = (options?: ReadRecordsOptions) =>
-  readRecords<PlannedExerciseSessionRecord>('PlannedExerciseSession', options);
+  readRecords<PlannedExerciseSessionRecord>(
+    RecordType.PLANNED_EXERCISE_SESSION,
+    options
+  );
 
 /**
  * Requests one-time consent to read a session's exercise route when
@@ -444,83 +453,101 @@ export async function requestExerciseRoute(
 }
 
 export const readRestingHeartRate = (options?: ReadRecordsOptions) =>
-  readRecords<RestingHeartRateRecord>('RestingHeartRate', options);
+  readRecords<RestingHeartRateRecord>(RecordType.RESTING_HEART_RATE, options);
 
 export const readRespiratoryRate = (options?: ReadRecordsOptions) =>
-  readRecords<RespiratoryRateRecord>('RespiratoryRate', options);
+  readRecords<RespiratoryRateRecord>(RecordType.RESPIRATORY_RATE, options);
 
 export const readFloorsClimbed = (options?: ReadRecordsOptions) =>
-  readRecords<FloorsClimbedRecord>('FloorsClimbed', options);
+  readRecords<FloorsClimbedRecord>(RecordType.FLOORS_CLIMBED, options);
 
 export const readElevationGained = (options?: ReadRecordsOptions) =>
-  readRecords<ElevationGainedRecord>('ElevationGained', options);
+  readRecords<ElevationGainedRecord>(RecordType.ELEVATION_GAINED, options);
 
 export const readMindfulnessSessions = (options?: ReadRecordsOptions) =>
-  readRecords<MindfulnessSessionRecord>('MindfulnessSession', options);
+  readRecords<MindfulnessSessionRecord>(
+    RecordType.MINDFULNESS_SESSION,
+    options
+  );
 
 export const readSkinTemperature = (options?: ReadRecordsOptions) =>
-  readRecords<SkinTemperatureRecord>('SkinTemperature', options);
+  readRecords<SkinTemperatureRecord>(RecordType.SKIN_TEMPERATURE, options);
 
 export const readActivityIntensity = (options?: ReadRecordsOptions) =>
-  readRecords<ActivityIntensityRecord>('ActivityIntensity', options);
+  readRecords<ActivityIntensityRecord>(RecordType.ACTIVITY_INTENSITY, options);
 
 export const readNutrition = (options?: ReadRecordsOptions) =>
-  readRecords<NutritionRecord>('Nutrition', options);
+  readRecords<NutritionRecord>(RecordType.NUTRITION, options);
 
 export const readVo2Max = (options?: ReadRecordsOptions) =>
-  readRecords<Vo2MaxRecord>('Vo2Max', options);
+  readRecords<Vo2MaxRecord>(RecordType.VO2_MAX, options);
 
 export const readSpeed = (options?: ReadRecordsOptions) =>
-  readRecords<SpeedRecord>('Speed', options);
+  readRecords<SpeedRecord>(RecordType.SPEED, options);
 
 export const readPower = (options?: ReadRecordsOptions) =>
-  readRecords<PowerRecord>('Power', options);
+  readRecords<PowerRecord>(RecordType.POWER, options);
 
 export const readStepsCadence = (options?: ReadRecordsOptions) =>
-  readRecords<StepsCadenceRecord>('StepsCadence', options);
+  readRecords<StepsCadenceRecord>(RecordType.STEPS_CADENCE, options);
 
 export const readCyclingPedalingCadence = (options?: ReadRecordsOptions) =>
-  readRecords<CyclingPedalingCadenceRecord>('CyclingPedalingCadence', options);
+  readRecords<CyclingPedalingCadenceRecord>(
+    RecordType.CYCLING_PEDALING_CADENCE,
+    options
+  );
 
 export const readWheelchairPushes = (options?: ReadRecordsOptions) =>
-  readRecords<WheelchairPushesRecord>('WheelchairPushes', options);
+  readRecords<WheelchairPushesRecord>(RecordType.WHEELCHAIR_PUSHES, options);
 
 export const readMenstruationFlow = (options?: ReadRecordsOptions) =>
-  readRecords<MenstruationFlowRecord>('MenstruationFlow', options);
+  readRecords<MenstruationFlowRecord>(RecordType.MENSTRUATION_FLOW, options);
 
 export const readMenstruationPeriods = (options?: ReadRecordsOptions) =>
-  readRecords<MenstruationPeriodRecord>('MenstruationPeriod', options);
+  readRecords<MenstruationPeriodRecord>(
+    RecordType.MENSTRUATION_PERIOD,
+    options
+  );
 
 export const readOvulationTests = (options?: ReadRecordsOptions) =>
-  readRecords<OvulationTestRecord>('OvulationTest', options);
+  readRecords<OvulationTestRecord>(RecordType.OVULATION_TEST, options);
 
 export const readCervicalMucus = (options?: ReadRecordsOptions) =>
-  readRecords<CervicalMucusRecord>('CervicalMucus', options);
+  readRecords<CervicalMucusRecord>(RecordType.CERVICAL_MUCUS, options);
 
 export const readIntermenstrualBleeding = (options?: ReadRecordsOptions) =>
-  readRecords<IntermenstrualBleedingRecord>('IntermenstrualBleeding', options);
+  readRecords<IntermenstrualBleedingRecord>(
+    RecordType.INTERMENSTRUAL_BLEEDING,
+    options
+  );
 
 export const readSexualActivity = (options?: ReadRecordsOptions) =>
-  readRecords<SexualActivityRecord>('SexualActivity', options);
+  readRecords<SexualActivityRecord>(RecordType.SEXUAL_ACTIVITY, options);
 
 export const readBasalBodyTemperature = (options?: ReadRecordsOptions) =>
-  readRecords<BasalBodyTemperatureRecord>('BasalBodyTemperature', options);
+  readRecords<BasalBodyTemperatureRecord>(
+    RecordType.BASAL_BODY_TEMPERATURE,
+    options
+  );
 
 export const readLeanBodyMass = (options?: ReadRecordsOptions) =>
-  readRecords<LeanBodyMassRecord>('LeanBodyMass', options);
+  readRecords<LeanBodyMassRecord>(RecordType.LEAN_BODY_MASS, options);
 
 export const readBoneMass = (options?: ReadRecordsOptions) =>
-  readRecords<BoneMassRecord>('BoneMass', options);
+  readRecords<BoneMassRecord>(RecordType.BONE_MASS, options);
 
 export const readBodyWaterMass = (options?: ReadRecordsOptions) =>
-  readRecords<BodyWaterMassRecord>('BodyWaterMass', options);
+  readRecords<BodyWaterMassRecord>(RecordType.BODY_WATER_MASS, options);
 
 export const readBasalMetabolicRate = (options?: ReadRecordsOptions) =>
-  readRecords<BasalMetabolicRateRecord>('BasalMetabolicRate', options);
+  readRecords<BasalMetabolicRateRecord>(
+    RecordType.BASAL_METABOLIC_RATE,
+    options
+  );
 
 export const readHeartRateVariabilityRmssd = (options?: ReadRecordsOptions) =>
   readRecords<HeartRateVariabilityRmssdRecord>(
-    'HeartRateVariabilityRmssd',
+    RecordType.HEART_RATE_VARIABILITY_RMSSD,
     options
   );
 
