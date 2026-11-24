@@ -21,6 +21,7 @@ description: >-
 - Target iOS — this library is Android-only
 - Assume RN below 0.84 or Old Architecture
 - Hand-type permission strings when `Permission.*` exists
+- Hand-type record type strings when `RecordType.*` exists (`RecordType.STEPS`, not `'Steps'`)
 - Expect push/live updates from Health Connect — poll on resume
 
 ## Install
@@ -85,7 +86,7 @@ const { value, loading, refresh } = useForegroundPoll(
 
 Non-React: `pollOnForeground` / `pollUntil` / `waitUntil`.
 
-5. **Write / update** — `writeRecords`; `updateRecords` requires `metadata.id` from a prior read.
+5. **Write / update** — `writeRecords([{ recordType: RecordType.STEPS, … }])`; `updateRecords` requires `metadata.id` from a prior read.
 6. **Aggregates** — `aggregateRecord`, `aggregateGroupByDuration` (Instant buckets), `aggregateGroupByPeriod` (calendar).
 7. **Changelog** — `getChangesToken` → `getChanges` / `pullChanges` (tokens ~30 days; prefer one record type per token).
 8. **Matchmaking / PHR** — only after feature status checks.

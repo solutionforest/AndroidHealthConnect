@@ -338,22 +338,25 @@ const all = await readAllRecords('Steps', {
               <h2><span class="step">06</span>Write records<a class="anchor" href="#write">#</a></h2>
               <p>
                 <code>writeRecords</code> inserts a batch of mixed record types and returns
-                the new IDs. Each record needs a <code>recordType</code> and the matching
-                write permission.
+                the new IDs. Prefer <code>RecordType.*</code> over hand-typed
+                <code>'Steps'</code> strings (same idea as <code>Permission.*</code>).
               </p>
               <div class="code">
                 <div class="code__bar"><span>write.ts</span><button class="copy" data-copy>Copy</button></div>
-                <pre data-lang="ts"><code>import { writeRecords } from '@solutionforest/android-health-connect';
+                <pre data-lang="ts"><code>import {
+  writeRecords,
+  RecordType,
+} from '@solutionforest/android-health-connect';
 
 const { recordIdsList } = await writeRecords([
   {
-    recordType: 'Steps',
+    recordType: RecordType.STEPS,
     count: 8000,
     startTime: '2024-01-01T08:00:00Z',
     endTime: '2024-01-01T09:00:00Z',
   },
   {
-    recordType: 'Weight',
+    recordType: RecordType.WEIGHT,
     weight: 75.5, // kg
     time: '2024-01-01T07:30:00Z',
   },

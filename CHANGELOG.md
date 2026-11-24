@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `RecordType.*` constants (e.g. `RecordType.STEPS`) so write / aggregate /
+  changelog callers do not hand-type `'Steps'`-style strings.
 - Docs site (GitHub Pages): install for **npmjs + GitHub Packages**, getting
   started, API overview, plus an agent skill (`skills.md`) with install steps
   for Cursor, Claude Code, and other agents.

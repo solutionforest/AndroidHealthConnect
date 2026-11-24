@@ -1140,6 +1140,67 @@ export type HealthRecord =
 
 export type RecordType = HealthRecord['recordType'];
 
+/**
+ * Typed Health Connect record-type strings for autocomplete.
+ * Prefer these over hand-typed `'Steps'` / `'HeartRate'` literals in
+ * `writeRecords`, `aggregateRecord`, `getChangesToken`, etc.
+ *
+ * @example
+ * ```ts
+ * await writeRecords([
+ *   { recordType: RecordType.STEPS, count: 1500, startTime, endTime },
+ * ]);
+ * await aggregateRecord({
+ *   recordType: RecordType.STEPS,
+ *   timeRangeFilter: timeRangeToday(),
+ * });
+ * ```
+ */
+export const RecordType = {
+  STEPS: 'Steps',
+  HEART_RATE: 'HeartRate',
+  SLEEP_SESSION: 'SleepSession',
+  ACTIVE_CALORIES_BURNED: 'ActiveCaloriesBurned',
+  TOTAL_CALORIES_BURNED: 'TotalCaloriesBurned',
+  DISTANCE: 'Distance',
+  WEIGHT: 'Weight',
+  HEIGHT: 'Height',
+  BLOOD_PRESSURE: 'BloodPressure',
+  BLOOD_GLUCOSE: 'BloodGlucose',
+  OXYGEN_SATURATION: 'OxygenSaturation',
+  BODY_TEMPERATURE: 'BodyTemperature',
+  BODY_FAT: 'BodyFat',
+  HYDRATION: 'Hydration',
+  EXERCISE_SESSION: 'ExerciseSession',
+  PLANNED_EXERCISE_SESSION: 'PlannedExerciseSession',
+  RESTING_HEART_RATE: 'RestingHeartRate',
+  RESPIRATORY_RATE: 'RespiratoryRate',
+  FLOORS_CLIMBED: 'FloorsClimbed',
+  ELEVATION_GAINED: 'ElevationGained',
+  MINDFULNESS_SESSION: 'MindfulnessSession',
+  SKIN_TEMPERATURE: 'SkinTemperature',
+  ACTIVITY_INTENSITY: 'ActivityIntensity',
+  NUTRITION: 'Nutrition',
+  VO2_MAX: 'Vo2Max',
+  SPEED: 'Speed',
+  POWER: 'Power',
+  STEPS_CADENCE: 'StepsCadence',
+  CYCLING_PEDALING_CADENCE: 'CyclingPedalingCadence',
+  WHEELCHAIR_PUSHES: 'WheelchairPushes',
+  MENSTRUATION_FLOW: 'MenstruationFlow',
+  MENSTRUATION_PERIOD: 'MenstruationPeriod',
+  OVULATION_TEST: 'OvulationTest',
+  CERVICAL_MUCUS: 'CervicalMucus',
+  INTERMENSTRUAL_BLEEDING: 'IntermenstrualBleeding',
+  SEXUAL_ACTIVITY: 'SexualActivity',
+  BASAL_BODY_TEMPERATURE: 'BasalBodyTemperature',
+  LEAN_BODY_MASS: 'LeanBodyMass',
+  BONE_MASS: 'BoneMass',
+  BODY_WATER_MASS: 'BodyWaterMass',
+  BASAL_METABOLIC_RATE: 'BasalMetabolicRate',
+  HEART_RATE_VARIABILITY_RMSSD: 'HeartRateVariabilityRmssd',
+} as const satisfies { readonly [key: string]: RecordType };
+
 // ─── Changelog / changes token ────────────────────────────────────────────────
 
 export type GetChangesTokenRequest = {

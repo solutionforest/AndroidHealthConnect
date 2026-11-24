@@ -31,6 +31,7 @@ import {
   ExercisePhase,
   RecordingMethod,
   Permission,
+  RecordType,
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
@@ -113,13 +114,13 @@ export default function App() {
     const walkStart = new Date(end.getTime() - 45 * 60_000);
     const { recordIdsList } = await writeRecords([
       {
-        recordType: 'Steps',
+        recordType: RecordType.STEPS,
         count: 2500,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
       },
       {
-        recordType: 'HeartRate',
+        recordType: RecordType.HEART_RATE,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
         samples: [
@@ -129,7 +130,7 @@ export default function App() {
         ],
       },
       {
-        recordType: 'ExerciseSession',
+        recordType: RecordType.EXERCISE_SESSION,
         exerciseType: ExerciseType.WALKING,
         startTime: walkStart.toISOString(),
         endTime: end.toISOString(),
@@ -145,7 +146,7 @@ export default function App() {
     const hourAgo = new Date(now.getTime() - 3600_000);
     const { recordIdsList } = await writeRecords([
       {
-        recordType: 'Steps',
+        recordType: RecordType.STEPS,
         count: 1500,
         startTime: hourAgo.toISOString(),
         endTime: now.toISOString(),
@@ -177,7 +178,7 @@ export default function App() {
   const handleAggregateSteps = async () => {
     setStatus('Aggregating steps…');
     const result = await aggregateRecord({
-      recordType: 'Steps',
+      recordType: RecordType.STEPS,
       timeRangeFilter: weekRange(),
     });
     const total = result.metrics['COUNT_TOTAL'];
@@ -191,7 +192,7 @@ export default function App() {
     setStatus('Fetching changes…');
     let token = changesToken;
     if (!token) {
-      token = await getChangesToken({ recordTypes: ['Steps'] });
+      token = await getChangesToken({ recordTypes: [RecordType.STEPS] });
       setChangesToken(token);
     }
     const page = await getChanges(token, { pageSize: 100 });
@@ -276,7 +277,7 @@ export default function App() {
     const mid = new Date(start.getTime() + 15 * 60_000);
     const { recordIdsList } = await writeRecords([
       {
-        recordType: 'ExerciseSession',
+        recordType: RecordType.EXERCISE_SESSION,
         exerciseType: ExerciseType.RUNNING,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
@@ -355,7 +356,7 @@ export default function App() {
     const end = new Date(start.getTime() + 90 * 60_000);
     const { recordIdsList } = await writeRecords([
       {
-        recordType: 'PlannedExerciseSession',
+        recordType: RecordType.PLANNED_EXERCISE_SESSION,
         exerciseType: ExerciseType.RUNNING,
         startTime: start.toISOString(),
         endTime: end.toISOString(),

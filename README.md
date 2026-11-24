@@ -392,18 +392,23 @@ const { records } = await readRecords<WeightRecord>('Weight', {
 
 ### Write records
 
+Prefer `RecordType.*` over hand-typed `'Steps'` strings (same idea as `Permission.*`):
+
 ```ts
-import { writeRecords } from '@solutionforest/android-health-connect';
+import {
+  writeRecords,
+  RecordType,
+} from '@solutionforest/android-health-connect';
 
 const { recordIdsList } = await writeRecords([
   {
-    recordType: 'Steps',
+    recordType: RecordType.STEPS,
     count: 8000,
     startTime: '2024-01-01T08:00:00Z',
     endTime:   '2024-01-01T09:00:00Z',
   },
   {
-    recordType: 'Weight',
+    recordType: RecordType.WEIGHT,
     weight: 75.5, // kg
     time: '2024-01-01T07:30:00Z',
   },
