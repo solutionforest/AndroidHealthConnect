@@ -1,8 +1,10 @@
 <p align="center">
-  <img src="docs/assets/logo.jpg" alt="android-health-connect" width="160" height="160" />
+  <img src="docs/assets/og-cover.png" alt="android-health-connect — Android Health Connect for React Native (TurboModule, 42 record types, Expo plugin)" width="720" />
 </p>
 
-<h1 align="center">android-health-connect</h1>
+<h1 align="center">android-health-connect — Android Health Connect for React Native</h1>
+
+<p align="center"><strong>Read and write steps, heart rate, sleep, workouts and 42 Health Connect record types from React Native — TypeScript-first TurboModule with an Expo config plugin.</strong></p>
 
 <p align="center">
   <a href="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml"><img src="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
@@ -15,7 +17,7 @@
   <img src="https://img.shields.io/badge/quality-max--strict-0F172A.svg" alt="Quality max-strict" />
 </p>
 
-A React Native library for integrating with [Android Health Connect](https://developer.android.com/health-and-fitness/health-connect) — the unified health & fitness data platform on Android 10+ (API 29+).
+**android-health-connect** is a React Native library (TurboModule, TypeScript, Expo-compatible) for integrating with [Android Health Connect](https://developer.android.com/health-and-fitness/health-connect) — the unified health & fitness data platform on Android 10+ (API 29+).
 
 > **Android only.** This library has no iOS implementation.
 
@@ -890,3 +892,7 @@ MIT
 ---
 
 Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+
+## Keywords
+
+react-native health connect · android health connect react native · react native fitness data · steps, heart rate, sleep, exercise records · Health Connect permissions · Expo config plugin · TurboModule · wearables
