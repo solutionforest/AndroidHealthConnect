@@ -50,10 +50,15 @@ jobs:
       - name: Ensure npm CLI supports Trusted Publishing
         run: |
           set -euo pipefail
-          # Trusted Publishing needs npm ≥ 11.5.1 and Node ≥ 22.14.
-          # Pin npm@11: npm@latest (12+) self-upgrade is flaky on Actions
-          # (MODULE_NOT_FOUND / promise-retry when replacing the bundled CLI).
-          npm install -g npm@11
+          # Trusted Publishing needs npm ≥ 11.5.1. Node 22.22.2 ships npm 10.9.x,
+          # and `npm install -g npm@…` on the Actions toolcache often fails with
+          # MODULE_NOT_FOUND (promise-retry). Bootstrap from the registry tarball.
+          NPM_VERSION=11.21.3
+          TMP="$(mktemp -d)"
+          curl -fsSL "https://registry.npmjs.org/npm/-/npm-${NPM_VERSION}.tgz" \
+            | tar -xz -C "$TMP"
+          node "$TMP/package/bin/npm-cli.js" install -g "npm@${NPM_VERSION}"
+          rm -rf "$TMP"
           node -v
           npm -v
           node -e "const [maj,min]=require('child_process').execSync('npm -v').toString().trim().split('.').map(Number); if(maj<11||(maj===11&&min<5)) process.exit(1)"
