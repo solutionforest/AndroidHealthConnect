@@ -68,7 +68,13 @@
     "turbo-module",
     "expo",
     "permissions",
-    "wearables"
+    "wearables",
+    "react-native-health-connect",
+    "android-health-connect",
+    "health-data",
+    "steps",
+    "heart-rate",
+    "typescript"
   ],
   "repository": {
     "type": "git",
