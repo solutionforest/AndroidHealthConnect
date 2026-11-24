@@ -97,23 +97,61 @@ describe('time range helpers', () => {
     expect(() => timeRangeLastDays(-1)).toThrow(/days/);
   });
 
-  it('now().subHours / subMinutes / until read like Carbon', () => {
+  it('now().sub* / add* / until read like Carbon', () => {
     const end = new Date('2024-01-02T12:00:00.000Z');
-    expect(now(end).toISOString()).toBe('2024-01-02T12:00:00.000Z');
-    expect(now(end).subHours(1).toISOString()).toBe('2024-01-02T11:00:00.000Z');
-    expect(now(end).subMinutes(30).toISOString()).toBe(
-      '2024-01-02T11:30:00.000Z'
-    );
-    expect(now(end).subHour().until(end)).toEqual({
+    const clock = now(end);
+
+    expect(clock.toISOString()).toBe('2024-01-02T12:00:00.000Z');
+    expect(clock.toDate().getTime()).toBe(end.getTime());
+    expect(clock.toDate()).not.toBe(end);
+
+    expect(clock.subHours(1).toISOString()).toBe('2024-01-02T11:00:00.000Z');
+    expect(clock.subHour().toISOString()).toBe('2024-01-02T11:00:00.000Z');
+    expect(clock.subMinutes(30).toISOString()).toBe('2024-01-02T11:30:00.000Z');
+    expect(clock.subMinute().toISOString()).toBe('2024-01-02T11:59:00.000Z');
+    expect(clock.subDays(1).toISOString()).toBe('2024-01-01T12:00:00.000Z');
+    expect(clock.subDay().toISOString()).toBe('2024-01-01T12:00:00.000Z');
+
+    expect(clock.addHours(2).toISOString()).toBe('2024-01-02T14:00:00.000Z');
+    expect(clock.addHour().toISOString()).toBe('2024-01-02T13:00:00.000Z');
+    expect(clock.addMinutes(15).toISOString()).toBe('2024-01-02T12:15:00.000Z');
+    expect(clock.addMinute().toISOString()).toBe('2024-01-02T12:01:00.000Z');
+    expect(clock.addDays(14).toISOString()).toBe('2024-01-16T12:00:00.000Z');
+    expect(clock.addDay().toISOString()).toBe('2024-01-03T12:00:00.000Z');
+
+    expect(clock.subHour().until(end)).toEqual({
       startTime: '2024-01-02T11:00:00.000Z',
       endTime: '2024-01-02T12:00:00.000Z',
     });
-    expect(now(end).addDays(14).toISOString()).toBe('2024-01-16T12:00:00.000Z');
+    expect(clock.subHour().until(clock)).toEqual({
+      startTime: '2024-01-02T11:00:00.000Z',
+      endTime: '2024-01-02T12:00:00.000Z',
+    });
+  });
+
+  it('untilNow builds a window ending at wall clock', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2024-01-02T12:00:00.000Z'));
+    try {
+      expect(now().subHours(1).untilNow()).toEqual({
+        startTime: '2024-01-02T11:00:00.000Z',
+        endTime: '2024-01-02T12:00:00.000Z',
+      });
+      expect(now().subMinutes(30).until()).toEqual({
+        startTime: '2024-01-02T11:30:00.000Z',
+        endTime: '2024-01-02T12:00:00.000Z',
+      });
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('rejects non-positive Instant offsets', () => {
     expect(() => now().subHours(0)).toThrow(/hours/);
     expect(() => now().subMinutes(-1)).toThrow(/minutes/);
+    expect(() => now().subDays(0)).toThrow(/days/);
+    expect(() => now().addHours(0)).toThrow(/hours/);
+    expect(() => now().addMinutes(-1)).toThrow(/minutes/);
     expect(() => now().addDays(0)).toThrow(/days/);
   });
 });
