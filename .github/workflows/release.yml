@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build/upload/publish (e.g. v0.3.14). Leave empty to use package.json version.'
+        description: 'Existing tag to build/upload/publish (e.g. v0.3.15). Leave empty to use package.json version.'
         required: false
         type: string
 
@@ -51,8 +51,9 @@ jobs:
         run: |
           set -euo pipefail
           # Trusted Publishing needs npm ≥ 11.5.1 and Node ≥ 22.14.
-          # .nvmrc is ≥22.22.2 so npm@latest (12+) is installable.
-          npm install -g npm@latest
+          # Pin npm@11: npm@latest (12+) self-upgrade is flaky on Actions
+          # (MODULE_NOT_FOUND / promise-retry when replacing the bundled CLI).
+          npm install -g npm@11
           node -v
           npm -v
           node -e "const [maj,min]=require('child_process').execSync('npm -v').toString().trim().split('.').map(Number); if(maj<11||(maj===11&&min<5)) process.exit(1)"
