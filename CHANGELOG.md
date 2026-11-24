@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.16] - 2026-11-24
+
 ### Added
 
 - `Feature.*` / `FeatureStatus.AVAILABLE` constants for feature gates (no more
@@ -16,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FhirVersion.R4` (+ `FhirVersion.of(...)`) for PHR `fhirVersion` fields.
 - `deleteRecordsByTime` accepts `HealthInstant` / `Date` / ISO string via
   `InstantInput`.
+
+### Changed
+
+- Release CI bootstraps npm 11 from the registry tarball (avoids Actions
+  toolcache self-upgrade failures on Node 22.22.2).
+- Docs / examples prefer `RecordType.*`, `Feature.*`, and Carbon-style `now()`
+  windows over hand-typed strings and absolute ISO samples.
 
 ## [0.3.15] - 2026-11-24
 
@@ -224,6 +233,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Stable 0.2.x line (HC `1.1.0`, AGP 8.9 / sdk 36): GitHub Packages + hosted CI parity and security dependency fixes.
 
+[0.3.16]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.16
 [0.3.15]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.15
 [0.3.14]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.14
 [0.3.13]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.13
