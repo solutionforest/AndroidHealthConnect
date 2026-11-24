@@ -79,6 +79,8 @@ export { LIBRARY_VERSION, checkLibraryUpdate, compareSemver } from './upgrade';
 export type { CheckLibraryUpdateOptions, LibraryUpdateInfo } from './upgrade';
 export {
   ensurePermissions,
+  HealthInstant,
+  now,
   timeRangeLastHours,
   timeRangeLastDays,
   timeRangeToday,

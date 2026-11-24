@@ -4,6 +4,7 @@ import {
   timeRangeLastDays,
   timeRangeLastHours,
   timeRangeToday,
+  now,
   waitForRecords,
   WaitForRecordsTimeoutError,
   WaitTimeoutError,
@@ -83,17 +84,37 @@ describe('time range helpers', () => {
   });
 
   it('timeRangeToday starts at local midnight', () => {
-    const now = new Date('2024-06-15T15:30:00');
-    const range = timeRangeToday(now);
+    const at = new Date('2024-06-15T15:30:00');
+    const range = timeRangeToday(at);
     const start = new Date(range.startTime);
     expect(start.getHours()).toBe(0);
     expect(start.getMinutes()).toBe(0);
-    expect(range.endTime).toBe(now.toISOString());
+    expect(range.endTime).toBe(at.toISOString());
   });
 
   it('rejects non-positive spans', () => {
     expect(() => timeRangeLastHours(0)).toThrow(/hours/);
     expect(() => timeRangeLastDays(-1)).toThrow(/days/);
+  });
+
+  it('now().subHours / subMinutes / until read like Carbon', () => {
+    const end = new Date('2024-01-02T12:00:00.000Z');
+    expect(now(end).toISOString()).toBe('2024-01-02T12:00:00.000Z');
+    expect(now(end).subHours(1).toISOString()).toBe('2024-01-02T11:00:00.000Z');
+    expect(now(end).subMinutes(30).toISOString()).toBe(
+      '2024-01-02T11:30:00.000Z'
+    );
+    expect(now(end).subHour().until(end)).toEqual({
+      startTime: '2024-01-02T11:00:00.000Z',
+      endTime: '2024-01-02T12:00:00.000Z',
+    });
+    expect(now(end).addDays(14).toISOString()).toBe('2024-01-16T12:00:00.000Z');
+  });
+
+  it('rejects non-positive Instant offsets', () => {
+    expect(() => now().subHours(0)).toThrow(/hours/);
+    expect(() => now().subMinutes(-1)).toThrow(/minutes/);
+    expect(() => now().addDays(0)).toThrow(/days/);
   });
 });
 

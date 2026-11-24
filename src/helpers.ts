@@ -53,6 +53,138 @@ export async function ensurePermissions(
   };
 }
 
+// ─── Time (Carbon-style fluent Instant) ───────────────────────────────────────
+
+/**
+ * Fluent Instant helper inspired by Laravel Carbon.
+ *
+ * @example
+ * ```ts
+ * now().toISOString()
+ * now().subHours(1).toISOString()
+ * now().subMinutes(30).toISOString()
+ * now().subHours(1).until(now()) // { startTime, endTime }
+ * ```
+ */
+export class HealthInstant {
+  private constructor(private readonly date: Date) {}
+
+  /** Clock at `at` (default wall clock). */
+  static now(at: Date = new Date()): HealthInstant {
+    return new HealthInstant(at);
+  }
+
+  /** Subtract whole hours (must be &gt; 0). */
+  subHours(hours: number): HealthInstant {
+    if (!(hours > 0)) {
+      throw new Error('HealthInstant.subHours: hours must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() - hours * 3600_000));
+  }
+
+  /** Subtract one hour. */
+  subHour(): HealthInstant {
+    return this.subHours(1);
+  }
+
+  /** Subtract whole minutes (must be &gt; 0). */
+  subMinutes(minutes: number): HealthInstant {
+    if (!(minutes > 0)) {
+      throw new Error('HealthInstant.subMinutes: minutes must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() - minutes * 60_000));
+  }
+
+  /** Subtract one minute. */
+  subMinute(): HealthInstant {
+    return this.subMinutes(1);
+  }
+
+  /** Subtract whole days (must be &gt; 0). */
+  subDays(days: number): HealthInstant {
+    if (!(days > 0)) {
+      throw new Error('HealthInstant.subDays: days must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() - days * 86400_000));
+  }
+
+  /** Subtract one day. */
+  subDay(): HealthInstant {
+    return this.subDays(1);
+  }
+
+  /** Add whole hours (must be &gt; 0). */
+  addHours(hours: number): HealthInstant {
+    if (!(hours > 0)) {
+      throw new Error('HealthInstant.addHours: hours must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() + hours * 3600_000));
+  }
+
+  /** Add one hour. */
+  addHour(): HealthInstant {
+    return this.addHours(1);
+  }
+
+  /** Add whole minutes (must be &gt; 0). */
+  addMinutes(minutes: number): HealthInstant {
+    if (!(minutes > 0)) {
+      throw new Error('HealthInstant.addMinutes: minutes must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() + minutes * 60_000));
+  }
+
+  /** Add one minute. */
+  addMinute(): HealthInstant {
+    return this.addMinutes(1);
+  }
+
+  /** Add whole days (must be &gt; 0). */
+  addDays(days: number): HealthInstant {
+    if (!(days > 0)) {
+      throw new Error('HealthInstant.addDays: days must be > 0');
+    }
+    return new HealthInstant(new Date(this.date.getTime() + days * 86400_000));
+  }
+
+  /** Add one day. */
+  addDay(): HealthInstant {
+    return this.addDays(1);
+  }
+
+  /** ISO-8601 Instant string (Health Connect wire format). */
+  toISOString(): string {
+    return this.date.toISOString();
+  }
+
+  /** Underlying `Date` copy. */
+  toDate(): Date {
+    return new Date(this.date.getTime());
+  }
+
+  /**
+   * Instant window from this Instant until `end` (default wall clock now).
+   * Useful for writeRecords start/end without manual Date math.
+   */
+  until(end: HealthInstant | Date = HealthInstant.now()): TimeRangeFilter {
+    const endDate = end instanceof HealthInstant ? end.toDate() : end;
+    return {
+      startTime: this.toISOString(),
+      endTime: endDate.toISOString(),
+    };
+  }
+
+  /** Same as {@link until} with `HealthInstant.now()`. */
+  untilNow(): TimeRangeFilter {
+    return this.until(HealthInstant.now());
+  }
+}
+
+/** Carbon-style entry: `now().subHours(1).toISOString()`. */
+export function now(at?: Date): HealthInstant {
+  return HealthInstant.now(at);
+}
+
 // ─── Time ranges ──────────────────────────────────────────────────────────────
 
 /** Inclusive start / exclusive end Instant window ending at `end` (default now). */
@@ -60,11 +192,7 @@ export function timeRangeLastHours(
   hours: number,
   end: Date = new Date()
 ): TimeRangeFilter {
-  if (!(hours > 0)) {
-    throw new Error('timeRangeLastHours: hours must be > 0');
-  }
-  const start = new Date(end.getTime() - hours * 3600_000);
-  return { startTime: start.toISOString(), endTime: end.toISOString() };
+  return now(end).subHours(hours).until(end);
 }
 
 /** Inclusive start / exclusive end Instant window ending at `end` (default now). */
@@ -72,21 +200,17 @@ export function timeRangeLastDays(
   days: number,
   end: Date = new Date()
 ): TimeRangeFilter {
-  if (!(days > 0)) {
-    throw new Error('timeRangeLastDays: days must be > 0');
-  }
-  const start = new Date(end.getTime() - days * 86400_000);
-  return { startTime: start.toISOString(), endTime: end.toISOString() };
+  return now(end).subDays(days).until(end);
 }
 
 /**
  * Local-calendar "today" from midnight to `now` (device local zone via Date).
  * Useful for steps / calories dashboards.
  */
-export function timeRangeToday(now: Date = new Date()): TimeRangeFilter {
-  const start = new Date(now);
+export function timeRangeToday(at: Date = new Date()): TimeRangeFilter {
+  const start = new Date(at);
   start.setHours(0, 0, 0, 0);
-  return { startTime: start.toISOString(), endTime: now.toISOString() };
+  return { startTime: start.toISOString(), endTime: at.toISOString() };
 }
 
 // ─── Wait / poll ──────────────────────────────────────────────────────────────

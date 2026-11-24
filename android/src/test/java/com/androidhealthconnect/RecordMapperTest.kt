@@ -181,7 +181,8 @@ class RecordMapperTest {
             throw AssertionError("Expected IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             val message = requireNotNull(e.message) { "expected exception message" }
-            assertTrue(message.contains("Unsupported record type"))
+            assertTrue(message.contains("Unknown recordType"))
+            assertTrue(message.contains("NotARealType"))
         }
     }
 

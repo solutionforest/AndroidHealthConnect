@@ -243,7 +243,12 @@ internal object RecordMapper {
 
             in ExtendedRecordMapper.recordTypes ->
                 ExtendedRecordMapper.readRecords(client, recordType, options)
-            else -> throw IllegalArgumentException("Unsupported record type: $recordType")
+            else ->
+                throw IllegalArgumentException(
+                    "Unknown recordType \"$recordType\". " +
+                        "Use a supported Health Connect type (e.g. Steps, HeartRate) " +
+                        "or RecordType.* from JS."
+                )
         }
     }
 
@@ -294,7 +299,8 @@ internal object RecordMapper {
             is HeartRateVariabilityRmssdRecord -> ExtendedRecordMapper.toJson(record)
             else ->
                 throw IllegalArgumentException(
-                    "Unsupported record class: ${record::class.java.simpleName}"
+                    "Cannot serialise record class ${record::class.java.simpleName}. " +
+                        "This library does not map that Health Connect type yet."
                 )
         }
 
@@ -326,7 +332,12 @@ internal object RecordMapper {
             "ActivityIntensity" -> jsonToActivityIntensity(json)
             "PlannedExerciseSession" -> PlannedExerciseMapper.fromJson(json)
             in ExtendedRecordMapper.recordTypes -> ExtendedRecordMapper.fromJson(json)
-            else -> throw IllegalArgumentException("Unsupported record type: $type")
+            else ->
+                throw IllegalArgumentException(
+                    "Unknown recordType \"$type\". " +
+                        "Use a supported Health Connect type (e.g. Steps, HeartRate) " +
+                        "or RecordType.* from JS."
+                )
         }
     }
 
@@ -364,7 +375,12 @@ internal object RecordMapper {
                 client.deleteRecords(PlannedExerciseSessionRecord::class, filter)
             in ExtendedRecordMapper.recordTypes ->
                 ExtendedRecordMapper.deleteByTimeRange(client, recordType, filter)
-            else -> throw IllegalArgumentException("Unsupported record type: $recordType")
+            else ->
+                throw IllegalArgumentException(
+                    "Unknown recordType \"$recordType\". " +
+                        "Use a supported Health Connect type (e.g. Steps, HeartRate) " +
+                        "or RecordType.* from JS."
+                )
         }
     }
 
@@ -400,7 +416,12 @@ internal object RecordMapper {
                 client.deleteRecords(PlannedExerciseSessionRecord::class, ids, emptyList())
             in ExtendedRecordMapper.recordTypes ->
                 ExtendedRecordMapper.deleteByIds(client, recordType, ids)
-            else -> throw IllegalArgumentException("Unsupported record type: $recordType")
+            else ->
+                throw IllegalArgumentException(
+                    "Unknown recordType \"$recordType\". " +
+                        "Use a supported Health Connect type (e.g. Steps, HeartRate) " +
+                        "or RecordType.* from JS."
+                )
         }
     }
 

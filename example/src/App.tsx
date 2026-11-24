@@ -32,6 +32,9 @@ import {
   RecordingMethod,
   Permission,
   RecordType,
+  timeRangeLastHours,
+  timeRangeLastDays,
+  now,
   type HealthConnectAvailability,
   type StepsRecord,
   type HeartRateSample,
@@ -74,15 +77,6 @@ export default function App() {
     ensureAvailable({ openStoreIfMissing: false }).then(setAvailability);
   }, []);
 
-  const weekRange = () => {
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 86400_000);
-    return {
-      startTime: weekAgo.toISOString(),
-      endTime: now.toISOString(),
-    };
-  };
-
   const handleRequestPermissions = async () => {
     setStatus('Requesting permissions…');
     const granted = await requestPermissions([...CORE_PERMS]);
@@ -107,33 +101,30 @@ export default function App() {
   const handleSeedDemoData = async () => {
     setStatus('Seeding demo data…');
     await requestPermissions([...CORE_PERMS, ...EXERCISE_PERMS]);
-    const end = new Date();
-    const start = new Date(end.getTime() - 3600_000);
-    const mid = new Date(end.getTime() - 1800_000);
-    const lastSample = new Date(end.getTime() - 1000);
-    const walkStart = new Date(end.getTime() - 45 * 60_000);
+    const end = now();
+    const { startTime, endTime } = end.subHours(1).until(end);
     const { recordIdsList } = await writeRecords([
       {
         recordType: RecordType.STEPS,
         count: 2500,
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
+        startTime,
+        endTime,
       },
       {
         recordType: RecordType.HEART_RATE,
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
+        startTime,
+        endTime,
         samples: [
-          { time: start.toISOString(), beatsPerMinute: 72 },
-          { time: mid.toISOString(), beatsPerMinute: 88 },
-          { time: lastSample.toISOString(), beatsPerMinute: 76 },
+          { time: startTime, beatsPerMinute: 72 },
+          { time: end.subMinutes(30).toISOString(), beatsPerMinute: 88 },
+          { time: end.subMinute().toISOString(), beatsPerMinute: 76 },
         ],
       },
       {
         recordType: RecordType.EXERCISE_SESSION,
         exerciseType: ExerciseType.WALKING,
-        startTime: walkStart.toISOString(),
-        endTime: end.toISOString(),
+        startTime: end.subMinutes(45).toISOString(),
+        endTime,
         title: 'Demo walk (seed)',
       },
     ]);
@@ -142,14 +133,13 @@ export default function App() {
 
   const handleWriteSteps = async () => {
     setStatus('Writing steps…');
-    const now = new Date();
-    const hourAgo = new Date(now.getTime() - 3600_000);
+    const { startTime, endTime } = timeRangeLastHours(1);
     const { recordIdsList } = await writeRecords([
       {
         recordType: RecordType.STEPS,
         count: 1500,
-        startTime: hourAgo.toISOString(),
-        endTime: now.toISOString(),
+        startTime,
+        endTime,
       },
     ]);
     setStatus(`Inserted record ID: ${recordIdsList[0]}`);
@@ -158,7 +148,7 @@ export default function App() {
   const handleReadSteps = async () => {
     setStatus('Reading steps…');
     const { records } = await readSteps({
-      timeRangeFilter: weekRange(),
+      timeRangeFilter: timeRangeLastDays(7),
     });
     setSteps(records);
     setStatus(`Fetched ${records.length} steps record(s)`);
@@ -167,7 +157,7 @@ export default function App() {
   const handleReadHeartRate = async () => {
     setStatus('Reading heart rate…');
     const { records } = await readHeartRate({
-      timeRangeFilter: weekRange(),
+      timeRangeFilter: timeRangeLastDays(7),
     });
     const allSamples = records.flatMap((r) => r.samples);
     setHeartRateSamples(allSamples);
@@ -179,7 +169,7 @@ export default function App() {
     setStatus('Aggregating steps…');
     const result = await aggregateRecord({
       recordType: RecordType.STEPS,
-      timeRangeFilter: weekRange(),
+      timeRangeFilter: timeRangeLastDays(7),
     });
     const total = result.metrics['COUNT_TOTAL'];
     setStatus(
@@ -243,7 +233,9 @@ export default function App() {
   /** Recipe: update the first Steps record (+100) using metadata.id. */
   const handleUpdateSteps = async () => {
     setStatus('Reading steps to update…');
-    const { records } = await readSteps({ timeRangeFilter: weekRange() });
+    const { records } = await readSteps({
+      timeRangeFilter: timeRangeLastDays(7),
+    });
     const existing = records[0];
     if (!existing?.metadata?.id) {
       setStatus('No Steps record with metadata.id — write steps first');
@@ -272,26 +264,26 @@ export default function App() {
     setStatus('Requesting exercise permissions…');
     await requestPermissions([...EXERCISE_PERMS]);
     setStatus('Writing ExerciseSession + route…');
-    const end = new Date();
-    const start = new Date(end.getTime() - 30 * 60_000);
-    const mid = new Date(start.getTime() + 15 * 60_000);
+    const end = now();
+    const startTime = end.subMinutes(30).toISOString();
+    const endTime = end.toISOString();
     const { recordIdsList } = await writeRecords([
       {
         recordType: RecordType.EXERCISE_SESSION,
         exerciseType: ExerciseType.RUNNING,
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
+        startTime,
+        endTime,
         title: 'Demo run',
         exerciseRoute: {
           route: [
             {
-              time: start.toISOString(),
+              time: startTime,
               latitude: 22.3193,
               longitude: 114.1694,
               altitude: 12,
             },
             {
-              time: mid.toISOString(),
+              time: end.subMinutes(15).toISOString(),
               latitude: 22.3201,
               longitude: 114.1702,
             },
@@ -307,7 +299,7 @@ export default function App() {
     setStatus('Reading exercise sessions…');
     await requestPermissions([...EXERCISE_PERMS]);
     const { records } = await readExerciseSessions({
-      timeRangeFilter: weekRange(),
+      timeRangeFilter: timeRangeLastDays(7),
     });
     const first = records[0];
     if (!first) {
@@ -352,8 +344,8 @@ export default function App() {
     }
     await requestPermissions([...PLANNED_PERMS]);
     setStatus('Writing PlannedExerciseSession…');
-    const start = new Date(Date.now() + 2 * 86400_000);
-    const end = new Date(start.getTime() + 90 * 60_000);
+    const start = now().addDays(2);
+    const end = start.addMinutes(90);
     const { recordIdsList } = await writeRecords([
       {
         recordType: RecordType.PLANNED_EXERCISE_SESSION,
@@ -391,10 +383,7 @@ export default function App() {
     }
     await requestPermissions([...PLANNED_PERMS]);
     const { records } = await readPlannedExerciseSessions({
-      timeRangeFilter: {
-        startTime: new Date().toISOString(),
-        endTime: new Date(Date.now() + 14 * 86400_000).toISOString(),
-      },
+      timeRangeFilter: now().until(now().addDays(14)),
     });
     setStatus(
       records.length === 0

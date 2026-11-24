@@ -392,25 +392,31 @@ const { records } = await readRecords<WeightRecord>('Weight', {
 
 ### Write records
 
-Prefer `RecordType.*` over hand-typed `'Steps'` strings (same idea as `Permission.*`):
+Prefer `RecordType.*` over hand-typed `'Steps'` strings (same idea as `Permission.*`).
+Times use a Carbon-style fluent Instant — `now().subHours(1)` reads like English:
 
 ```ts
 import {
   writeRecords,
   RecordType,
+  now,
+  timeRangeLastHours,
 } from '@solutionforest/android-health-connect';
+
+const { startTime, endTime } = timeRangeLastHours(1);
+// or: now().subHours(1).until(now())
 
 const { recordIdsList } = await writeRecords([
   {
     recordType: RecordType.STEPS,
     count: 8000,
-    startTime: '2024-01-01T08:00:00Z',
-    endTime:   '2024-01-01T09:00:00Z',
+    startTime,
+    endTime,
   },
   {
     recordType: RecordType.WEIGHT,
     weight: 75.5, // kg
-    time: '2024-01-01T07:30:00Z',
+    time: now().subMinutes(30).toISOString(),
   },
 ]);
 ```

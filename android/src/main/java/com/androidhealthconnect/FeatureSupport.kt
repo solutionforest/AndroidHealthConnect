@@ -83,6 +83,11 @@ internal object FeatureSupport {
       "BodyWaterMass" -> BodyWaterMassRecord::class
       "BasalMetabolicRate" -> BasalMetabolicRateRecord::class
       "HeartRateVariabilityRmssd" -> HeartRateVariabilityRmssdRecord::class
-      else -> throw IllegalArgumentException("Unsupported record type: $recordType")
+      else ->
+        throw IllegalArgumentException(
+          "Unknown recordType \"$recordType\". " +
+            "Use a supported Health Connect type (e.g. Steps, HeartRate) " +
+            "or RecordType.* from JS."
+        )
     }
 }

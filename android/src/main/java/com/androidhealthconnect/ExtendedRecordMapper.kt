@@ -71,7 +71,11 @@ internal object ExtendedRecordMapper {
       "BodyWaterMass" -> read(client, BodyWaterMassRecord::class, filter, origins, ascending, pageSize, pageToken)
       "BasalMetabolicRate" -> read(client, BasalMetabolicRateRecord::class, filter, origins, ascending, pageSize, pageToken)
       "HeartRateVariabilityRmssd" -> read(client, HeartRateVariabilityRmssdRecord::class, filter, origins, ascending, pageSize, pageToken)
-      else -> throw IllegalArgumentException("Unsupported extended record type: $recordType")
+      else ->
+        throw IllegalArgumentException(
+          "Unknown extended recordType \"$recordType\". " +
+            "Check RecordType.* spelling (e.g. Nutrition, Vo2Max)."
+        )
     }
   }
 
@@ -212,7 +216,8 @@ internal object ExtendedRecordMapper {
           .put("heartRateVariabilityMillis", record.heartRateVariabilityMillis)
       else ->
         throw IllegalArgumentException(
-          "Unsupported extended record class: ${record::class.java.simpleName}"
+          "Cannot serialise extended record class ${record::class.java.simpleName}. " +
+            "This library does not map that Health Connect type yet."
         )
     }
 
@@ -378,7 +383,11 @@ internal object ExtendedRecordMapper {
           heartRateVariabilityMillis = json.getDouble("heartRateVariabilityMillis"),
           metadata = metadata(json),
         )
-      else -> throw IllegalArgumentException("Unsupported extended record type: $type")
+      else ->
+        throw IllegalArgumentException(
+          "Unknown extended recordType \"$type\". " +
+            "Check RecordType.* spelling (e.g. Nutrition, Vo2Max)."
+        )
     }
 
   suspend fun deleteByTimeRange(
@@ -407,7 +416,11 @@ internal object ExtendedRecordMapper {
       "BasalMetabolicRate" -> client.deleteRecords(BasalMetabolicRateRecord::class, filter)
       "HeartRateVariabilityRmssd" ->
         client.deleteRecords(HeartRateVariabilityRmssdRecord::class, filter)
-      else -> throw IllegalArgumentException("Unsupported extended record type: $recordType")
+      else ->
+        throw IllegalArgumentException(
+          "Unknown extended recordType \"$recordType\". " +
+            "Check RecordType.* spelling (e.g. Nutrition, Vo2Max)."
+        )
     }
   }
 
@@ -440,7 +453,11 @@ internal object ExtendedRecordMapper {
       "BasalMetabolicRate" -> client.deleteRecords(BasalMetabolicRateRecord::class, ids, emptyList())
       "HeartRateVariabilityRmssd" ->
         client.deleteRecords(HeartRateVariabilityRmssdRecord::class, ids, emptyList())
-      else -> throw IllegalArgumentException("Unsupported extended record type: $recordType")
+      else ->
+        throw IllegalArgumentException(
+          "Unknown extended recordType \"$recordType\". " +
+            "Check RecordType.* spelling (e.g. Nutrition, Vo2Max)."
+        )
     }
   }
 

@@ -339,26 +339,32 @@ const all = await readAllRecords('Steps', {
               <p>
                 <code>writeRecords</code> inserts a batch of mixed record types and returns
                 the new IDs. Prefer <code>RecordType.*</code> over hand-typed
-                <code>'Steps'</code> strings (same idea as <code>Permission.*</code>).
+                <code>'Steps'</code> strings. Times use a Carbon-style fluent Instant —
+                <code>now().subMinutes(30)</code> reads like English.
               </p>
               <div class="code">
                 <div class="code__bar"><span>write.ts</span><button class="copy" data-copy>Copy</button></div>
                 <pre data-lang="ts"><code>import {
   writeRecords,
   RecordType,
+  now,
+  timeRangeLastHours,
 } from '@solutionforest/android-health-connect';
+
+const { startTime, endTime } = timeRangeLastHours(1);
+// or: now().subHours(1).until(now())
 
 const { recordIdsList } = await writeRecords([
   {
     recordType: RecordType.STEPS,
     count: 8000,
-    startTime: '2024-01-01T08:00:00Z',
-    endTime: '2024-01-01T09:00:00Z',
+    startTime,
+    endTime,
   },
   {
     recordType: RecordType.WEIGHT,
     weight: 75.5, // kg
-    time: '2024-01-01T07:30:00Z',
+    time: now().subMinutes(30).toISOString(),
   },
 ]);</code></pre>
               </div>
@@ -419,16 +425,23 @@ await deleteRecordsById('Steps', ['record-id-1', 'record-id-2']);</code></pre>
             <section id="time-ranges">
               <h2><span class="step">09</span>Time ranges<a class="anchor" href="#time-ranges">#</a></h2>
               <p>
-                The helpers return an Instant <code>TimeRangeFilter</code> you can pass to
-                any read or aggregate.
+                Range helpers return an Instant <code>TimeRangeFilter</code> for reads,
+                aggregates, and interval writes. Point times use Carbon-style
+                <code>now().subHours(1).toISOString()</code> (or <code>.until(now())</code>
+                for a window).
               </p>
               <div class="table">
                 <table>
-                  <thead><tr><th>Helper</th><th>Range</th></tr></thead>
+                  <thead><tr><th>Helper</th><th>Returns</th></tr></thead>
                   <tbody>
                     <tr><td><code>timeRangeToday()</code></td><td>Local midnight until now</td></tr>
                     <tr><td><code>timeRangeLastDays(n)</code></td><td>The last <code>n</code> days until now</td></tr>
                     <tr><td><code>timeRangeLastHours(n)</code></td><td>The last <code>n</code> hours until now</td></tr>
+                    <tr><td><code>now()</code></td><td>Fluent Instant (Carbon-style)</td></tr>
+                    <tr><td><code>now().subHours(n)</code></td><td><code>n</code> hours before now</td></tr>
+                    <tr><td><code>now().subMinutes(n)</code></td><td><code>n</code> minutes before now</td></tr>
+                    <tr><td><code>now().addDays(n)</code></td><td><code>n</code> days after now</td></tr>
+                    <tr><td><code>start.until(end)</code></td><td><code>{ startTime, endTime }</code></td></tr>
                   </tbody>
                 </table>
               </div>

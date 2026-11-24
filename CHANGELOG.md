@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `RecordType.*` constants (e.g. `RecordType.STEPS`) so write / aggregate /
   changelog callers do not hand-type `'Steps'`-style strings.
+- Carbon-style fluent Instant `now()` / `HealthInstant` (`subHours`,
+  `subMinutes`, `addDays`, `until`, …) for write sample / `time` fields; pair
+  with `timeRangeLastHours` / `timeRangeLastDays` for interval windows.
 - Docs site (GitHub Pages): install for **npmjs + GitHub Packages**, getting
   started, API overview, plus an agent skill (`skills.md`) with install steps
   for Cursor, Claude Code, and other agents.
+
+### Changed
+
+- Kotlin bridge: clearer `IllegalArgumentException` messages for unknown
+  `recordType` / unmapped record classes (point at `RecordType.*`).
 
 ## [0.3.14] - 2026-11-23
 

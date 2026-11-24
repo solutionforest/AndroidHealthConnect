@@ -132,6 +132,7 @@
                     <tr><td><code>revokeAllPermissions()</code></td><td><code>Promise&lt;void&gt;</code></td><td>Revoke everything</td></tr>
                     <tr><td><code>Permission.*</code></td><td><code>HealthPermission</code></td><td>Typed constants, e.g. <code>Permission.READ_STEPS</code></td></tr>
                     <tr><td><code>timeRangeToday()</code>, <code>timeRangeLastDays()</code>, <code>timeRangeLastHours()</code></td><td><code>TimeRangeFilter</code></td><td>Instant windows</td></tr>
+                    <tr><td><code>now()</code> / <code>HealthInstant</code></td><td>ISO Instant / range</td><td>Carbon-style <code>now().subHours(1).toISOString()</code>, <code>.until(now())</code></td></tr>
                     <tr><td><code>pollUntil</code>, <code>waitUntil</code></td><td>result / <code>T</code></td><td>Soft poll; <code>waitUntil</code> throws on timeout</td></tr>
                     <tr><td><code>useForegroundPoll</code>, <code>pollOnForeground</code></td><td>hook / controller</td><td>Poll on mount and on every resume</td></tr>
                     <tr><td><code>waitForRecords</code>, <code>readAllRecords</code>, <code>pullChanges</code></td><td>paged helpers</td><td>Wait for rows, drain pages, changelog loop</td></tr>
