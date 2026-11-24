@@ -185,6 +185,20 @@ export function now(at?: Date): HealthInstant {
   return HealthInstant.now(at);
 }
 
+/** ISO Instant string, `Date`, or fluent {@link HealthInstant}. */
+export type InstantInput = string | Date | HealthInstant;
+
+/** Normalize {@link InstantInput} to an ISO-8601 Instant string. */
+export function toInstantISO(value: InstantInput): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value instanceof HealthInstant) {
+    return value.toISOString();
+  }
+  return value.toISOString();
+}
+
 // ─── Time ranges ──────────────────────────────────────────────────────────────
 
 /** Inclusive start / exclusive end Instant window ending at `end` (default now). */

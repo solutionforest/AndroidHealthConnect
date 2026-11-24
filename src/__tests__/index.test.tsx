@@ -32,6 +32,11 @@ import {
   requestExerciseRoute,
   getChangesToken,
   getChanges,
+  Feature,
+  FeatureStatus,
+  FhirVersion,
+  RecordType,
+  now,
 } from '../index';
 import type { Spec } from '../NativeAndroidHealthConnect';
 import type { HealthPermission, StepsRecord } from '../types';
@@ -417,7 +422,7 @@ describe('deleteRecordsByTime', () => {
   it('calls native with correct arguments', async () => {
     mockNative.deleteRecordsByTime.mockResolvedValue(true);
     await deleteRecordsByTime(
-      'Steps',
+      RecordType.STEPS,
       '2024-01-01T00:00:00Z',
       '2024-01-02T00:00:00Z'
     );
@@ -425,6 +430,17 @@ describe('deleteRecordsByTime', () => {
       'Steps',
       '2024-01-01T00:00:00Z',
       '2024-01-02T00:00:00Z'
+    );
+  });
+
+  it('accepts HealthInstant / Date inputs', async () => {
+    mockNative.deleteRecordsByTime.mockResolvedValue(true);
+    const end = new Date('2024-01-02T12:00:00.000Z');
+    await deleteRecordsByTime(RecordType.STEPS, now(end).subDays(1), end);
+    expect(mockNative.deleteRecordsByTime).toHaveBeenCalledWith(
+      'Steps',
+      '2024-01-01T12:00:00.000Z',
+      '2024-01-02T12:00:00.000Z'
     );
   });
 });
@@ -620,11 +636,13 @@ describe('changelog / changes token', () => {
 
 describe('feature / matchmaking / PHR helpers', () => {
   it('getFeatureStatus forwards feature name', async () => {
-    mockNative.getFeatureStatus.mockResolvedValue('available');
-    await expect(getFeatureStatus('skinTemperature')).resolves.toBe(
-      'available'
+    mockNative.getFeatureStatus.mockResolvedValue(FeatureStatus.AVAILABLE);
+    await expect(getFeatureStatus(Feature.SKIN_TEMPERATURE)).resolves.toBe(
+      FeatureStatus.AVAILABLE
     );
-    expect(mockNative.getFeatureStatus).toHaveBeenCalledWith('skinTemperature');
+    expect(mockNative.getFeatureStatus).toHaveBeenCalledWith(
+      Feature.SKIN_TEMPERATURE
+    );
   });
 
   it('checkIfMatchmakingIsPossible parses JSON response', async () => {
@@ -667,7 +685,7 @@ describe('feature / matchmaking / PHR helpers', () => {
       id: 'ds-1',
       displayName: 'Clinic',
       fhirBaseUri: 'https://example.com/fhir/',
-      fhirVersion: { major: 4, minor: 0, patch: 1 },
+      fhirVersion: FhirVersion.R4,
     };
     mockNative.createMedicalDataSource.mockResolvedValue(
       JSON.stringify(source)
@@ -676,7 +694,7 @@ describe('feature / matchmaking / PHR helpers', () => {
       createMedicalDataSource({
         displayName: 'Clinic',
         fhirBaseUri: 'https://example.com/fhir/',
-        fhirVersion: { major: 4, minor: 0, patch: 1 },
+        fhirVersion: FhirVersion.R4,
       })
     ).resolves.toEqual(source);
   });
@@ -715,7 +733,7 @@ describe('feature / matchmaking / PHR helpers', () => {
     const requests = [
       {
         dataSourceId: 'ds-1',
-        fhirVersion: { major: 4, minor: 0, patch: 1 },
+        fhirVersion: FhirVersion.R4,
         data: '{"resourceType":"Observation"}',
       },
     ];

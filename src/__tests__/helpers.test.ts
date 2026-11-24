@@ -5,6 +5,7 @@ import {
   timeRangeLastHours,
   timeRangeToday,
   now,
+  toInstantISO,
   waitForRecords,
   WaitForRecordsTimeoutError,
   WaitTimeoutError,
@@ -153,6 +154,15 @@ describe('time range helpers', () => {
     expect(() => now().addHours(0)).toThrow(/hours/);
     expect(() => now().addMinutes(-1)).toThrow(/minutes/);
     expect(() => now().addDays(0)).toThrow(/days/);
+  });
+
+  it('toInstantISO accepts string, Date, and HealthInstant', () => {
+    const end = new Date('2024-01-02T12:00:00.000Z');
+    expect(toInstantISO('2024-01-02T12:00:00.000Z')).toBe(
+      '2024-01-02T12:00:00.000Z'
+    );
+    expect(toInstantISO(end)).toBe('2024-01-02T12:00:00.000Z');
+    expect(toInstantISO(now(end).subHours(1))).toBe('2024-01-02T11:00:00.000Z');
   });
 });
 

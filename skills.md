@@ -62,7 +62,7 @@ Same scoped name on both registries: `@solutionforest/android-health-connect`.
 
 - React Native **≥0.84**, New Architecture / TurboModules
 - Android API **29+**
-- Feature-gated APIs: call `getFeatureStatus(feature)` and only proceed when `'available'`
+- Feature-gated APIs: call `getFeatureStatus(Feature.*)` and only proceed when `FeatureStatus.AVAILABLE`
 
 ## Canonical implementation order
 

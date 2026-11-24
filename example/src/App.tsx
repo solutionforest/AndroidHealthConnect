@@ -32,6 +32,9 @@ import {
   RecordingMethod,
   Permission,
   RecordType,
+  Feature,
+  FeatureStatus,
+  Availability,
   timeRangeLastHours,
   timeRangeLastDays,
   now,
@@ -197,8 +200,8 @@ export default function App() {
   /** Recipe: history permission (feature-gated). */
   const handleHistoryPermission = async () => {
     setStatus('Checking history feature…');
-    const feature = await getFeatureStatus('readHealthDataHistory');
-    if (feature !== 'available') {
+    const feature = await getFeatureStatus(Feature.READ_HEALTH_DATA_HISTORY);
+    if (feature !== FeatureStatus.AVAILABLE) {
       setStatus('READ_HEALTH_DATA_HISTORY feature unavailable on this device');
       return;
     }
@@ -214,8 +217,8 @@ export default function App() {
   /** Recipe: background read permission (feature-gated). */
   const handleBackgroundPermission = async () => {
     setStatus('Checking background feature…');
-    const feature = await getFeatureStatus('readHealthDataInBackground');
-    if (feature !== 'available') {
+    const feature = await getFeatureStatus(Feature.READ_HEALTH_DATA_IN_BACKGROUND);
+    if (feature !== FeatureStatus.AVAILABLE) {
       setStatus(
         'READ_HEALTH_DATA_IN_BACKGROUND feature unavailable on this device'
       );
@@ -337,8 +340,8 @@ export default function App() {
   /** Recipe: PlannedExerciseSession (feature-gated training plan). */
   const handleWritePlannedExercise = async () => {
     setStatus('Checking plannedExercise feature…');
-    const feature = await getFeatureStatus('plannedExercise');
-    if (feature !== 'available') {
+    const feature = await getFeatureStatus(Feature.PLANNED_EXERCISE);
+    if (feature !== FeatureStatus.AVAILABLE) {
       setStatus('plannedExercise feature unavailable on this device');
       return;
     }
@@ -376,8 +379,8 @@ export default function App() {
 
   const handleReadPlannedExercise = async () => {
     setStatus('Reading planned exercise…');
-    const feature = await getFeatureStatus('plannedExercise');
-    if (feature !== 'available') {
+    const feature = await getFeatureStatus(Feature.PLANNED_EXERCISE);
+    if (feature !== FeatureStatus.AVAILABLE) {
       setStatus('plannedExercise feature unavailable on this device');
       return;
     }
@@ -417,20 +420,20 @@ export default function App() {
       <View style={styles.row}>
         <Text style={styles.label}>Availability:</Text>
         <Text
-          style={[styles.value, availability !== 'available' && styles.warn]}
+          style={[styles.value, availability !== Availability.AVAILABLE && styles.warn]}
         >
           {availability}
         </Text>
       </View>
 
-      {availability !== 'available' && (
+      {availability !== Availability.AVAILABLE && (
         <Button
           title="Install / Open Health Connect"
           onPress={openHealthConnectApp}
         />
       )}
 
-      {availability === 'available' && (
+      {availability === Availability.AVAILABLE && (
         <>
           <View style={styles.buttonGroup}>
             <Button

@@ -167,7 +167,9 @@
                 <table>
                   <thead><tr><th>Function</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr><td><code>getFeatureStatus(feature)</code></td><td><code>'available'</code> or <code>'unavailable'</code></td></tr>
+                    <tr><td><code>getFeatureStatus(Feature.*)</code></td><td><code>FeatureStatus.AVAILABLE</code> or <code>UNAVAILABLE</code></td></tr>
+                    <tr><td><code>Feature</code> / <code>FeatureStatus</code> / <code>Availability</code></td><td>Typed constants (no hand-typed feature / status strings)</td></tr>
+                    <tr><td><code>FhirVersion.R4</code></td><td>PHR <code>fhirVersion: { major: 4, minor: 0, patch: 1 }</code></td></tr>
                     <tr><td><code>checkIfMatchmakingIsPossible</code>, <code>launchMatchmaking</code></td><td>Matchmaking UI</td></tr>
                     <tr><td><code>createMedicalDataSource</code>, <code>getMedicalDataSources</code></td><td>FHIR data sources</td></tr>
                     <tr><td><code>upsertMedicalResources</code>, <code>readMedicalResources</code>, <code>deleteMedicalResources</code></td><td>Medical resources</td></tr>

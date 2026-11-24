@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Feature.*` / `FeatureStatus.AVAILABLE` constants for feature gates (no more
+  hand-typed `'skinTemperature'` / `'available'`).
+- `Availability.*` for HC install status (`AVAILABLE` / `NOT_INSTALLED` /
+  `NOT_SUPPORTED`).
+- `FhirVersion.R4` (+ `FhirVersion.of(...)`) for PHR `fhirVersion` fields.
+- `deleteRecordsByTime` accepts `HealthInstant` / `Date` / ISO string via
+  `InstantInput`.
+
 ## [0.3.15] - 2026-11-24
 
 ### Added

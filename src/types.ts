@@ -1,10 +1,21 @@
 // ─── Availability ────────────────────────────────────────────────────────────
 
+/**
+ * Whether Health Connect is usable on this device.
+ * Prefer {@link Availability} constants over hand-typed strings.
+ */
+export const Availability = {
+  /** HC installed and ready (`sdkStatus` 3 = SDK_AVAILABLE). */
+  AVAILABLE: 'available',
+  /** HC app needs install / update (`sdkStatus` 2). */
+  NOT_INSTALLED: 'notInstalled',
+  /** OS too old, no GMS, or otherwise unusable (`sdkStatus` 1). */
+  NOT_SUPPORTED: 'notSupported',
+} as const;
+
 /** Result of checking whether Health Connect is usable on the current device. */
 export type HealthConnectAvailability =
-  | 'available' // HC is installed and ready (sdkStatus = 3 SDK_AVAILABLE)
-  | 'notInstalled' // HC app needs to be installed / updated (sdkStatus = 2)
-  | 'notSupported'; // OS too old, no GMS, or otherwise unusable (sdkStatus = 1)
+  (typeof Availability)[keyof typeof Availability];
 
 /**
  * How Health Connect is delivered on this device.
@@ -1427,20 +1438,33 @@ export const RecordingMethod = {
 /**
  * Feature names accepted by {@link getFeatureStatus}.
  * Maps to `HealthConnectFeatures.FEATURE_*` on Android.
+ * Prefer {@link Feature} constants over hand-typed strings.
  */
-export type HealthConnectFeature =
-  | 'activityIntensity'
-  | 'matchmaking'
-  | 'mindfulnessSession'
-  | 'personalHealthRecord'
-  | 'plannedExercise'
-  | 'readHealthDataHistory'
-  | 'readHealthDataInBackground'
-  | 'skinTemperature'
-  | 'extendedDeviceTypes'
-  | 'exerciseSessionImprovements';
+export const Feature = {
+  ACTIVITY_INTENSITY: 'activityIntensity',
+  MATCHMAKING: 'matchmaking',
+  MINDFULNESS_SESSION: 'mindfulnessSession',
+  PERSONAL_HEALTH_RECORD: 'personalHealthRecord',
+  PLANNED_EXERCISE: 'plannedExercise',
+  READ_HEALTH_DATA_HISTORY: 'readHealthDataHistory',
+  READ_HEALTH_DATA_IN_BACKGROUND: 'readHealthDataInBackground',
+  SKIN_TEMPERATURE: 'skinTemperature',
+  EXTENDED_DEVICE_TYPES: 'extendedDeviceTypes',
+  EXERCISE_SESSION_IMPROVEMENTS: 'exerciseSessionImprovements',
+} as const;
 
-export type FeatureStatus = 'available' | 'unavailable';
+export type HealthConnectFeature = (typeof Feature)[keyof typeof Feature];
+
+/**
+ * Result of {@link getFeatureStatus}. Prefer {@link FeatureStatus.AVAILABLE}
+ * over the hand-typed `'available'` string.
+ */
+export const FeatureStatus = {
+  AVAILABLE: 'available',
+  UNAVAILABLE: 'unavailable',
+} as const;
+
+export type FeatureStatus = (typeof FeatureStatus)[keyof typeof FeatureStatus];
 
 export const MindfulnessSessionType = {
   UNKNOWN: 0,
@@ -1502,6 +1526,25 @@ export type FhirVersion = {
   major: number;
   minor: number;
   patch: number;
+};
+
+/**
+ * Common FHIR versions for PHR APIs. Prefer these over hand-typed
+ * `{ major, minor, patch }` objects.
+ *
+ * @example
+ * ```ts
+ * fhirVersion: FhirVersion.R4
+ * fhirVersion: FhirVersion.of(4, 0, 1)
+ * ```
+ */
+export const FhirVersion = {
+  /** FHIR R4 `4.0.1` — usual Health Connect PHR default. */
+  R4: { major: 4, minor: 0, patch: 1 } satisfies FhirVersion,
+  /** Build any `{ major, minor, patch }`. */
+  of(major: number, minor: number, patch: number): FhirVersion {
+    return { major, minor, patch };
+  },
 };
 
 export type MedicalDataSource = {

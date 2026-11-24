@@ -1,5 +1,6 @@
 import NativeAndroidHealthConnect from './NativeAndroidHealthConnect';
 import { RecordType } from './types';
+import { toInstantISO, type InstantInput } from './helpers';
 import type {
   HealthConnectAvailability,
   HealthConnectAvailabilityInfo,
@@ -81,6 +82,7 @@ export {
   ensurePermissions,
   HealthInstant,
   now,
+  toInstantISO,
   timeRangeLastHours,
   timeRangeLastDays,
   timeRangeToday,
@@ -93,6 +95,7 @@ export {
   pullChanges,
 } from './helpers';
 export type {
+  InstantInput,
   EnsurePermissionsResult,
   WaitForRecordsOptions,
   PollUntilOptions,
@@ -240,7 +243,7 @@ export function openHealthConnectApp(): void {
  *
  * @example
  * const { records } = await readRecords(RecordType.STEPS, {
- *   timeRangeFilter: { startTime: '2024-01-01T00:00:00Z', endTime: '2024-01-02T00:00:00Z' },
+ *   timeRangeFilter: timeRangeLastDays(7),
  * });
  */
 export async function readRecords<T extends HealthRecord>(
@@ -282,16 +285,22 @@ export async function updateRecords(records: HealthRecord[]): Promise<void> {
 
 /**
  * Deletes all records of the given type within the supplied time range.
+ * Times accept ISO strings, `Date`, or Carbon-style {@link HealthInstant}.
+ *
+ * @example
+ * ```ts
+ * await deleteRecordsByTime(RecordType.STEPS, now().subDays(1), now());
+ * ```
  */
 export async function deleteRecordsByTime(
   recordType: RecordType,
-  startTime: string,
-  endTime: string
+  startTime: InstantInput,
+  endTime: InstantInput
 ): Promise<void> {
   await NativeAndroidHealthConnect.deleteRecordsByTime(
     recordType,
-    startTime,
-    endTime
+    toInstantISO(startTime),
+    toInstantISO(endTime)
   );
 }
 

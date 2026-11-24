@@ -57,8 +57,8 @@ Full host-app tutorial (install, Expo plugin, manifests, API snippets):
 | Aggregate Steps (7d) | `aggregateRecord` |
 | Update Steps (+100) | `updateRecords` (`metadata.id`) |
 | getChanges (Steps) | `getChangesToken` + `getChanges({ pageSize })` |
-| Request History Permission | `getFeatureStatus('readHealthDataHistory')` + `Permission.READ_HEALTH_DATA_HISTORY` |
-| Request Background Permission | `getFeatureStatus('readHealthDataInBackground')` + `Permission.READ_HEALTH_DATA_IN_BACKGROUND` |
+| Request History Permission | `getFeatureStatus(Feature.READ_HEALTH_DATA_HISTORY)` + `Permission.READ_HEALTH_DATA_HISTORY` |
+| Request Background Permission | `getFeatureStatus(Feature.READ_HEALTH_DATA_IN_BACKGROUND)` + `Permission.READ_HEALTH_DATA_IN_BACKGROUND` |
 | Write / Read Exercise Route | `ExerciseSession` + `exerciseRoute` / `requestExerciseRoute` |
 | Write / Read Planned Exercise | `PlannedExerciseSession` (feature-gated) |
 

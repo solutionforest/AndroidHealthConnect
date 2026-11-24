@@ -151,17 +151,18 @@
   isHealthConnectAvailable,
   getHealthConnectAvailability,
   openHealthConnectApp,
+  Availability,
 } from '@solutionforest/android-health-connect';
 
 // Quick gate: opens the Play Store / Settings when notInstalled (default)
 const status = await ensureAvailable();
-if (status !== 'available') {
+if (status !== Availability.AVAILABLE) {
   // notInstalled (store opened) | notSupported (hide Health Connect UI)
 }
 
 // Or check without side effects
 const availability = await isHealthConnectAvailable();
-if (availability === 'notInstalled') {
+if (availability === Availability.NOT_INSTALLED) {
   openHealthConnectApp(); // Play Store on Android 9–13, Settings on 14+
 }
 
@@ -261,14 +262,16 @@ if (!result.allGranted) {
   getFeatureStatus,
   requestPermissions,
   Permission,
+  Feature,
+  FeatureStatus,
 } from '@solutionforest/android-health-connect';
 import type { HealthPermission } from '@solutionforest/android-health-connect';
 
 const extra: HealthPermission[] = [];
-if ((await getFeatureStatus('readHealthDataHistory')) === 'available') {
+if ((await getFeatureStatus(Feature.READ_HEALTH_DATA_HISTORY)) === FeatureStatus.AVAILABLE) {
   extra.push(Permission.READ_HEALTH_DATA_HISTORY);
 }
-if ((await getFeatureStatus('readHealthDataInBackground')) === 'available') {
+if ((await getFeatureStatus(Feature.READ_HEALTH_DATA_IN_BACKGROUND)) === FeatureStatus.AVAILABLE) {
   extra.push(Permission.READ_HEALTH_DATA_IN_BACKGROUND);
 }
 await requestPermissions([Permission.READ_STEPS, ...extra]);</code></pre>
@@ -302,10 +305,7 @@ import type { WeightRecord } from '@solutionforest/android-health-connect';
 
 // Typed helper, one page
 const { records, pageToken } = await readSteps({
-  timeRangeFilter: {
-    startTime: '2024-01-01T00:00:00Z',
-    endTime: '2024-01-08T00:00:00Z',
-  },
+  timeRangeFilter: timeRangeLastDays(7),
   ascendingOrder: true,
   pageSize: 100,
 });
@@ -414,10 +414,11 @@ await updateRecords([
   deleteRecordsByTime,
   deleteRecordsById,
   RecordType,
+  now,
 } from '@solutionforest/android-health-connect';
 
 // By time range
-await deleteRecordsByTime(RecordType.STEPS, '2024-01-01T00:00:00Z', '2024-01-02T00:00:00Z');
+await deleteRecordsByTime(RecordType.STEPS, now().subDays(1), now());
 
 // By ID
 await deleteRecordsById(RecordType.STEPS, ['record-id-1', 'record-id-2']);</code></pre>
@@ -599,6 +600,7 @@ await waitForRecords({
   aggregateGroupByDuration,
   timeRangeLastDays,
   RecordType,
+  now,
 } from '@solutionforest/android-health-connect';
 
 const total = await aggregateRecord({
@@ -609,10 +611,7 @@ console.log(total.metrics['COUNT_TOTAL']); // number | null
 
 const hourly = await aggregateGroupByDuration({
   recordType: RecordType.STEPS,
-  timeRangeFilter: {
-    startTime: '2024-01-01T00:00:00Z',
-    endTime: '2024-01-02T00:00:00Z',
-  },
+  timeRangeFilter: now().subDays(1).until(now()),
   timeRangeSlicer: { unit: 'hours', value: 1 },
 });
 hourly.forEach((row) =&gt; {
@@ -674,37 +673,47 @@ if (batch.changesTokenExpired) {
   getFeatureStatus,
   ExerciseType,
   RecordType,
+  Feature,
+  FeatureStatus,
+  now,
+  timeRangeLastDays,
 } from '@solutionforest/android-health-connect';
+
+const end = now();
+const start = end.subHours(1);
+const mid = end.subMinutes(30);
 
 await writeRecords([
   {
     recordType: RecordType.EXERCISE_SESSION,
     exerciseType: ExerciseType.RUNNING,
-    startTime: '2024-01-01T08:00:00Z',
-    endTime: '2024-01-01T09:00:00Z',
+    startTime: start.toISOString(),
+    endTime: end.toISOString(),
     exerciseRoute: {
       route: [
-        { time: '2024-01-01T08:00:00Z', latitude: 51.5, longitude: -0.12, altitude: 19 },
-        { time: '2024-01-01T08:30:00Z', latitude: 51.51, longitude: -0.11 },
+        { time: start.toISOString(), latitude: 51.5, longitude: -0.12, altitude: 19 },
+        { time: mid.toISOString(), latitude: 51.51, longitude: -0.11 },
       ],
     },
   },
 ]);
 
 // Optional 1.2 fields, behind a feature check
-if ((await getFeatureStatus('exerciseSessionImprovements')) === 'available') {
+if ((await getFeatureStatus(Feature.EXERCISE_SESSION_IMPROVEMENTS)) === FeatureStatus.AVAILABLE) {
   await writeRecords([
     {
       recordType: RecordType.EXERCISE_SESSION,
       exerciseType: ExerciseType.RUNNING,
-      startTime: '2024-01-01T08:00:00Z',
-      endTime: '2024-01-01T09:00:00Z',
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
       rateOfPerceivedExertion: 6.5,
     },
   ]);
 }
 
-const { records } = await readExerciseSessions({ timeRangeFilter });
+const { records } = await readExerciseSessions({
+  timeRangeFilter: timeRangeLastDays(7),
+});
 for (const session of records) {
   const route = session.exerciseRoute;
   if (!route || route.type === 'NO_DATA') continue;
@@ -721,8 +730,8 @@ for (const session of records) {
             <section id="planned">
               <h2><span class="step">15</span>Planned exercise<a class="anchor" href="#planned">#</a></h2>
               <p>
-                Training plans need <code>getFeatureStatus('plannedExercise')</code> to be
-                <code>'available'</code>, plus <code>READ_PLANNED_EXERCISE</code> /
+                Training plans need <code>getFeatureStatus(Feature.PLANNED_EXERCISE) === FeatureStatus.AVAILABLE</code>,
+                plus <code>READ_PLANNED_EXERCISE</code> /
                 <code>WRITE_PLANNED_EXERCISE</code>.
               </p>
               <div class="code">
@@ -736,6 +745,7 @@ for (const session of records) {
   ExercisePhase,
   Permission,
   RecordType,
+  now,
 } from '@solutionforest/android-health-connect';
 
 await requestPermissions([
@@ -743,12 +753,15 @@ await requestPermissions([
   Permission.WRITE_PLANNED_EXERCISE,
 ]);
 
+const start = now().addDays(2);
+const end = start.addMinutes(90);
+
 await writeRecords([
   {
     recordType: RecordType.PLANNED_EXERCISE_SESSION,
     exerciseType: ExerciseType.RUNNING,
-    startTime: '2024-01-03T08:00:00Z',
-    endTime: '2024-01-03T09:30:00Z',
+    startTime: start.toISOString(),
+    endTime: end.toISOString(),
     title: 'Lake run',
     blocks: [
       {
@@ -769,7 +782,9 @@ await writeRecords([
   },
 ]);
 
-const plans = await readPlannedExerciseSessions({ timeRangeFilter });</code></pre>
+const plans = await readPlannedExerciseSessions({
+  timeRangeFilter: now().until(now().addDays(14)),
+});</code></pre>
               </div>
             </section>
 
@@ -777,8 +792,8 @@ const plans = await readPlannedExerciseSessions({ timeRangeFilter });</code></pr
               <h2><span class="step">16</span>Matchmaking &amp; PHR<a class="anchor" href="#features">#</a></h2>
               <p>
                 Newer Health Connect features are not on every device. Always check
-                <code>getFeatureStatus</code> first. It returns <code>'available'</code> or
-                <code>'unavailable'</code>.
+                <code>getFeatureStatus(Feature.*)</code> first. It returns
+                <code>FeatureStatus.AVAILABLE</code> or <code>FeatureStatus.UNAVAILABLE</code>.
               </p>
               <div class="table">
                 <table>
@@ -808,10 +823,13 @@ const plans = await readPlannedExerciseSessions({ timeRangeFilter });</code></pr
   readMedicalResources,
   MedicalResourceType,
   RecordType,
+  Feature,
+  FeatureStatus,
+  FhirVersion,
 } from '@solutionforest/android-health-connect';
 
 // Matchmaking (experimental)
-if ((await getFeatureStatus('matchmaking')) === 'available') {
+if ((await getFeatureStatus(Feature.MATCHMAKING)) === FeatureStatus.AVAILABLE) {
   const { isMatchmakingPossible } = await checkIfMatchmakingIsPossible({
     recordTypes: [RecordType.STEPS, RecordType.HEART_RATE],
   });
@@ -821,11 +839,11 @@ if ((await getFeatureStatus('matchmaking')) === 'available') {
 }
 
 // Personal Health Record (experimental): FHIR data source + resources
-if ((await getFeatureStatus('personalHealthRecord')) === 'available') {
+if ((await getFeatureStatus(Feature.PERSONAL_HEALTH_RECORD)) === FeatureStatus.AVAILABLE) {
   const source = await createMedicalDataSource({
     displayName: 'Clinic FHIR',
     fhirBaseUri: 'https://example.com/fhir/',
-    fhirVersion: { major: 4, minor: 0, patch: 1 },
+    fhirVersion: FhirVersion.R4,
   });
   await upsertMedicalResources([
     {

@@ -101,7 +101,7 @@
               <h2><span class="step">42</span>All types<a class="anchor" href="#types">#</a></h2>
               <p>
                 Types marked "Needs feature" require
-                <code>getFeatureStatus(key) === 'available'</code> first. Each type also needs its matching <code>Permission.READ_*</code> /
+                <code>getFeatureStatus(Feature.*) === FeatureStatus.AVAILABLE</code> first. Each type also needs its matching <code>Permission.READ_*</code> /
                 <code>Permission.WRITE_*</code>.
               </p>
               <label class="filter">
@@ -169,6 +169,8 @@
   getFeatureStatus,
   timeRangeLastDays,
   RecordType,
+  Feature,
+  FeatureStatus,
 } from '@solutionforest/android-health-connect';
 import type { HydrationRecord } from '@solutionforest/android-health-connect';
 
@@ -176,7 +178,7 @@ const { records } = await readRecords&lt;HydrationRecord&gt;(RecordType.HYDRATIO
   timeRangeFilter: timeRangeLastDays(7),
 });
 
-if ((await getFeatureStatus('skinTemperature')) === 'available') {
+if ((await getFeatureStatus(Feature.SKIN_TEMPERATURE)) === FeatureStatus.AVAILABLE) {
   const skin = await readRecords(RecordType.SKIN_TEMPERATURE, {
     timeRangeFilter: timeRangeLastDays(7),
   });
