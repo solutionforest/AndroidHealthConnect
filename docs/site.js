@@ -3,7 +3,7 @@ const escapeHtml = (text) =>
 
 const TOKENS = {
   ts: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`[^`]*`)|\b(import|from|export|const|let|await|async|function|return|if|else|for|of|type|new|throw|continue|true|false|null)\b|\b(\d[\d_.]*)\b|([A-Za-z_$][\w$]*)(?=\()/g,
-  xml: /(<!--[\s\S]*?-->)|("[^"\n]*")|(<\/?[\w.:-]+|\/?>)/g,
+  xml: /(<!--[\s\S]*?--!?>)|("[^"\n]*")|(<\/?[\w.:-]+|\/?>)/g,
   sh: /(#[^\n]*)/g,
 };
 
