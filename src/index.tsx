@@ -109,6 +109,25 @@ export type {
   UseForegroundPollOptions,
   UseForegroundPollState,
 } from './foreground';
+export {
+  useHealthConnectAvailability,
+  useHealthConnectPermissions,
+  useReadRecords,
+  useMostRecentRecord,
+  useAggregate,
+  useChanges,
+} from './hooks';
+export type {
+  TimeRangeInput,
+  HealthQueryOptions,
+  HealthQueryState,
+  HealthConnectPermissionsStatus,
+  RequestHealthConnectPermissions,
+  UseReadRecordsOptions,
+  UseMostRecentRecordOptions,
+  UseAggregateOptions,
+  UseChangesOptions,
+} from './hooks';
 
 // ─── Availability ─────────────────────────────────────────────────────────────
 

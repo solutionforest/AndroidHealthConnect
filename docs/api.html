@@ -6,7 +6,7 @@
     <title>API reference — android-health-connect React Native TurboModule</title>
     <meta
       name="description"
-      content="API reference for the @solutionforest/android-health-connect TurboModule."
+      content="API reference for the @solutionforest/android-health-connect TurboModule and its React hooks."
     />
     <link rel="canonical" href="https://solutionforest.github.io/AndroidHealthConnect/api.html" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -14,7 +14,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="android-health-connect" />
     <meta property="og:title" content="API reference — android-health-connect React Native TurboModule" />
-    <meta property="og:description" content="API reference for the @solutionforest/android-health-connect TurboModule." />
+    <meta property="og:description" content="API reference for the @solutionforest/android-health-connect TurboModule and its React hooks." />
     <meta property="og:url" content="https://solutionforest.github.io/AndroidHealthConnect/api.html" />
     <meta property="og:image" content="https://solutionforest.github.io/AndroidHealthConnect/assets/og-cover.png" />
     <meta property="og:image:width" content="1200" />
@@ -22,7 +22,7 @@
     <meta property="og:image:alt" content="android-health-connect: Health Connect for React Native" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="API reference — android-health-connect React Native TurboModule" />
-    <meta name="twitter:description" content="API reference for the @solutionforest/android-health-connect TurboModule." />
+    <meta name="twitter:description" content="API reference for the @solutionforest/android-health-connect TurboModule and its React hooks." />
     <meta name="twitter:image" content="https://solutionforest.github.io/AndroidHealthConnect/assets/og-cover.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,6 +94,7 @@
               <a href="#availability">Availability</a>
               <a href="#permissions">Permissions &amp; helpers</a>
               <a href="#records">Records</a>
+              <a href="#hooks">React hooks</a>
               <a href="#features">Features, Matchmaking, PHR</a>
             </nav>
           </aside>
@@ -160,8 +161,32 @@
               </div>
             </section>
 
+            <section id="hooks">
+              <h2><span class="step">04</span>React hooks</h2>
+              <p>
+                Each hook fetches on mount, on every foreground resume and when its
+                arguments change, and ignores results after unmount. Data hooks return
+                <code>HealthQueryState&lt;T&gt;</code>: <code>{ value, satisfied, loading, error, refresh }</code>,
+                and accept <code>enabled</code>, <code>ready</code>, <code>timeoutMs</code> and
+                <code>intervalMs</code>. See the <a href="./guides.html#hooks">React hooks guide</a>.
+              </p>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Hook</th><th>Returns</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>useHealthConnectAvailability(opts?)</code></td><td><code>HealthQueryState&lt;HealthConnectAvailability&gt;</code></td><td>Availability, re-checked on resume</td></tr>
+                    <tr><td><code>useHealthConnectPermissions(perms, opts?)</code></td><td><code>[HealthQueryState&lt;EnsurePermissionsResult&gt;, request]</code></td><td>Granted / missing status, plus <code>request()</code> for the missing ones</td></tr>
+                    <tr><td><code>useReadRecords&lt;T&gt;(type, opts?)</code></td><td><code>HealthQueryState&lt;ReadRecordsResponse&lt;T&gt;&gt;</code></td><td>One page of records; <code>timeRangeFilter</code> may be a function</td></tr>
+                    <tr><td><code>useMostRecentRecord&lt;T&gt;(type, opts?)</code></td><td><code>HealthQueryState&lt;T | null&gt;</code></td><td>Newest record in the window (default: last 30 days)</td></tr>
+                    <tr><td><code>useAggregate(type, range, opts?)</code></td><td><code>HealthQueryState&lt;AggregateResult&gt;</code></td><td>Aggregate metrics; <code>range</code> may be a function</td></tr>
+                    <tr><td><code>useChanges(token, opts?)</code></td><td><code>HealthQueryState&lt;PullChangesResult&gt;</code></td><td>Changelog sync; continues from <code>nextChangesToken</code>, reports via <code>onChanges</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
             <section id="features">
-              <h2><span class="step">04</span>Features, Matchmaking, PHR</h2>
+              <h2><span class="step">05</span>Features, Matchmaking, PHR</h2>
               <p>Check <code>getFeatureStatus</code> before calling any of these.</p>
               <div class="table">
                 <table>
