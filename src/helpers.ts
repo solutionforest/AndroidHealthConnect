@@ -283,9 +283,10 @@ export type PollUntilResult<T> = {
 };
 
 function abortError(signal?: AbortSignal): Error {
-  const reason =
+  // RN 0.88's AbortSignal typings expose `reason` as `any`; narrow to unknown.
+  const reason: unknown =
     signal !== undefined && 'reason' in signal
-      ? (signal as AbortSignal & { reason?: unknown }).reason
+      ? (signal as { reason?: unknown }).reason
       : undefined;
   return reason instanceof Error ? reason : new Error('Aborted');
 }

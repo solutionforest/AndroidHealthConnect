@@ -48,6 +48,7 @@
 ## Requirements
 
 This library is a **TurboModule** — it needs **React Native 0.84+** (New Architecture).  
+CI builds and tests against **RN 0.88**; 0.84–0.87 remain supported (no 0.88-only APIs are used).  
 **RN 0.6x / 0.7x / &lt;0.84 are not supported** on either release line.
 
 Pick a line by Android toolchain (HC SDK / AGP), not by RN major:
@@ -70,11 +71,11 @@ yarn add @solutionforest/android-health-connect@0.2.4   # AGP 8.9.1+ / compileSd
 | Install | `@solutionforest/android-health-connect` from **npmjs.org** |
 | Health Connect Jetpack SDK | [`connect-client:1.2.0-alpha06`](https://developer.android.com/jetpack/androidx/releases/health-connect) |
 | Android Gradle Plugin | **9.1.1** (min **9.1.0**) |
-| Gradle | **9.3.1+** (required by AGP 9.1) |
+| Gradle | **9.3.1+** (required by AGP 9.1; RN 0.88 apps need **9.4.1+** for AGP 9.2) |
 | compileSdk | **37** |
 | Android OS | 10 (API 29)+ |
 | Health Connect app | Required on Android 9–13; built-in on Android 14+ |
-| React Native | **≥0.84** (New Architecture / TurboModules) — not 0.6x / 0.7x |
+| React Native | **≥0.84** (New Architecture / TurboModules), tested on **0.88** — not 0.6x / 0.7x |
 | Node.js | ≥22.22 |
 | Expo (optional) | SDK 50+ |
 
