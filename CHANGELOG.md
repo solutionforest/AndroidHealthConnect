@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.18] - 2026-11-26
+
+### Added
+
+- React hooks: `useHealthConnectAvailability`, `useHealthConnectPermissions`
+  (`[status, request]`), `useReadRecords`, `useMostRecentRecord`, `useAggregate`, and
+  `useChanges`. Data hooks share the `{ value, satisfied, loading, error, refresh }`
+  shape of `useForegroundPoll`, refetch on app foreground, and drop results after unmount
+  or argument changes.
+- `example-expo/`: a minimal Expo (SDK 58, dev client) example using the config plugin,
+  covering availability, permissions, 7-day steps, and an aggregate.
+
+### Changed
+
+- README: npm version and download badges, "React Native Health Connect" wording,
+  a pointer to `@kingstinct/react-native-healthkit` for iOS, and a Support & enterprise
+  section. The npm `description` was updated to match.
+
 ## [0.3.17] - 2026-11-26
 
 ### Changed
@@ -249,6 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Stable 0.2.x line (HC `1.1.0`, AGP 8.9 / sdk 36): GitHub Packages + hosted CI parity and security dependency fixes.
 
+[0.3.18]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.18
 [0.3.17]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.17
 [0.3.16]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.16
 [0.3.15]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.15
