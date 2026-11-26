@@ -731,6 +731,107 @@ if (batch.changesTokenExpired) {
 }
 ```
 
+### React hooks
+
+Typed hooks wrap the imperative API. Each one fetches on mount, fetches again
+whenever the app returns to the foreground (built on `pollOnForeground`),
+refetches when its arguments change (compared by value, so inline arrays and
+objects are fine), and drops results that arrive after unmount or for older
+arguments.
+
+```tsx
+import {
+  Permission,
+  RecordType,
+  timeRangeLastDays,
+  timeRangeToday,
+  useAggregate,
+  useHealthConnectAvailability,
+  useHealthConnectPermissions,
+  useMostRecentRecord,
+  useReadRecords,
+  type StepsRecord,
+  type WeightRecord,
+} from '@solutionforest/android-health-connect';
+
+function Dashboard() {
+  const availability = useHealthConnectAvailability();
+  const [perms, request] = useHealthConnectPermissions([
+    Permission.READ_STEPS,
+    Permission.READ_WEIGHT,
+  ]);
+  const ready =
+    availability.value === 'available' && perms.value?.allGranted === true;
+
+  // Pass a function for "now"-relative ranges: it is re-evaluated on every
+  // fetch and does not restart the query on re-render.
+  const today = useAggregate(RecordType.STEPS, () => timeRangeToday(), {
+    enabled: ready,
+  });
+  const week = useReadRecords<StepsRecord>(RecordType.STEPS, {
+    timeRangeFilter: () => timeRangeLastDays(7),
+    enabled: ready,
+  });
+  const weight = useMostRecentRecord<WeightRecord>(RecordType.WEIGHT, {
+    enabled: ready,
+  });
+
+  if (availability.value !== 'available') return <Text>Install Health Connect</Text>;
+  if (!perms.value?.allGranted) return <Button title="Allow access" onPress={() => void request()} />;
+  return (
+    <Text>
+      {String(today.value?.metrics['COUNT_TOTAL'] ?? '–')} steps today ·{' '}
+      {week.value?.records.length ?? 0} step records this week ·{' '}
+      {weight.value ? `${weight.value.weight} kg` : 'no weight'}
+    </Text>
+  );
+}
+```
+
+| Hook | `value` | Notes |
+|---|---|---|
+| `useHealthConnectAvailability(opts?)` | `'available' \| 'notInstalled' \| 'notSupported'` | Updates after the user installs HC and comes back |
+| `useHealthConnectPermissions(perms, opts?)` | `[status, request]`; `status.value` is `{ granted, missing, allGranted }` | `request()` shows the dialog for missing permissions only and resolves with the re-checked result |
+| `useReadRecords<T>(type, opts?)` | `ReadRecordsResponse<T>` | Same options as `readRecords`; `timeRangeFilter` may be a function |
+| `useMostRecentRecord<T>(type, opts?)` | `T \| null` | Newest record in the window (default: last 30 days) |
+| `useAggregate(type, range, opts?)` | `AggregateResult` | `range` may be a function, e.g. `() => timeRangeToday()` |
+| `useChanges(token, opts?)` | `PullChangesResult` | Changelog sync; see below |
+
+The data hooks return `{ value, satisfied, loading, error, refresh }`, the same
+shape as `useForegroundPoll`, and accept `enabled`, `ready`, `timeoutMs` and
+`intervalMs`. Without `ready` each fetch is a single read. Add `ready` to keep
+polling through the "0 right after resume" gap:
+
+```ts
+const steps = useAggregate(RecordType.STEPS, () => timeRangeToday(), {
+  ready: (r) => ((r.metrics['COUNT_TOTAL'] as number | null) ?? 0) > 0,
+  timeoutMs: 20_000,
+});
+// steps.satisfied === false → timed out; the value may be a real 0.
+```
+
+`useChanges(token, { onChanges })` drains the changelog with `pullChanges` on
+mount and on every resume. After each pull it continues from
+`nextChangesToken`, so persist that token in `onChanges`. Pass `null` to pause
+until you have a token. When `value.changesTokenExpired` is true, backfill and
+pass a fresh token from `getChangesToken`; a new `token` prop restarts from it.
+
+```tsx
+const [token, setToken] = useState<string | null>(storedToken);
+useChanges(token, {
+  onChanges: ({ upsertionChanges, deletionChanges, nextChangesToken, changesTokenExpired }) => {
+    if (changesTokenExpired) {
+      void backfill().then(() =>
+        getChangesToken({ recordTypes: [RecordType.STEPS] }).then(setToken)
+      );
+      return;
+    }
+    applyToLocalDb(upsertionChanges, deletionChanges);
+    saveToken(nextChangesToken);
+  },
+});
+```
+
 ## Supported record types
 
 > The 19 parity-batch types marked below are unit-tested but
@@ -907,6 +1008,19 @@ if (update.updateAvailable) {
 | `readSteps(options?)` | `Promise<ReadRecordsResponse<StepsRecord>>` | Convenience helper |
 | `readHeartRate(options?)` | … | Convenience helper |
 | *(and one per record type, including Mindfulness / SkinTemperature / ActivityIntensity)* | | |
+
+### React hooks
+
+| Hook | Returns | Description |
+|---|---|---|
+| `useHealthConnectAvailability(opts?)` | `HealthQueryState<HealthConnectAvailability>` | Availability, re-checked on resume |
+| `useHealthConnectPermissions(perms, opts?)` | `[HealthQueryState<EnsurePermissionsResult>, request]` | Granted/missing status + request function |
+| `useReadRecords<T>(type, opts?)` | `HealthQueryState<ReadRecordsResponse<T>>` | One page of records |
+| `useMostRecentRecord<T>(type, opts?)` | `HealthQueryState<T \| null>` | Newest record in the window |
+| `useAggregate(type, range, opts?)` | `HealthQueryState<AggregateResult>` | Aggregate metrics for a range |
+| `useChanges(token, opts?)` | `HealthQueryState<PullChangesResult>` | Changelog sync that advances its own token |
+
+`HealthQueryState<T>` is `{ value, satisfied, loading, error, refresh }`.
 
 ### Features / Matchmaking / PHR
 

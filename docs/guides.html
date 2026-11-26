@@ -6,7 +6,7 @@
     <title>Guides — Health Connect permissions, read, write, aggregates & sync</title>
     <meta
       name="description"
-      content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, resume polling, exercise routes, Matchmaking, PHR."
+      content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, React hooks, resume polling, exercise routes, Matchmaking, PHR."
     />
     <link rel="canonical" href="https://solutionforest.github.io/AndroidHealthConnect/guides.html" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -14,7 +14,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="android-health-connect" />
     <meta property="og:title" content="Guides — Health Connect permissions, read, write, aggregates & sync" />
-    <meta property="og:description" content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, resume polling, exercise routes, Matchmaking, PHR." />
+    <meta property="og:description" content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, React hooks, resume polling, exercise routes, Matchmaking, PHR." />
     <meta property="og:url" content="https://solutionforest.github.io/AndroidHealthConnect/guides.html" />
     <meta property="og:image" content="https://solutionforest.github.io/AndroidHealthConnect/assets/og-cover.png" />
     <meta property="og:image:width" content="1200" />
@@ -22,7 +22,7 @@
     <meta property="og:image:alt" content="android-health-connect: Health Connect for React Native" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Guides — Health Connect permissions, read, write, aggregates & sync" />
-    <meta name="twitter:description" content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, resume polling, exercise routes, Matchmaking, PHR." />
+    <meta name="twitter:description" content="Usage guides for @solutionforest/android-health-connect: availability, permissions, read, write, update, delete, aggregates, changelog sync, React hooks, resume polling, exercise routes, Matchmaking, PHR." />
     <meta name="twitter:image" content="https://solutionforest.github.io/AndroidHealthConnect/assets/og-cover.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -106,6 +106,7 @@
               <a href="#wait">Wait after writing</a>
               <a href="#aggregates">Aggregates</a>
               <a href="#changelog">Changelog sync</a>
+              <a href="#hooks">React hooks</a>
               <h4>Advanced</h4>
               <a href="#routes">Exercise routes</a>
               <a href="#planned">Planned exercise</a>
@@ -130,11 +131,12 @@
               <a href="#wait"><span>11</span>Wait after writing</a>
               <a href="#aggregates"><span>12</span>Aggregates</a>
               <a href="#changelog"><span>13</span>Changelog sync</a>
-              <a href="#routes"><span>14</span>Exercise routes</a>
-              <a href="#planned"><span>15</span>Planned exercise</a>
-              <a href="#features"><span>16</span>Matchmaking &amp; PHR</a>
-              <a href="#upgrades"><span>17</span>Upgrade reminders</a>
-              <a href="#mistakes"><span>18</span>Common mistakes</a>
+              <a href="#hooks"><span>14</span>React hooks</a>
+              <a href="#routes"><span>15</span>Exercise routes</a>
+              <a href="#planned"><span>16</span>Planned exercise</a>
+              <a href="#features"><span>17</span>Matchmaking &amp; PHR</a>
+              <a href="#upgrades"><span>18</span>Upgrade reminders</a>
+              <a href="#mistakes"><span>19</span>Common mistakes</a>
             </div>
 
             <section id="availability">
@@ -655,8 +657,124 @@ if (batch.changesTokenExpired) {
               </div>
             </section>
 
+            <section id="hooks">
+              <h2><span class="step">14</span>React hooks<a class="anchor" href="#hooks">#</a></h2>
+              <p>
+                Typed hooks wrap the imperative API. Each one fetches on mount, fetches
+                again whenever the app returns to the foreground (built on
+                <code>pollOnForeground</code>), refetches when its arguments change
+                (compared by value, so inline arrays and objects are fine), and drops
+                results that arrive after unmount or for older arguments.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>Dashboard.tsx</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>import { Button, Text } from 'react-native';
+import {
+  Permission,
+  RecordType,
+  timeRangeLastDays,
+  timeRangeToday,
+  useAggregate,
+  useHealthConnectAvailability,
+  useHealthConnectPermissions,
+  useMostRecentRecord,
+  useReadRecords,
+  type StepsRecord,
+  type WeightRecord,
+} from '@solutionforest/android-health-connect';
+
+export function Dashboard() {
+  const availability = useHealthConnectAvailability();
+  const [perms, request] = useHealthConnectPermissions([
+    Permission.READ_STEPS,
+    Permission.READ_WEIGHT,
+  ]);
+  const ready =
+    availability.value === 'available' &amp;&amp; perms.value?.allGranted === true;
+
+  // Pass a function for "now"-relative ranges: it is re-evaluated on every
+  // fetch and does not restart the query on re-render.
+  const today = useAggregate(RecordType.STEPS, () =&gt; timeRangeToday(), { enabled: ready });
+  const week = useReadRecords&lt;StepsRecord&gt;(RecordType.STEPS, {
+    timeRangeFilter: () =&gt; timeRangeLastDays(7),
+    enabled: ready,
+  });
+  const weight = useMostRecentRecord&lt;WeightRecord&gt;(RecordType.WEIGHT, {
+    enabled: ready,
+  });
+
+  if (availability.value !== 'available') return &lt;Text&gt;Install Health Connect&lt;/Text&gt;;
+  if (!perms.value?.allGranted) {
+    return &lt;Button title="Allow access" onPress={() =&gt; void request()} /&gt;;
+  }
+  return (
+    &lt;Text&gt;
+      {String(today.value?.metrics['COUNT_TOTAL'] ?? '–')} steps today ·{' '}
+      {week.value?.records.length ?? 0} step records this week ·{' '}
+      {weight.value ? `${weight.value.weight} kg` : 'no weight'}
+    &lt;/Text&gt;
+  );
+}</code></pre>
+              </div>
+              <div class="table">
+                <table>
+                  <thead><tr><th>Hook</th><th><code>value</code></th><th>Notes</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>useHealthConnectAvailability(opts?)</code></td><td><code>'available' | 'notInstalled' | 'notSupported'</code></td><td>Updates after the user installs Health Connect and comes back</td></tr>
+                    <tr><td><code>useHealthConnectPermissions(perms, opts?)</code></td><td><code>[status, request]</code>; <code>status.value</code> is <code>{ granted, missing, allGranted }</code></td><td><code>request()</code> shows the dialog for missing permissions only and resolves with the re-checked result</td></tr>
+                    <tr><td><code>useReadRecords&lt;T&gt;(type, opts?)</code></td><td><code>ReadRecordsResponse&lt;T&gt;</code></td><td>Same options as <code>readRecords</code>; <code>timeRangeFilter</code> may be a function</td></tr>
+                    <tr><td><code>useMostRecentRecord&lt;T&gt;(type, opts?)</code></td><td><code>T | null</code></td><td>Newest record in the window (default: last 30 days)</td></tr>
+                    <tr><td><code>useAggregate(type, range, opts?)</code></td><td><code>AggregateResult</code></td><td><code>range</code> may be a function, such as <code>() =&gt; timeRangeToday()</code></td></tr>
+                    <tr><td><code>useChanges(token, opts?)</code></td><td><code>PullChangesResult</code></td><td>Changelog sync that continues from <code>nextChangesToken</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                The data hooks return <code>{ value, satisfied, loading, error, refresh }</code>,
+                the same shape as <code>useForegroundPoll</code>, and accept
+                <code>enabled</code>, <code>ready</code>, <code>timeoutMs</code> and
+                <code>intervalMs</code>. Without <code>ready</code>, each fetch is a single
+                read. Add <code>ready</code> to keep polling through the
+                <a href="#resume">"0 right after resume"</a> gap:
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>steps.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>const steps = useAggregate(RecordType.STEPS, () =&gt; timeRangeToday(), {
+  ready: (r) =&gt; ((r.metrics['COUNT_TOTAL'] as number | null) ?? 0) &gt; 0,
+  timeoutMs: 20_000,
+});
+// steps.satisfied === false → timed out; the value may be a real 0</code></pre>
+              </div>
+              <h3>Changelog sync with <code>useChanges</code></h3>
+              <p>
+                <code>useChanges(token, { onChanges })</code> drains the changelog with
+                <code>pullChanges</code> on mount and on every resume. After each pull it
+                continues from <code>nextChangesToken</code>, so persist that token in
+                <code>onChanges</code>. Pass <code>null</code> to pause until you have a
+                token. When <code>changesTokenExpired</code> is true, backfill and pass a
+                fresh token from <code>getChangesToken</code>; a new <code>token</code>
+                restarts from it.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>useStepsSync.ts</span><button class="copy" data-copy>Copy</button></div>
+                <pre data-lang="ts"><code>const [token, setToken] = useState&lt;string | null&gt;(storedToken);
+useChanges(token, {
+  onChanges: ({ upsertionChanges, deletionChanges, nextChangesToken, changesTokenExpired }) =&gt; {
+    if (changesTokenExpired) {
+      void backfill().then(() =&gt;
+        getChangesToken({ recordTypes: [RecordType.STEPS] }).then(setToken),
+      );
+      return;
+    }
+    applyToLocalDb(upsertionChanges, deletionChanges);
+    saveToken(nextChangesToken);
+  },
+});</code></pre>
+              </div>
+            </section>
+
             <section id="routes">
-              <h2><span class="step">14</span>Exercise routes<a class="anchor" href="#routes">#</a></h2>
+              <h2><span class="step">15</span>Exercise routes<a class="anchor" href="#routes">#</a></h2>
               <p>
                 Writing a route with a session needs <code>WRITE_EXERCISE_ROUTE</code>;
                 reading routes from other apps needs <code>READ_EXERCISE_ROUTES</code>. On
@@ -728,7 +846,7 @@ for (const session of records) {
             </section>
 
             <section id="planned">
-              <h2><span class="step">15</span>Planned exercise<a class="anchor" href="#planned">#</a></h2>
+              <h2><span class="step">16</span>Planned exercise<a class="anchor" href="#planned">#</a></h2>
               <p>
                 Training plans need <code>getFeatureStatus(Feature.PLANNED_EXERCISE) === FeatureStatus.AVAILABLE</code>,
                 plus <code>READ_PLANNED_EXERCISE</code> /
@@ -789,7 +907,7 @@ const plans = await readPlannedExerciseSessions({
             </section>
 
             <section id="features">
-              <h2><span class="step">16</span>Matchmaking &amp; PHR<a class="anchor" href="#features">#</a></h2>
+              <h2><span class="step">17</span>Matchmaking &amp; PHR<a class="anchor" href="#features">#</a></h2>
               <p>
                 Newer Health Connect features are not on every device. Always check
                 <code>getFeatureStatus(Feature.*)</code> first. It returns
@@ -861,7 +979,7 @@ if ((await getFeatureStatus(Feature.PERSONAL_HEALTH_RECORD)) === FeatureStatus.A
             </section>
 
             <section id="upgrades">
-              <h2><span class="step">17</span>Upgrade reminders<a class="anchor" href="#upgrades">#</a></h2>
+              <h2><span class="step">18</span>Upgrade reminders<a class="anchor" href="#upgrades">#</a></h2>
               <p>
                 <code>checkLibraryUpdate</code> compares the installed version with the
                 latest GitHub Release, so you can show a banner in debug builds.
@@ -881,7 +999,7 @@ if (update.updateAvailable) {
             </section>
 
             <section id="mistakes">
-              <h2><span class="step">18</span>Common mistakes<a class="anchor" href="#mistakes">#</a></h2>
+              <h2><span class="step">19</span>Common mistakes<a class="anchor" href="#mistakes">#</a></h2>
               <div class="table">
                 <table>
                   <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>

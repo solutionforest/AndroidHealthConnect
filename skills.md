@@ -4,7 +4,7 @@ description: >-
   Integrate Solution Forest's React Native TurboModule for Android Health
   Connect (@solutionforest/android-health-connect). Use when adding HC
   permissions, reading/writing health records, aggregates, changelog sync,
-  Matchmaking, PHR, Expo plugin setup, or choosing npmjs vs GitHub Packages.
+  React hooks, Matchmaking, PHR, Expo plugin setup, or choosing npmjs vs GitHub Packages.
 ---
 
 # android-health-connect
@@ -14,6 +14,7 @@ description: >-
 - Wiring Android Health Connect into a React Native / Expo app
 - Choosing install source: **npmjs.org (primary)** or **GitHub Packages (mirror)**
 - Implementing availability, permissions, records, aggregates, or resume polling
+- Building React screens with the hooks (`useHealthConnectPermissions`, `useAggregate`, …)
 
 ## Do not
 
@@ -23,6 +24,7 @@ description: >-
 - Hand-type permission strings when `Permission.*` exists
 - Hand-type record type strings when `RecordType.*` exists (`RecordType.STEPS`, not `'Steps'`)
 - Expect push/live updates from Health Connect — poll on resume
+- Pass `timeRangeToday()` (a new object each render) to a hook — pass `() => timeRangeToday()`
 
 ## Install
 
@@ -85,6 +87,27 @@ const { value, loading, refresh } = useForegroundPoll(
 ```
 
 Non-React: `pollOnForeground` / `pollUntil` / `waitUntil`.
+
+**React components: prefer the typed hooks.** They fetch on mount, on every resume and when their arguments change, and ignore results after unmount. Data hooks return `{ value, satisfied, loading, error, refresh }` and accept `enabled`, `ready`, `timeoutMs`, `intervalMs`.
+
+| Hook | `value` |
+|---|---|
+| `useHealthConnectAvailability()` | `'available' \| 'notInstalled' \| 'notSupported'` |
+| `useHealthConnectPermissions(perms)` | `[status, request]`; `status.value` = `{ granted, missing, allGranted }` |
+| `useReadRecords<T>(RecordType.X, opts)` | `ReadRecordsResponse<T>` |
+| `useMostRecentRecord<T>(RecordType.X, opts?)` | `T \| null` |
+| `useAggregate(RecordType.X, range, opts?)` | `AggregateResult` |
+| `useChanges(token, { onChanges })` | `PullChangesResult`; continues from `nextChangesToken`, persist it in `onChanges` |
+
+```tsx
+const [perms, request] = useHealthConnectPermissions([Permission.READ_STEPS]);
+const today = useAggregate(RecordType.STEPS, () => timeRangeToday(), {
+  enabled: perms.value?.allGranted === true,
+  ready: (r) => ((r.metrics['COUNT_TOTAL'] as number | null) ?? 0) > 0,
+});
+```
+
+Pass "now"-relative ranges as a **function** (`() => timeRangeToday()`), not `timeRangeToday()`: a function is re-evaluated per fetch, while a fresh object each render changes the arguments and refetches every render.
 
 5. **Write / update** — `writeRecords([{ recordType: RecordType.STEPS, … }])`; `updateRecords` requires `metadata.id` from a prior read.
 6. **Aggregates** — `aggregateRecord`, `aggregateGroupByDuration` (Instant buckets), `aggregateGroupByPeriod` (calendar).
