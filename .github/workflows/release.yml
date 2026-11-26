@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build/upload/publish (e.g. v0.3.17). Leave empty to use package.json version.'
+        description: 'Existing tag to build/upload/publish (e.g. v0.3.18). Leave empty to use package.json version.'
         required: false
         type: string
 

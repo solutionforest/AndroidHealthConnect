@@ -1,6 +1,6 @@
 {
   "name": "@solutionforest/android-health-connect",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "React Native Health Connect library for Android — TurboModule to read/write health records (steps, heart rate, sleep, 42 types), permissions, aggregates, matchmaking, and PHR helpers.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
