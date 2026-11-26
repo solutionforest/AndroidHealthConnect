@@ -4276,6 +4276,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native/gradle-plugin@patch:@react-native/gradle-plugin@npm%3A0.88.1#~/.yarn/patches/@react-native-gradle-plugin-npm-0.88.1-29b90e0737.patch":
+  version: 0.88.1
+  resolution: "@react-native/gradle-plugin@patch:@react-native/gradle-plugin@npm%3A0.88.1#~/.yarn/patches/@react-native-gradle-plugin-npm-0.88.1-29b90e0737.patch::version=0.88.1&hash=2a929e"
+  checksum: 10c0/e632e15588583c9594e9d94e30cc4c7dac7294ad30913afe33d57eabd119aa7cd297abf6c6c25ce4f24449d788f065052b95d5d8964eb306ebf63d3afe164274
+  languageName: node
+  linkType: hard
+
 "@react-native/jest-preset@npm:0.88.1":
   version: 0.88.1
   resolution: "@react-native/jest-preset@npm:0.88.1"

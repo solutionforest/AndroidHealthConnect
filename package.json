@@ -265,6 +265,7 @@
     "minimatch@^10.2.2": "^11.0.1",
     "fast-xml-parser": "^5.12.0",
     "glob@^10.5.0": "^14.0.2",
-    "glob@^13.0.0": "^14.0.2"
+    "glob@^13.0.0": "^14.0.2",
+    "@react-native/gradle-plugin@npm:0.88.1": "patch:@react-native/gradle-plugin@npm%3A0.88.1#~/.yarn/patches/@react-native-gradle-plugin-npm-0.88.1-29b90e0737.patch"
   }
 }
