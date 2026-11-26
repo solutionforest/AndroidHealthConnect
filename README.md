@@ -2,12 +2,15 @@
   <img src="docs/assets/og-cover.png" alt="android-health-connect — Android Health Connect for React Native (TurboModule, 42 record types, Expo plugin)" width="720" />
 </p>
 
-<h1 align="center">android-health-connect — Android Health Connect for React Native</h1>
+<h1 align="center">android-health-connect — React Native Health Connect library for Android</h1>
 
-<p align="center"><strong>Read and write steps, heart rate, sleep, workouts and 42 Health Connect record types from React Native — TypeScript-first TurboModule with an Expo config plugin.</strong></p>
+<p align="center"><strong>React Native Health Connect: read and write steps, heart rate, sleep, workouts and 42 Health Connect record types from React Native — TypeScript-first TurboModule with an Expo config plugin.</strong></p>
 
 <p align="center">
   <a href="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml"><img src="https://github.com/solutionforest/AndroidHealthConnect/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect"><img src="https://img.shields.io/npm/v/@solutionforest/android-health-connect.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect"><img src="https://img.shields.io/npm/dt/@solutionforest/android-health-connect.svg" alt="npm total downloads" /></a>
+  <a href="https://www.npmjs.com/package/@solutionforest/android-health-connect"><img src="https://img.shields.io/npm/dm/@solutionforest/android-health-connect.svg" alt="npm monthly downloads" /></a>
   <a href="https://github.com/solutionforest/AndroidHealthConnect/releases"><img src="https://img.shields.io/github/v/release/solutionforest/AndroidHealthConnect" alt="GitHub release" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://developer.android.com/health-and-fitness/health-connect"><img src="https://img.shields.io/badge/platform-Android-3DDC84.svg" alt="Platform" /></a>
@@ -17,9 +20,9 @@
   <img src="https://img.shields.io/badge/quality-max--strict-0F172A.svg" alt="Quality max-strict" />
 </p>
 
-**android-health-connect** is a React Native library (TurboModule, TypeScript, Expo-compatible) for integrating with [Android Health Connect](https://developer.android.com/health-and-fitness/health-connect) — the unified health & fitness data platform on Android 10+ (API 29+).
+**android-health-connect** is a React Native Health Connect library (TurboModule, TypeScript, Expo-compatible) for integrating with [Android Health Connect](https://developer.android.com/health-and-fitness/health-connect) — the unified health & fitness data platform on Android 10+ (API 29+).
 
-> **Android only.** This library has no iOS implementation.
+> **iOS?** This library is Android-only. For Apple HealthKit on iOS, use [`@kingstinct/react-native-healthkit`](https://github.com/kingstinct/react-native-healthkit) alongside it.
 
 **Docs site:** [solutionforest.github.io/AndroidHealthConnect](https://solutionforest.github.io/AndroidHealthConnect/) ([guides](https://solutionforest.github.io/AndroidHealthConnect/guides.html) · [record types](https://solutionforest.github.io/AndroidHealthConnect/records.html)) · **AI agent skill:** [skills.md](./skills.md) ([install it](#ai-agent-skill-skillsmd))
 
@@ -921,6 +924,12 @@ if (update.updateAvailable) {
 | `upsertMedicalResources(reqs)` | `Promise<MedicalResource[]>` | Insert/update FHIR resources |
 | `readMedicalResources(req)` | `Promise<ReadMedicalResourcesResponse>` | Paged medical resource read |
 | `deleteMedicalResources(req)` | `Promise<void>` | Delete by IDs or filters |
+
+## Support & enterprise
+
+`android-health-connect` is built and maintained by [Solution Forest](https://solutionforest.com). If you ship it in a production app, we can help with Health Connect integrations, custom record types, Play Console health declarations and long-term maintenance. Contact us through [solutionforest.com](https://solutionforest.com).
+
+Bug reports and feature requests go to [GitHub Issues](https://github.com/solutionforest/AndroidHealthConnect/issues). For security issues, follow [SECURITY.md](./SECURITY.md).
 
 ## Contributing
 
