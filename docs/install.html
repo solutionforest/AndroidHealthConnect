@@ -95,6 +95,7 @@
               <a href="#registries">Registries</a>
               <a href="#versions">Version lines</a>
               <a href="#requirements">Requirements</a>
+              <a href="#expo">Expo</a>
               <a href="#ai-skill">AI agent skill</a>
               <a href="#alternatives">Alternatives</a>
             </nav>
@@ -182,8 +183,48 @@ yarn add @solutionforest/android-health-connect@release-0.2</code></pre>
               </div>
             </section>
 
+            <section id="expo">
+              <h2><span class="step">04</span>Expo</h2>
+              <p>
+                Add the config plugin to <code>app.json</code> and list the permissions
+                your app uses. On prebuild it writes them, plus the Health Connect intent
+                filters, into <code>AndroidManifest.xml</code>.
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>app.json</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>{
+  "expo": {
+    "plugins": [
+      "expo-dev-client",
+      ["expo-build-properties", { "android": { "minSdkVersion": 29 } }],
+      [
+        "@solutionforest/android-health-connect",
+        { "permissions": ["android.permission.health.READ_STEPS"] }
+      ]
+    ]
+  }
+}</code></pre>
+              </div>
+              <p>
+                Health Connect is a native module, so it does not run in Expo Go. Build a
+                development client instead:
+              </p>
+              <div class="code">
+                <div class="code__bar"><span>terminal</span><button class="copy" data-copy>Copy</button></div>
+                <pre><code>npx expo install expo-dev-client expo-build-properties
+npx expo prebuild --platform android
+npx expo run:android</code></pre>
+              </div>
+              <p>
+                The
+                <a href="https://github.com/solutionforest/AndroidHealthConnect/tree/main/example-expo">Expo example app</a>
+                (Expo SDK 58, React Native 0.88) shows the full flow: availability,
+                permission request, the last 7 days of steps, and an aggregate.
+              </p>
+            </section>
+
             <section id="ai-skill">
-              <h2><span class="step">04</span>Install the AI agent skill</h2>
+              <h2><span class="step">05</span>Install the AI agent skill</h2>
               <p>
                 The package includes <code>skills.md</code>, a skill file that tells
                 coding agents how to use this library: which version line to pick, the
@@ -230,7 +271,7 @@ cp node_modules/@solutionforest/android-health-connect/skills.md \
             </section>
 
             <section id="alternatives">
-              <h2><span class="step">05</span>Alternatives</h2>
+              <h2><span class="step">06</span>Alternatives</h2>
               <ul>
                 <li>Git: <code>solutionforest/AndroidHealthConnect#v0.3.17</code></li>
                 <li>

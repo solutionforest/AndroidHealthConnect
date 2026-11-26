@@ -1,0 +1,29 @@
+{
+  "name": "android-health-connect-expo-example",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "prebuild": "expo prebuild --platform android",
+    "android": "expo run:android",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solutionforest/android-health-connect": "workspace:*",
+    "expo": "~58.0.26",
+    "expo-build-properties": "~58.0.12",
+    "expo-dev-client": "~58.0.21",
+    "expo-status-bar": "~58.0.5",
+    "react": "19.3.1",
+    "react-native": "0.88.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "react-native-monorepo-config": "^0.4.0",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=22.11.0"
+  }
+}

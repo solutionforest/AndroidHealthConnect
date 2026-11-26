@@ -178,6 +178,7 @@ export default defineConfig([
       'plugin/build/',
       '.github/scripts/',
       'example/',
+      'example-expo/',
       'coverage/',
     ],
   },

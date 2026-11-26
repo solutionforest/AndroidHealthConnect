@@ -29,6 +29,9 @@ jobs:
       - name: Typecheck files
         run: yarn typecheck
 
+      - name: Typecheck Expo example
+        run: yarn example:expo typecheck
+
   test:
     runs-on: ubuntu-latest
 

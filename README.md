@@ -211,6 +211,22 @@ your app needs:
 
 After updating `app.json`, run `npx expo prebuild` to regenerate the native Android project.
 
+Health Connect is a native module, so it doesn't run in Expo Go. Use a
+[development build](https://docs.expo.dev/develop/development-builds/introduction/):
+
+```sh
+npx expo install expo-dev-client
+npx expo prebuild --platform android
+npx expo run:android
+```
+
+The library needs `minSdkVersion` 29. If your app targets lower, raise it with
+[`expo-build-properties`](https://docs.expo.dev/versions/latest/sdk/build-properties/).
+
+For a working setup, see the **[Expo example app](example-expo/)** (Expo SDK 58,
+dev client, config plugin). It checks availability, requests permission, reads
+the last 7 days of steps and aggregates them.
+
 ### Android setup (bare React Native)
 
 #### 1. Declare permissions in your app's `AndroidManifest.xml`
