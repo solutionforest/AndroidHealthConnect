@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.17] - 2026-11-26
+
+### Changed
+
+- Dev toolchain moved to React Native 0.88 (`@react-native/jest-preset`, builder-bob 0.44),
+  ESLint 10 (flat config with explicit plugins), commitlint 21, release-it 21, and
+  Gradle wrapper 9.9.2 for the example app. The published library still supports RN ≥ 0.84.
+- `abortError` narrows `AbortSignal.reason` to `unknown` for RN 0.88 typings. Runtime behavior is unchanged.
+- Docs site: SEO metadata (canonical, Open Graph, Twitter cards, JSON-LD), `sitemap.xml`,
+  `robots.txt`, and a new cover and social-share artwork.
+- CI: `actions/upload-pages-artifact` v5 and `actions/deploy-pages` v5; Robolectric 4.18.1.
+
+### Fixed
+
+- Docs code highlighter regex now matches the `--!>` comment end (CodeQL `js/bad-tag-filter`).
+
 ## [0.3.16] - 2026-11-24
 
 ### Added
@@ -233,6 +249,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Stable 0.2.x line (HC `1.1.0`, AGP 8.9 / sdk 36): GitHub Packages + hosted CI parity and security dependency fixes.
 
+[0.3.17]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.17
 [0.3.16]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.16
 [0.3.15]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.15
 [0.3.14]: https://github.com/solutionforest/AndroidHealthConnect/releases/tag/v0.3.14
