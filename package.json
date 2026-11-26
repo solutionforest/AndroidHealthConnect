@@ -47,6 +47,7 @@
   ],
   "scripts": {
     "example": "yarn workspace android-health-connect-example",
+    "example:expo": "yarn workspace android-health-connect-expo-example",
     "clean": "del-cli android/build example/android/build example/android/app/build lib",
     "prepare": "bob build && tsc -p plugin/tsconfig.json",
     "plugin:build": "tsc -p plugin/tsconfig.json",
@@ -138,7 +139,8 @@
     }
   },
   "workspaces": [
-    "example"
+    "example",
+    "example-expo"
   ],
   "packageManager": "yarn@4.11.0",
   "react-native-builder-bob": {

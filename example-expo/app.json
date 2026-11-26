@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Health Connect Expo Example",
+    "slug": "android-health-connect-expo-example",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "platforms": ["android"],
+    "android": {
+      "package": "com.solutionforest.healthconnect.expoexample"
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 29
+          }
+        }
+      ],
+      [
+        "@solutionforest/android-health-connect",
+        {
+          "permissions": ["android.permission.health.READ_STEPS"]
+        }
+      ]
+    ]
+  }
+}
